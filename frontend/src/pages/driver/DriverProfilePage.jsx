@@ -34,15 +34,14 @@ export default function DriverProfilePage() {
 
   const infoFields = [
     ['Full Name', user?.name, User],
-    ['License No.', user?.licenseNo || 'DRV12345', Briefcase],
-    ['Bus Number', user?.assignedBusNumber || 'TS 09 AB 1234', Bus],
-    ['Bus Model', 'TATA Starbus', Bus],
-    ['Assigned Route', 'R1, R2', MapPin],
-    ['Experience', user?.experience || '5 Years', Briefcase],
-    ['Email', user?.email, Mail],
+    ['License No.', user?.licenseNo || '—', Briefcase],
+    ['Bus Number', user?.assignedBusNumber || '—', Bus],
+    ['Assigned Route', user?.assignedRouteId || '12', MapPin],
+    ['Experience', user?.experience || '—', Briefcase],
+    ['Email', user?.email || '—', Mail],
     ['Address', user?.address || 'Hyderabad, Telangana', MapPin],
-    ['Phone', user?.phone, Phone],
-    ['Emergency Contact', user?.emergencyContact || 'Ravi Kumar · +91 91234 56789', AlertCircle],
+    ['Phone', user?.phone || '—', Phone],
+    ['Emergency Contact', user?.emergencyContact || '—', AlertCircle],
   ]
 
   return (
@@ -59,8 +58,8 @@ export default function DriverProfilePage() {
           <p className="text-sm text-[#40A047] font-semibold mt-1">{user?.rollNumber}</p>
           <p className="text-xs text-gray-500 mt-1">Bus Driver</p>
           <div className="mt-3 p-2 bg-green-50 rounded-xl">
-            <p className="text-xs font-bold text-green-700">TS 09 AB 1234</p>
-            <p className="text-xs text-gray-500">Assigned Bus</p>
+            <p className="text-xs font-bold text-green-700">{user?.assignedBusNumber || '—'}</p>
+            <p className="text-xs text-gray-500">Assigned Bus · Route {user?.assignedRouteId || '12'}</p>
           </div>
           {!editing
             ? <button onClick={() => setEditing(true)} className="mt-4 w-full py-2 bg-green-50 text-[#40A047] font-bold rounded-xl text-xs hover:bg-green-100 transition-colors flex items-center justify-center gap-1.5"><Edit3 size={12} /> Edit Profile</button>

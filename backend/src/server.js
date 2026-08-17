@@ -4,7 +4,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import connectDB from './config/db.js';
+import prisma from './lib/prisma.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 
 import authRoutes from './routes/auth.js';
@@ -22,6 +22,12 @@ import passengerRoutes from './routes/passengers.js';
 import settingsRoutes from './routes/settings.js';
 import analyticsRoutes from './routes/analytics.js';
 import liveLocationRoutes from './routes/live-location.js';
+import paymentRoutes from './routes/payments.js';
+import trackingRoutes from './routes/tracking.js';
+import hypegpsRoutes from './routes/hypegps.js';
+import studentRoutes from './routes/students.js';
+import passRoutes from './routes/pass.js';
+import importRoutes from './routes/import.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -35,11 +41,19 @@ if (!process.env.JWT_SECRET) {
   process.exit(1);
 }
 
+// Fail fast if the PostgreSQL connection string is missing.
+if (!process.env.DATABASE_URL) {
+  console.error('FATAL: DATABASE_URL is not set. Create backend/.env (see backend/.env.example).');
+  process.exit(1);
+}
+
 const app = express();
 
-connectDB().catch((err) => {
-  console.error('DB connection failed:', err.message);
-});
+prisma.$connect()
+  .then(() => console.log('PostgreSQL connected'))
+  .catch((err) => {
+    console.error('DB connection failed:', err.message);
+  });
 
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }));
 app.use(express.json());
@@ -60,6 +74,12 @@ app.use('/api/passengers', passengerRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/live-location', liveLocationRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/tracking', trackingRoutes);
+app.use('/api/hypegps', hypegpsRoutes);
+app.use('/api/students', studentRoutes);
+app.use('/api/pass', passRoutes);
+app.use('/api/import', importRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 

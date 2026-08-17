@@ -1,12 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { bookingService } from '../../api/services.js'
+import { bookingService, paymentService, routeService } from '../../api/services.js'
 import { useAuth } from '../../hooks/useAuth.js'
-import { ROUTES_DATA, formatCurrency } from '../../utils/helpers.js'
-import { CheckCircle, Bus, MapPin, Clock, Wallet, CreditCard, Building, QrCode, ChevronRight } from 'lucide-react'
+import { formatCurrency } from '../../utils/helpers.js'
+import { CheckCircle, Bus, MapPin, Clock, Wallet, CreditCard, Building, QrCode } from 'lucide-react'
 
 const PAYMENT_METHODS = [
   { id: 'UPI', label: 'UPI Instant', sub: 'Google Pay, PhonePe, Paytm', icon: QrCode },
@@ -21,31 +20,76 @@ export default function PaymentPage() {
   const location = useLocation()
   const stateData = location.state || {}
 
-  const [selectedRoute, setSelectedRoute] = useState(
-    stateData.selectedRoute || ROUTES_DATA.find(r => r.id === (user?.assignedRouteId || 'R1')) || ROUTES_DATA[0]
-  )
-  const [selectedPickup, setSelectedPickup] = useState(selectedRoute.pickupPoint)
+  const [routes, setRoutes] = useState([])
+  const [selectedRoute, setSelectedRoute] = useState(null)
+  const [selectedPickup, setSelectedPickup] = useState('')
   const [selectedMethod, setSelectedMethod] = useState('UPI')
-  const [selectedSeat] = useState(stateData.selectedSeat || 11)
+  // Resume-payment mode: when arriving from My Pass with an existing Pending
+  // booking, we skip seat booking and only record the payment.
+  const resumeBookingId = stateData.bookingId || null
+  const [selectedSeat] = useState(stateData.selectedSeat || stateData.pendingSeat || null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
+  useEffect(() => {
+    routeService.getAll()
+      .then(r => {
+        const list = r.data || []
+        setRoutes(list)
+        const initial = list.find(x => x.id === (stateData.selectedRouteId || user?.assignedRouteId || '12')) || list[0]
+        if (initial) {
+          setSelectedRoute(initial)
+          setSelectedPickup(initial.pickupPoint)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    // If we're resuming payment, load the pending booking to prefill details.
+    if (!resumeBookingId) return
+    bookingService.getMy()
+      .then(r => {
+        if (r.data) {
+          setSelectedPickup(r.data.pickupPoint || selectedPickup)
+        }
+      })
+      .catch(() => {})
+  }, [resumeBookingId])
+
   const handlePay = async () => {
+    if (!selectedRoute || !selectedSeat) {
+      toast.error('Select a seat first')
+      return
+    }
     setLoading(true)
     try {
-      await bookingService.create({
-        routeId: selectedRoute.id,
-        seatNumber: selectedSeat,
-        pickupPoint: selectedPickup,
-        paymentMethod: selectedMethod,
-        busNumber: selectedRoute.busNumber,
-        routeName: selectedRoute.name,
-      })
+      let bookingId = resumeBookingId
+
+      if (!bookingId) {
+        if (!selectedSeat) {
+          toast.error('Select a seat first')
+          return
+        }
+        // 1) Reserve the seat + create the booking (Pending payment)
+        const bookingRes = await bookingService.create({
+          routeId: selectedRoute.id,
+          seatNumber: selectedSeat,
+          pickupPoint: selectedPickup,
+          paymentMethod: selectedMethod,
+          busNumber: selectedRoute.busNumber,
+          routeName: selectedRoute.name,
+        })
+        bookingId = bookingRes.data?.bookingId
+      }
+
+      // 2) Record the payment — this generates the digital pass
+      await paymentService.create({ bookingId, method: selectedMethod, amount: selectedRoute.feeAmount })
+
       setSuccess(true)
       toast.success('Annual pass confirmed!')
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Payment processed (demo mode)')
-      setSuccess(true) // demo: always show success
+      toast.error(err.response?.data?.message || 'Payment failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -62,20 +106,21 @@ export default function PaymentPage() {
           <h2 className="text-sm font-bold text-gray-900">Select Hyderabad Bus Route</h2>
         </div>
         <select
-          value={selectedRoute.id}
+          value={selectedRoute?.id || ''}
           onChange={e => {
-            const r = ROUTES_DATA.find(x => x.id === e.target.value)
+            const r = routes.find(x => x.id === e.target.value)
             if (r) { setSelectedRoute(r); setSelectedPickup(r.pickupPoint) }
           }}
           className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#40A047]/30 focus:border-[#40A047] bg-white mb-4">
-          {ROUTES_DATA.map(r => (
-            <option key={r.id} value={r.id}>{r.name} · ₹{r.feeAmount.toLocaleString()}/year</option>
+          {routes.length === 0 && <option value="">Loading routes…</option>}
+          {routes.map(r => (
+            <option key={r.id} value={r.id}>{r.name} · {formatCurrency(r.feeAmount)}/year</option>
           ))}
         </select>
 
-        <p className="text-xs font-semibold text-gray-500 mb-3">Boarding Stop (Hyderabad):</p>
+        <p className="text-xs font-semibold text-gray-500 mb-3">Boarding Stop:</p>
         <div className="flex flex-wrap gap-2">
-          {selectedRoute.stops.map(stop => (
+          {(selectedRoute?.stops || []).map(stop => (
             <button key={stop} onClick={() => setSelectedPickup(stop)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border-2 transition-all ${selectedPickup === stop ? 'bg-[#40A047] text-white border-[#40A047]' : 'bg-white text-gray-600 border-gray-200 hover:border-green-400'}`}>
               {selectedPickup === stop && <MapPin size={11} />}
@@ -94,12 +139,12 @@ export default function PaymentPage() {
         <div className="space-y-2.5">
           {[
             ['Fee Type', 'Annual Bus Pass (AY 2026–27)'],
-            ['Selected Route', selectedRoute.id],
-            ['Bus Number', selectedRoute.busNumber],
-            ['Hyderabad Pickup', selectedPickup],
-            ['Reporting Time', selectedRoute.reportingTime],
-            ['Seat Allocated', `#${selectedSeat}`],
-            ['Base Fee', formatCurrency(selectedRoute.feeAmount)],
+            ['Selected Route', selectedRoute?.id || '—'],
+            ['Bus Number', selectedRoute?.busNumber || '—'],
+            ['Boarding Point', selectedPickup || '—'],
+            ['Reporting Time', selectedRoute?.reportingTime || '—'],
+            ['Seat Allocated', selectedSeat ? `#${selectedSeat}` : 'Not selected'],
+            ['Base Fee', selectedRoute ? formatCurrency(selectedRoute.feeAmount) : '—'],
           ].map(([k, v]) => (
             <div key={k} className="flex justify-between items-center">
               <span className="text-xs text-gray-500">{k}</span>
@@ -109,7 +154,7 @@ export default function PaymentPage() {
         </div>
         <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
           <span className="text-sm font-bold text-gray-900">Total Payable (Annual)</span>
-          <span className="text-2xl font-bold text-[#40A047]">{formatCurrency(selectedRoute.feeAmount)}</span>
+          <span className="text-2xl font-bold text-[#40A047]">{selectedRoute ? formatCurrency(selectedRoute.feeAmount) : '—'}</span>
         </div>
       </div>
 
@@ -134,14 +179,14 @@ export default function PaymentPage() {
       </div>
 
       {/* Pay button */}
-      <button onClick={handlePay} disabled={loading}
+      <button onClick={handlePay} disabled={loading || (!resumeBookingId && !selectedSeat)}
         className="w-full py-4 bg-[#40A047] hover:bg-[#2d7a33] text-white font-bold rounded-xl transition-all text-base shadow-lg shadow-green-600/20 disabled:opacity-60 disabled:cursor-not-allowed">
         {loading ? (
           <span className="flex items-center justify-center gap-2">
             <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             Processing...
           </span>
-        ) : `Pay ${formatCurrency(selectedRoute.feeAmount)} (Annual Transport)`}
+        ) : (resumeBookingId || selectedSeat) ? `Pay ${selectedRoute ? formatCurrency(selectedRoute.feeAmount) : ''} (Annual Transport)` : 'Select a seat first'}
       </button>
 
       {/* Success modal */}
@@ -156,7 +201,7 @@ export default function PaymentPage() {
               </div>
               <h2 className="text-xl font-bold text-[#40A047] mb-2">Annual Pass Confirmed!</h2>
               <p className="text-gray-500 text-sm mb-6">
-                Annual transport fee of {formatCurrency(selectedRoute.feeAmount)} for {selectedRoute.id} ({selectedPickup}) is confirmed.
+                Payment of {selectedRoute ? formatCurrency(selectedRoute.feeAmount) : ''} recorded for {selectedRoute?.id || ''} ({selectedPickup}).
                 Digital Bus Pass with QR verification generated.
               </p>
               <div className="space-y-2">

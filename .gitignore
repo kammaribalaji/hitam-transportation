@@ -14,6 +14,10 @@ build/
 *.log
 npm-debug.log*
 
+# Local scratch / diagnostics
+backend/.tmp-hypegps-*.mjs
+backend/backups/
+
 # Editors / OS
 .idea/
 .vscode/

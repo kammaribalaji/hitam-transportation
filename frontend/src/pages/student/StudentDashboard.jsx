@@ -2,23 +2,28 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../../hooks/useAuth.js'
-import { notificationService, bookingService } from '../../api/services.js'
-import { ROUTES_DATA, MOCK_NOTIFICATIONS } from '../../utils/helpers.js'
+import { notificationService, bookingService, routeService } from '../../api/services.js'
 import StatCard from '../../components/common/StatCard.jsx'
 import { Bus, MapPin, Clock, Armchair, QrCode, Navigation, CreditCard, Bell, ChevronRight, CheckCircle, Megaphone } from 'lucide-react'
 
 export default function StudentDashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS)
+  const [notifications, setNotifications] = useState([])
   const [booking, setBooking] = useState(null)
+  const [route, setRoute] = useState(null)
   const firstName = user?.name?.split(' ')[0] || 'Student'
-  const route = ROUTES_DATA.find(r => r.id === (user?.assignedRouteId || 'R1')) || ROUTES_DATA[0]
 
   useEffect(() => {
-    notificationService.getAll().then(r => setNotifications(r.data)).catch(() => {})
+    notificationService.getAll().then(r => setNotifications(r.data || [])).catch(() => {})
     bookingService.getMy().then(r => setBooking(r.data)).catch(() => {})
-  }, [])
+    routeService.getAll()
+      .then(r => {
+        const list = r.data || []
+        setRoute(list.find(x => x.id === (user?.assignedRouteId || '12')) || list[0] || null)
+      })
+      .catch(() => {})
+  }, [user])
 
   const quickActions = [
     { label: 'View My Pass', icon: QrCode, to: '/student/my-pass', color: 'bg-green-50', iconColor: 'text-[#40A047]' },
@@ -38,21 +43,33 @@ export default function StudentDashboard() {
         <div>
           <h1 className="text-xl font-bold text-gray-900">Welcome, {firstName}! 👋</h1>
           <p className="text-sm text-gray-500 mt-0.5">Here's your transport overview.</p>
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-full">{user?.rollNumber || '—'}</span>
+            <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-full">{user?.year || '—'}</span>
+          </div>
         </div>
-        {user?.transportFeePaid && (
-          <span className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 text-sm font-semibold rounded-full border border-green-200">
-            <CheckCircle size={15} />
-            Transport Fee: Paid
-          </span>
-        )}
+        {(() => {
+          const fs = user?.paymentStatus || (user?.transportFeePaid ? 'PAID' : 'UNPAID')
+          const badge = {
+            PAID: { text: 'Transport Fee: Paid', cls: 'bg-green-50 text-green-700 border-green-200' },
+            'PARTIALLY PAID': { text: 'Transport Fee: Partially Paid', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
+            UNPAID: { text: 'Transport Fee: Due', cls: 'bg-red-50 text-red-600 border-red-200' },
+          }[fs]
+          return badge ? (
+            <span className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-full border ${badge.cls}`}>
+              <CheckCircle size={15} />
+              {badge.text}
+            </span>
+          ) : null
+        })()}
       </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Assigned Route" value={route.id} subtitle={route.name.split(' - ')[1] || route.name} icon={Bus} />
-        <StatCard title="Bus Number" value={route.busNumber} subtitle="Active" icon={Bus} iconBg="bg-blue-50" iconColor="text-blue-600" />
-        <StatCard title="Pickup Point" value={route.pickupPoint.split(' ').slice(0, 2).join(' ')} subtitle={route.pickupPoint} icon={MapPin} iconBg="bg-purple-50" iconColor="text-purple-600" />
-        <StatCard title="Reporting Time" value={route.reportingTime} subtitle="Daily" icon={Clock} iconBg="bg-orange-50" iconColor="text-orange-600" />
+        <StatCard title="Assigned Route" value={route?.id || '—'} subtitle={route ? (route.name.split(' - ')[1] || route.name) : 'No route assigned'} icon={Bus} />
+        <StatCard title="Bus Number" value={route?.busNumber || '—'} subtitle="Active" icon={Bus} iconBg="bg-blue-50" iconColor="text-blue-600" />
+        <StatCard title="Boarding Point" value={(user?.boardingPoint || route?.pickupPoint || '—').split(' ').slice(0, 3).join(' ')} subtitle={user?.boardingPoint || route?.pickupPoint || '—'} icon={MapPin} iconBg="bg-purple-50" iconColor="text-purple-600" />
+        <StatCard title="Reporting Time" value={route?.reportingTime || '—'} subtitle="Daily" icon={Clock} iconBg="bg-orange-50" iconColor="text-orange-600" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -66,13 +83,13 @@ export default function StudentDashboard() {
             </div>
             <div className="grid grid-cols-3 gap-4 mb-4">
               <div><p className="text-xs text-gray-500">Date</p><p className="text-sm font-bold mt-0.5">Today</p></div>
-              <div><p className="text-xs text-gray-500">Time</p><p className="text-sm font-bold mt-0.5">{route.reportingTime}</p></div>
-              <div><p className="text-xs text-gray-500">Pickup Point</p><p className="text-sm font-bold mt-0.5">{route.pickupPoint.split(' ').slice(0,2).join(' ')}</p></div>
+              <div><p className="text-xs text-gray-500">Time</p><p className="text-sm font-bold mt-0.5">{route?.reportingTime || '—'}</p></div>
+              <div><p className="text-xs text-gray-500">Boarding Point</p><p className="text-sm font-bold mt-0.5">{user?.boardingPoint || route?.pickupPoint || '—'}</p></div>
             </div>
             <div className="grid grid-cols-3 gap-4 mb-5">
               <div><p className="text-xs text-gray-500">Seat</p><p className="text-sm font-bold mt-0.5">{booking?.seatNumber || '—'}</p></div>
-              <div><p className="text-xs text-gray-500">Route</p><p className="text-sm font-bold mt-0.5">{route.id}</p></div>
-              <div><p className="text-xs text-gray-500">Pass</p><p className="text-sm font-bold mt-0.5 text-green-600">{booking ? 'Active' : 'Pending'}</p></div>
+              <div><p className="text-xs text-gray-500">Route</p><p className="text-sm font-bold mt-0.5">{route?.id || '—'}</p></div>
+              <div><p className="text-xs text-gray-500">Pass</p><p className="text-sm font-bold mt-0.5 text-green-600">{booking ? (String(booking.paymentStatus || '').toLowerCase().includes('paid') ? 'Active' : 'Payment Pending') : 'Pending'}</p></div>
             </div>
             <button onClick={() => navigate('/student/book-seat')}
               className="w-full py-2.5 bg-[#40A047] hover:bg-[#2d7a33] text-white text-sm font-bold rounded-xl transition-colors">

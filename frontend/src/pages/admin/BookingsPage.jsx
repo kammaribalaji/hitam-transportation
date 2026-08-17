@@ -9,18 +9,8 @@ import Pagination from '../../components/common/Pagination.jsx'
 import StatusBadge from '../../components/common/StatusBadge.jsx'
 import { Download, X } from 'lucide-react'
 
-const MOCK_BOOKINGS = Array.from({ length: 8 }, (_, i) => ({
-  _id: String(i), bookingId: `HITAM-${2026}${String(i+1).padStart(4,'0')}`,
-  studentName: ['Rahul Sharma','Priya Verma','Amit Patel','Sneha Kumar','Deepika Roy','Venkatesh K','Arjun Reddy','Kavya Sharma'][i],
-  studentRollNumber: `21CS10${String(i+1).padStart(2,'0')}`,
-  busNumber: `TS 09 AB ${1234 + i * 100}`, routeName: `Route R${(i%6)+1}`,
-  seatNumber: i + 5, pickupPoint: ['Main Gate','City Center','LB Nagar','Kukatpally','Miyapur'][i%5],
-  paymentStatus: i % 4 === 0 ? 'Pending' : 'Paid (Annual Pass)',
-  status: i % 5 === 0 ? 'CANCELLED' : 'CONFIRMED', bookingDate: '03 Aug 2026', amountPaid: 12000,
-}))
-
 export default function BookingsPage() {
-  const [bookings, setBookings] = useState(MOCK_BOOKINGS)
+  const [bookings, setBookings] = useState([])
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [page, setPage] = useState(1)
@@ -29,8 +19,8 @@ export default function BookingsPage() {
 
   useEffect(() => {
     bookingService.getAll({ search, status: statusFilter, page, limit: 15 })
-      .then(r => { setBookings(r.data.bookings); setPage(r.data.page); setPages(r.data.pages); setTotal(r.data.total) })
-      .catch(() => { setBookings(MOCK_BOOKINGS); setTotal(MOCK_BOOKINGS.length) })
+      .then(r => { setBookings(r.data.bookings || []); setPage(r.data.page); setPages(r.data.pages); setTotal(r.data.total) })
+      .catch(() => { setBookings([]); setTotal(0) })
   }, [search, statusFilter, page])
 
   const filtered = bookings.filter(b =>

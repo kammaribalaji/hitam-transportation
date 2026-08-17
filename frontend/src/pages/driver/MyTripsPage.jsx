@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { tripService } from '../../api/services.js'
-import { MOCK_TRIPS } from '../../utils/helpers.js'
 import StatusBadge from '../../components/common/StatusBadge.jsx'
 import PageHeader from '../../components/common/PageHeader.jsx'
 import toast from 'react-hot-toast'
@@ -10,11 +9,11 @@ import { Bus, Clock, Users, MapPin, Fuel, Play, CheckCircle } from 'lucide-react
 const TABS = ['Today', 'Upcoming', 'Completed']
 
 export default function MyTripsPage() {
-  const [trips, setTrips] = useState(MOCK_TRIPS)
+  const [trips, setTrips] = useState([])
   const [tab, setTab] = useState('Today')
 
   useEffect(() => {
-    tripService.getMy().then(r => { if (r.data?.length) setTrips(r.data) }).catch(() => {})
+    tripService.getMy().then(r => setTrips(r.data || [])).catch(() => {})
   }, [])
 
   const updateStatus = async (tripId, status) => {
@@ -22,9 +21,8 @@ export default function MyTripsPage() {
       await tripService.updateStatus(tripId, status)
       setTrips(prev => prev.map(t => t.tripId === tripId ? { ...t, status } : t))
       toast.success(`Trip marked as ${status.replace(/_/g, ' ')}`)
-    } catch {
-      setTrips(prev => prev.map(t => t.tripId === tripId ? { ...t, status } : t))
-      toast.success(`Trip status updated`)
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update trip status')
     }
   }
 

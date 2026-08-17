@@ -7,21 +7,12 @@ import SearchInput from '../../components/common/SearchInput.jsx'
 import StatusBadge from '../../components/common/StatusBadge.jsx'
 import { Bus, Plus, Gauge, Zap, Wind, AlertTriangle } from 'lucide-react'
 
-const MOCK_BUSES = [
-  { busNumber: 'TS 09 AB 1234', model: 'TATA Starbus', routeName: 'R1', driverName: 'Suresh Kumar', fuelLevel: 75, status: 'ACTIVE', odometer: 45230, lastService: '15 Jan 2026' },
-  { busNumber: 'TS 09 AB 5678', model: 'Ashok Leyland Viking', routeName: 'R2', driverName: 'Ramesh Singh', fuelLevel: 60, status: 'ACTIVE', odometer: 38900, lastService: '20 Feb 2026' },
-  { busNumber: 'TS 09 AB 9012', model: 'TATA Starbus', routeName: 'R3', driverName: 'Venkatesh M', fuelLevel: 40, status: 'MAINTENANCE', odometer: 52100, lastService: '10 Dec 2025' },
-  { busNumber: 'TS 09 AB 3456', model: 'Ashok Leyland', routeName: 'R4', driverName: 'Krishna Rao', fuelLevel: 85, status: 'ACTIVE', odometer: 29800, lastService: '05 Mar 2026' },
-  { busNumber: 'TS 09 AB 7890', model: 'TATA Starbus', routeName: 'R5', driverName: 'Mahesh P', fuelLevel: 55, status: 'ACTIVE', odometer: 41200, lastService: '01 Apr 2026' },
-  { busNumber: 'TS 09 AB 4321', model: 'Volvo 9400', routeName: 'R6', driverName: 'Raju K', fuelLevel: 90, status: 'ACTIVE', odometer: 18700, lastService: '15 Jun 2026' },
-]
-
 export default function BusesPage() {
-  const [buses, setBuses] = useState(MOCK_BUSES)
+  const [buses, setBuses] = useState([])
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    busService.getAll().then(r => { if (r.data?.length) setBuses(r.data) }).catch(() => {})
+    busService.getAll().then(r => setBuses(r.data || [])).catch(() => {})
   }, [])
 
   const filtered = buses.filter(b =>
@@ -44,6 +35,12 @@ export default function BusesPage() {
       <SearchInput value={search} onChange={setSearch} placeholder="Search bus number, driver or route..." />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+        {filtered.length === 0 && (
+          <div className="bg-white rounded-2xl p-10 text-center border border-gray-100 shadow-sm col-span-full">
+            <Bus size={36} className="mx-auto text-gray-200 mb-3" />
+            <p className="text-gray-400 text-sm">No buses in the fleet yet</p>
+          </div>
+        )}
         {filtered.map((bus, i) => (
           <motion.div key={bus.busNumber} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
             className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">

@@ -40,9 +40,13 @@ export default function StudentProfilePage() {
     { icon: User, label: 'Full Name', value: user?.name },
     { icon: School, label: 'Department', value: user?.department },
     { icon: School, label: 'Academic Year', value: user?.year },
+    { icon: MapPin, label: 'Boarding Point', value: user?.boardingPoint || '—' },
     { icon: Mail, label: 'Email Address', value: user?.email },
     { icon: Phone, label: 'Phone Number', value: user?.phone },
     { icon: MapPin, label: 'Address', value: user?.address || '—' },
+    { icon: School, label: 'Transport Amount', value: user?.feeAmount ? `₹${Number(user.feeAmount).toLocaleString('en-IN')}` : '—' },
+    { icon: School, label: 'Amount Paid', value: user?.feePaidAmount ? `₹${Number(user.feePaidAmount).toLocaleString('en-IN')}` : '—' },
+    { icon: School, label: 'Balance Due', value: user?.feeBalance ? `₹${Number(user.feeBalance).toLocaleString('en-IN')}` : '—' },
   ]
 
   return (
@@ -58,10 +62,16 @@ export default function StudentProfilePage() {
         <p className="text-sm font-semibold text-[#40A047] mt-1">{user?.rollNumber}</p>
         <p className="text-xs text-gray-500 mt-0.5">{user?.department} · {user?.year}</p>
         <div className="flex items-center justify-center gap-2 mt-3">
-          {user?.transportFeePaid && (
-            <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">✓ Fee Paid</span>
-          )}
-          <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">Route {user?.assignedRouteId || 'R1'}</span>
+          {(() => {
+            const fs = user?.paymentStatus || (user?.transportFeePaid ? 'PAID' : 'UNPAID')
+            const badge = {
+              PAID: { text: '✓ Fee Paid', cls: 'bg-green-100 text-green-700' },
+              'PARTIALLY PAID': { text: 'Partially Paid', cls: 'bg-amber-100 text-amber-700' },
+              UNPAID: { text: 'Fee Due', cls: 'bg-red-100 text-red-600' },
+            }[fs]
+            return badge ? <span className={`px-3 py-1 text-xs font-bold rounded-full ${badge.cls}`}>{badge.text}</span> : null
+          })()}
+          <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">Route {user?.assignedRouteId || '12'}</span>
         </div>
       </div>
 

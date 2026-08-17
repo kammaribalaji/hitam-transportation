@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
-import { userService } from '../../api/services.js'
+import { userService, routeService } from '../../api/services.js'
 import PageHeader from '../../components/common/PageHeader.jsx'
 import SearchInput from '../../components/common/SearchInput.jsx'
 import Table from '../../components/common/Table.jsx'
@@ -11,15 +11,9 @@ import Modal from '../../components/common/Modal.jsx'
 import StatusBadge from '../../components/common/StatusBadge.jsx'
 import { Plus, UserPlus, Download, Edit, Trash2, Phone } from 'lucide-react'
 
-const MOCK_STUDENTS = Array.from({ length: 10 }, (_, i) => ({
-  _id: String(i), rollNumber: `21CS10${String(i).padStart(2,'0')}`, name: ['Rahul Sharma','Priya Verma','Amit Patel','Sneha Kumar','Deepika Roy','Venkatesh K','Arjun Reddy','Kavya Sharma','Ravi Teja','Lakshmi Devi'][i],
-  department: ['CSE','ECE','MECH','EEE','CSE','IT','CSE','ECE','MECH','CSE'][i], year: `${i%4+1}nd Year`,
-  assignedRouteId: `R${(i%6)+1}`, seatNumber: i+5, pickupPoint: ['Main Gate','City Center','LB Nagar','Kukatpally','Miyapur'][i%5],
-  transportFeePaid: i % 3 !== 0, phone: `+91 9876${String(500000+i)}`,
-}))
-
 export default function StudentsPage() {
-  const [students, setStudents] = useState(MOCK_STUDENTS)
+  const [students, setStudents] = useState([])
+  const [routes, setRoutes] = useState([])
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [pages, setPages] = useState(1)
@@ -31,10 +25,14 @@ export default function StudentsPage() {
   useEffect(() => {
     setLoading(true)
     userService.getAll({ role: 'STUDENT', search, page, limit: 15 })
-      .then(r => { setStudents(r.data.users); setPage(r.data.page); setPages(r.data.pages); setTotal(r.data.total) })
-      .catch(() => { setStudents(MOCK_STUDENTS); setPages(1); setTotal(MOCK_STUDENTS.length) })
+      .then(r => { setStudents(r.data.users || []); setPage(r.data.page); setPages(r.data.pages); setTotal(r.data.total) })
+      .catch(() => { setStudents([]); setPages(1); setTotal(0) })
       .finally(() => setLoading(false))
   }, [search, page])
+
+  useEffect(() => {
+    routeService.getAll().then(r => setRoutes(r.data || [])).catch(() => {})
+  }, [])
 
   const filtered = students.filter(s =>
     s.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -101,7 +99,7 @@ export default function StudentsPage() {
       <Modal open={addModal} onClose={() => { setAddModal(false); reset() }} title="Add New Student" size="md">
         <form onSubmit={handleSubmit(onAdd)} className="space-y-4">
           {[
-            { name: 'rollNumber', label: 'Roll Number', placeholder: '21CS1001', required: true },
+            { name: 'rollNumber', label: 'Roll Number', placeholder: 'Enter Roll Number', required: true },
             { name: 'name', label: 'Full Name', placeholder: 'Student Name', required: true },
             { name: 'email', label: 'Email', placeholder: 'student@hitam.edu.in' },
             { name: 'phone', label: 'Phone', placeholder: '+91 9876543210' },
@@ -118,7 +116,7 @@ export default function StudentsPage() {
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">Assigned Route</label>
             <select {...register('assignedRouteId')} className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#40A047]/30 focus:border-[#40A047] bg-white">
-              {['R1','R2','R3','R4','R5','R6'].map(r => <option key={r} value={r}>{r}</option>)}
+              {(routes.length ? routes : [{ id: '12' }]).map(r => <option key={r.id} value={r.id}>{r.id}</option>)}
             </select>
           </div>
           <p className="text-xs text-gray-400">Default password: <code className="bg-gray-100 px-1.5 py-0.5 rounded">hitam123</code></p>

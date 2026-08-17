@@ -10,22 +10,15 @@ import Modal from '../../components/common/Modal.jsx'
 import StatusBadge from '../../components/common/StatusBadge.jsx'
 import { UserPlus, Download, Trash2 } from 'lucide-react'
 
-const MOCK_DRIVERS = [
-  { _id: '1', rollNumber: 'DRV12345', name: 'Suresh Kumar', phone: '+91 98765 43210', assignedBusNumber: 'TS 09 AB 1234', assignedRouteId: 'R1', licenseNo: 'TS2024001', experience: '5 Years', status: 'ACTIVE' },
-  { _id: '2', rollNumber: 'DRV23456', name: 'Ramesh Singh', phone: '+91 87654 32109', assignedBusNumber: 'TS 09 AB 5678', assignedRouteId: 'R2', licenseNo: 'TS2024002', experience: '7 Years', status: 'ACTIVE' },
-  { _id: '3', rollNumber: 'DRV34567', name: 'Venkatesh M', phone: '+91 76543 21098', assignedBusNumber: 'TS 09 AB 9012', assignedRouteId: 'R3', licenseNo: 'TS2024003', experience: '3 Years', status: 'ACTIVE' },
-  { _id: '4', rollNumber: 'DRV45678', name: 'Krishna Rao', phone: '+91 65432 10987', assignedBusNumber: 'TS 09 AB 3456', assignedRouteId: 'R4', licenseNo: 'TS2024004', experience: '8 Years', status: 'ACTIVE' },
-]
-
 export default function DriversPage() {
-  const [drivers, setDrivers] = useState(MOCK_DRIVERS)
+  const [drivers, setDrivers] = useState([])
   const [search, setSearch] = useState('')
   const [addModal, setAddModal] = useState(false)
   const { register, handleSubmit, reset, formState: { errors } } = useForm()
 
   useEffect(() => {
     userService.getAll({ role: 'DRIVER', search })
-      .then(r => { if (r.data.users?.length) setDrivers(r.data.users) })
+      .then(r => setDrivers(r.data.users || []))
       .catch(() => {})
   }, [search])
 

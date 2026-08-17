@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { passengerService } from '../../api/services.js'
-import { MOCK_PASSENGERS } from '../../utils/helpers.js'
+import { useAuth } from '../../hooks/useAuth.js'
 import PageHeader from '../../components/common/PageHeader.jsx'
 import SearchInput from '../../components/common/SearchInput.jsx'
 import StatusBadge from '../../components/common/StatusBadge.jsx'
@@ -9,15 +9,17 @@ import toast from 'react-hot-toast'
 import { Users, Bus, UserCheck, UserX } from 'lucide-react'
 
 export default function StudentListPage() {
-  const [passengers, setPassengers] = useState(MOCK_PASSENGERS)
+  const { user } = useAuth()
+  const routeId = user?.assignedRouteId || '12'
+  const [passengers, setPassengers] = useState([])
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('All')
 
   useEffect(() => {
-    passengerService.getByRoute({ routeId: 'R1' })
-      .then(r => { if (r.data?.length) setPassengers(r.data) })
+    passengerService.getByRoute({ routeId })
+      .then(r => setPassengers(r.data || []))
       .catch(() => {})
-  }, [])
+  }, [routeId])
 
   const toggle = async (rollNumber, boarded) => {
     try {
@@ -39,7 +41,7 @@ export default function StudentListPage() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
-      <PageHeader title="Student List" subtitle="Bus TS 09 AB 1234 · Route R1" />
+      <PageHeader title="Student List" subtitle={`Bus ${user?.assignedBusNumber || 'TS 09 AB 1234'} · Route ${routeId}`} />
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
@@ -77,7 +79,7 @@ export default function StudentListPage() {
             className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 bg-[#40A047] rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                {p.seatNo}
+                {p.seatNo >= 1 ? p.seatNo : 'WL'}
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold text-gray-900">{p.name}</p>

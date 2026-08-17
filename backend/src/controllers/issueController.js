@@ -1,17 +1,18 @@
-import IssueReport from '../models/IssueReport.js';
+import prisma from '../lib/prisma.js';
 import { AppError } from '../middlewares/errorHandler.js';
+import { serialize, serializeMany } from '../lib/serialize.js';
 
 const generateIssueId = () => `ISS-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
 
 export const getAllIssues = async (req, res, next) => {
   try {
     const { status, severity } = req.query;
-    const filter = {};
-    if (status) filter.status = status.toUpperCase();
-    if (severity) filter.severity = severity.toUpperCase();
-    if (req.user.role === 'DRIVER') filter.driverRollNumber = req.user.rollNumber;
-    const issues = await IssueReport.find(filter).sort({ createdAt: -1 });
-    res.json(issues);
+    const where = {};
+    if (status) where.status = status.toUpperCase();
+    if (severity) where.severity = severity.toUpperCase();
+    if (req.user.role === 'DRIVER') where.driverRollNumber = req.user.rollNumber;
+    const issues = await prisma.issueReport.findMany({ where, orderBy: { createdAt: 'desc' } });
+    res.json(serializeMany(issues));
   } catch (err) {
     next(err);
   }
@@ -20,16 +21,18 @@ export const getAllIssues = async (req, res, next) => {
 export const createIssue = async (req, res, next) => {
   try {
     const { issueType, severity, description, photoUrl } = req.body;
-    const issue = await IssueReport.create({
-      issueId: generateIssueId(),
-      driverRollNumber: req.user.rollNumber,
-      issueType,
-      severity: severity?.toUpperCase() || 'LOW',
-      description,
-      photoUrl: photoUrl || '',
-      status: 'OPEN',
+    const issue = await prisma.issueReport.create({
+      data: {
+        issueId: generateIssueId(),
+        driverRollNumber: req.user.rollNumber,
+        issueType: String(issueType || ''),
+        severity: severity?.toUpperCase() || 'LOW',
+        description: String(description || ''),
+        photoUrl: photoUrl || '',
+        status: 'OPEN',
+      },
     });
-    res.status(201).json(issue);
+    res.status(201).json(serialize(issue));
   } catch (err) {
     next(err);
   }
@@ -38,13 +41,13 @@ export const createIssue = async (req, res, next) => {
 export const updateIssueStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
-    const issue = await IssueReport.findOneAndUpdate(
-      { issueId: req.params.issueId },
-      { status: status.toUpperCase() },
-      { new: true }
-    );
-    if (!issue) throw new AppError('Issue not found', 404);
-    res.json(issue);
+    const existing = await prisma.issueReport.findUnique({ where: { issueId: String(req.params.issueId) } });
+    if (!existing) throw new AppError('Issue not found', 404);
+    const issue = await prisma.issueReport.update({
+      where: { id: existing.id },
+      data: { status: String(status).toUpperCase() },
+    });
+    res.json(serialize(issue));
   } catch (err) {
     next(err);
   }

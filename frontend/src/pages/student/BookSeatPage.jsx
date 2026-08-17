@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { seatService } from '../../api/services.js'
+import { seatService, routeService } from '../../api/services.js'
 import { useAuth } from '../../hooks/useAuth.js'
-import { ROUTES_DATA } from '../../utils/helpers.js'
-import { Bus, ChevronLeft } from 'lucide-react'
+import { Bus } from 'lucide-react'
 
 const SEAT_COLORS = {
   AVAILABLE: { bg: 'bg-[#40A047]', text: 'text-white', hover: 'hover:bg-[#2d7a33] hover:scale-105', cursor: 'cursor-pointer' },
@@ -32,27 +31,31 @@ function SeatBtn({ seat, onClick }) {
 export default function BookSeatPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [selectedRouteId, setSelectedRouteId] = useState(user?.assignedRouteId || 'R1')
+  const [routes, setRoutes] = useState([])
+  const [selectedRouteId, setSelectedRouteId] = useState(user?.assignedRouteId || '12')
   const [seats, setSeats] = useState([])
   const [selectedSeat, setSelectedSeat] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  const route = ROUTES_DATA.find(r => r.id === selectedRouteId) || ROUTES_DATA[0]
+  const route = routes.find(r => r.id === selectedRouteId) || routes[0]
 
   useEffect(() => {
+    routeService.getAll()
+      .then(r => {
+        setRoutes(r.data || [])
+        if (r.data?.length && !r.data.some(x => x.id === selectedRouteId)) {
+          setSelectedRouteId(r.data[0].id)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    if (!selectedRouteId) return
     setLoading(true)
     seatService.getByRoute(selectedRouteId)
-      .then(r => { setSeats(r.data); setSelectedSeat(null) })
-      .catch(() => {
-        // fallback mock
-        const mock = Array.from({ length: 40 }, (_, i) => {
-          const id = i + 1
-          const bookedSet = new Set([5, 8, 10, 12, 15, 19, 23, 27, 30, 31, 35])
-          const reservedSet = new Set([3, 4])
-          return { id, status: reservedSet.has(id) ? 'RESERVED' : bookedSet.has(id) ? 'BOOKED' : 'AVAILABLE', label: String(id) }
-        })
-        setSeats(mock)
-      })
+      .then(r => { setSeats(r.data.seats || []); setSelectedSeat(null) })
+      .catch(() => { setSeats([]) })
       .finally(() => setLoading(false))
   }, [selectedRouteId])
 
@@ -77,26 +80,30 @@ export default function BookSeatPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Select Seat</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{route.id} · {route.busNumber}</p>
+          <p className="text-sm text-gray-500 mt-0.5">{route ? `${route.id} · ${route.busNumber}` : 'Loading…'}</p>
         </div>
       </div>
 
       {/* Route selector */}
       <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
         <p className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">Select Route</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {ROUTES_DATA.map(r => (
-            <button key={r.id} onClick={() => setSelectedRouteId(r.id)}
-              className={`p-3 rounded-xl border-2 text-left transition-all ${selectedRouteId === r.id ? 'border-[#40A047] bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
-              <div className="flex items-center gap-2 mb-1">
-                <Bus size={14} className="text-[#40A047]" />
-                <span className="text-sm font-bold text-gray-900">{r.id}</span>
-              </div>
-              <p className="text-xs text-gray-500 truncate">{r.busNumber}</p>
-              <p className="text-xs text-gray-400 truncate">{r.pickupPoint}</p>
-            </button>
-          ))}
-        </div>
+        {routes.length === 0 ? (
+          <p className="text-sm text-gray-400 py-4 text-center">No routes available yet.</p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {routes.map(r => (
+              <button key={r.id} onClick={() => setSelectedRouteId(r.id)}
+                className={`p-3 rounded-xl border-2 text-left transition-all ${selectedRouteId === r.id ? 'border-[#40A047] bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <Bus size={14} className="text-[#40A047]" />
+                  <span className="text-sm font-bold text-gray-900">{r.id}</span>
+                </div>
+                <p className="text-xs text-gray-500 truncate">{r.busNumber}</p>
+                <p className="text-xs text-gray-400 truncate">{r.pickupPoint}</p>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Legend */}
@@ -107,7 +114,6 @@ export default function BookSeatPage() {
               { status: 'AVAILABLE', label: 'Available', color: 'bg-[#40A047]' },
               { status: 'BOOKED', label: 'Booked', color: 'bg-gray-300' },
               { status: 'SELECTED', label: 'Selected', color: 'bg-yellow-400' },
-              { status: 'RESERVED', label: 'Reserved', color: 'bg-red-400' },
             ].map(({ label, color }) => (
               <div key={label} className="flex items-center gap-2">
                 <div className={`w-4 h-4 rounded-md ${color}`} />
@@ -137,6 +143,11 @@ export default function BookSeatPage() {
             <div className="flex items-center justify-center py-16">
               <div className="w-8 h-8 border-3 border-[#40A047] border-t-transparent rounded-full animate-spin" style={{ borderWidth: 3 }} />
             </div>
+          ) : seats.length === 0 ? (
+            <div className="text-center py-16 text-gray-400">
+              <Bus size={40} className="mx-auto mb-3 opacity-30" />
+              <p className="text-sm">No seat map available for this route.</p>
+            </div>
           ) : (
             <div className="space-y-3">
               {rows.map((row, ri) => (
@@ -147,7 +158,7 @@ export default function BookSeatPage() {
                   </div>
                   {/* Aisle */}
                   <div className="w-8 flex items-center justify-center">
-                    <span className="text-xs text-gray-300 font-bold vertical-text" style={{ writingMode: 'vertical-lr', fontSize: 8 }}>AISLE</span>
+                    <span className="text-xs text-gray-300 font-bold" style={{ writingMode: 'vertical-lr', fontSize: 8 }}>AISLE</span>
                   </div>
                   <div className="flex gap-2">
                     {row[2] && <SeatBtn seat={row[2]} onClick={handleSeatClick} />}
@@ -174,7 +185,7 @@ export default function BookSeatPage() {
           </p>
         </div>
         <button
-          onClick={() => navigate('/student/payment', { state: { selectedSeat, selectedRoute: route } })}
+          onClick={() => navigate('/student/payment', { state: { selectedSeat, selectedRouteId } })}
           disabled={!selectedSeat}
           className="px-8 py-3 bg-[#40A047] hover:bg-[#2d7a33] disabled:bg-gray-200 disabled:text-gray-400 text-white font-bold rounded-xl transition-all text-sm shadow-lg shadow-green-600/20 disabled:shadow-none disabled:cursor-not-allowed">
           Continue

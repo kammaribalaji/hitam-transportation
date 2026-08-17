@@ -45,6 +45,8 @@ import ReportsPage from './pages/admin/ReportsPage.jsx'
 import AnalyticsPage from './pages/admin/AnalyticsPage.jsx'
 import AdminSettingsPage from './pages/admin/AdminSettingsPage.jsx'
 import AnnouncementsPage from './pages/admin/AnnouncementsPage.jsx'
+import ImportPage from './pages/admin/ImportPage.jsx'
+import HypegpsDevicesPage from './pages/admin/HypegpsDevicesPage.jsx'
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth()
@@ -103,6 +105,7 @@ function AppRoutes() {
         <Route path="students" element={<StudentsPage />} />
         <Route path="drivers" element={<DriversPage />} />
         <Route path="routes" element={<RoutesPage />} />
+        <Route path="import" element={<ImportPage />} />
         <Route path="buses" element={<BusesPage />} />
         <Route path="bookings" element={<BookingsPage />} />
         <Route path="payments" element={<PaymentsPage />} />
@@ -110,6 +113,7 @@ function AppRoutes() {
         <Route path="reports" element={<ReportsPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="announcements" element={<AnnouncementsPage />} />
+        <Route path="gps" element={<HypegpsDevicesPage />} />
         <Route path="settings" element={<AdminSettingsPage />} />
       </Route>
 

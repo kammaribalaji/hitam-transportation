@@ -1,14 +1,11 @@
-﻿import React, { useState } from "react"
+﻿import React, { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import PageHeader from "../../components/common/PageHeader.jsx"
 import { Fuel, Zap, Wind, Settings, Bus, AlertTriangle, CheckCircle, Gauge } from "lucide-react"
+import { busService } from "../../api/services.js"
+import { useAuth } from "../../hooks/useAuth.js"
 import toast from "react-hot-toast"
-
-const VEHICLE = {
-  busNumber: "TS 09 AB 1234", model: "TATA Starbus", fuelLevel: 75,
-  engineStatus: "Good", batteryHealth: "Good", tirePressure: "Good",
-  odometer: "45,230 km", lastService: "15 Jan 2026", nextService: "15 Aug 2026",
-}
 
 function CircleGauge({ label, value, max, color, unit }) {
   const pct = Math.min((value / max) * 100, 100)
@@ -49,7 +46,33 @@ function StatusRow({ icon: Icon, label, value, status }) {
 }
 
 export default function VehicleStatusPage() {
-  const [v] = useState(VEHICLE)
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const [v, setV] = useState(null)
+
+  useEffect(() => {
+    const busNumber = user?.assignedBusNumber || "TS 09 AB 1234"
+    busService.getByNumber(busNumber)
+      .then(r => setV(r.data))
+      .catch(() => setV(null))
+  }, [user])
+
+  if (!v) {
+    return (
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+        <PageHeader title="Vehicle Status" subtitle="Assigned bus details" />
+        <div className="bg-white rounded-2xl p-10 text-center border border-gray-100 shadow-sm">
+          <Bus size={40} className="mx-auto text-gray-200 mb-3" />
+          <p className="text-gray-400 text-sm">No assigned vehicle found.</p>
+          <button onClick={() => navigate('/driver/report-issue')}
+            className="mt-5 px-6 py-2.5 bg-[#40A047] text-white text-sm font-bold rounded-xl hover:bg-[#2d7a33] transition-colors">
+            Report Issue
+          </button>
+        </div>
+      </motion.div>
+    )
+  }
+
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
       <PageHeader title="Vehicle Status" subtitle={v.busNumber + " - " + v.model}
@@ -67,14 +90,14 @@ export default function VehicleStatusPage() {
           </div>
           <div>
             <p className="text-xl font-bold text-gray-900">{v.busNumber}</p>
-            <p className="text-sm text-gray-500">{v.model}</p>
-            <p className="text-xs text-gray-400 mt-1">Odometer: {v.odometer}</p>
+            <p className="text-sm text-gray-500">{v.model || '—'}</p>
+            <p className="text-xs text-gray-400 mt-1">Odometer: {v.odometer?.toLocaleString() || '—'} km · Route {v.routeId || '—'}</p>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-6">
-          <CircleGauge label="Fuel Level" value={v.fuelLevel} max={100} color="#40A047" unit="%" />
-          <CircleGauge label="Engine Temp" value={78} max={120} color="#3B82F6" unit="C" />
+          <CircleGauge label="Fuel Level" value={v.fuelLevel ?? 0} max={100} color="#40A047" unit="%" />
           <CircleGauge label="Battery" value={92} max={100} color="#8B5CF6" unit="%" />
+          <CircleGauge label="Odometer" value={v.odometer ? String(v.odometer).slice(0, 3) : '—'} max={100} color="#3B82F6" unit="km" />
         </div>
       </div>
 
@@ -83,12 +106,12 @@ export default function VehicleStatusPage() {
         <StatusRow icon={Gauge} label="Engine Status" value={v.engineStatus} status="Good" />
         <StatusRow icon={Zap} label="Battery Health" value={v.batteryHealth} status="Good" />
         <StatusRow icon={Wind} label="Tire Pressure" value={v.tirePressure} status="Good" />
-        <StatusRow icon={Fuel} label="Fuel Level" value={v.fuelLevel + "%"} status={v.fuelLevel > 30 ? "Good" : "Warning"} />
-        <StatusRow icon={Settings} label="Last Service" value={v.lastService} status="Good" />
-        <StatusRow icon={AlertTriangle} label="Next Service Due" value={v.nextService} status="Warning" />
+        <StatusRow icon={Fuel} label="Fuel Level" value={(v.fuelLevel ?? 0) + "%"} status={(v.fuelLevel ?? 0) > 30 ? "Good" : "Warning"} />
+        <StatusRow icon={Settings} label="Last Service" value={v.lastService || '—'} status="Good" />
+        <StatusRow icon={AlertTriangle} label="Next Service Due" value="30 days" status="Warning" />
       </div>
 
-      <button onClick={() => toast.success("Issue submitted to admin")}
+      <button onClick={() => navigate('/driver/report-issue')}
         className="w-full py-3 border-2 border-red-200 text-red-600 font-bold rounded-xl hover:bg-red-50 transition-colors text-sm flex items-center justify-center gap-2">
         <AlertTriangle size={16} /> Report Vehicle Issue
       </button>

@@ -9,26 +9,16 @@ import StatusBadge from '../../components/common/StatusBadge.jsx'
 import Modal from '../../components/common/Modal.jsx'
 import { MessageSquare, Eye } from 'lucide-react'
 
-const MOCK_COMPLAINTS = Array.from({ length: 6 }, (_, i) => ({
-  _id: String(i), complaintId: `CMP-00${i+1}`,
-  studentName: ['Rahul Sharma','Priya Verma','Amit Patel','Sneha Kumar','Deepika Roy','Venkatesh K'][i],
-  studentRollNumber: `21CS10${String(i+1).padStart(2,'0')}`,
-  category: ['Bus Delay','Driver Behavior','Seat Issue','Route Change','Payment Issue','Cleanliness'][i],
-  description: ['Bus was 20 minutes late today','Driver was rude during the trip','My assigned seat was occupied','Route deviated from regular path','Payment not reflecting in account','Bus interior was not clean'][i],
-  status: ['OPEN','IN_PROGRESS','RESOLVED','OPEN','CLOSED','IN_PROGRESS'][i],
-  date: '0' + (i+1) + ' Aug 2026',
-}))
-
 const STATUS_OPTIONS = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED']
 
 export default function ComplaintsPage() {
-  const [complaints, setComplaints] = useState(MOCK_COMPLAINTS)
+  const [complaints, setComplaints] = useState([])
   const [search, setSearch] = useState('')
   const [viewModal, setViewModal] = useState(null)
 
   useEffect(() => {
     complaintService.getAll()
-      .then(r => { if (r.data.complaints?.length) setComplaints(r.data.complaints) })
+      .then(r => setComplaints(r.data.complaints || []))
       .catch(() => {})
   }, [])
 

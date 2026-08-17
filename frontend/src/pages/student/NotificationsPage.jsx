@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { notificationService } from '../../api/services.js'
-import { MOCK_NOTIFICATIONS } from '../../utils/helpers.js'
 import { Bell, CheckCheck, Armchair, CreditCard, Megaphone } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -16,11 +15,11 @@ const TYPE_ICON = {
 }
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS)
+  const [notifications, setNotifications] = useState([])
   const [filter, setFilter] = useState('All')
 
   useEffect(() => {
-    notificationService.getAll().then(r => { if (r.data?.length) setNotifications(r.data) }).catch(() => {})
+    notificationService.getAll().then(r => setNotifications(r.data || [])).catch(() => {})
   }, [])
 
   const markAllRead = async () => {

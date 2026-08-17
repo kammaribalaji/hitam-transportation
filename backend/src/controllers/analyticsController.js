@@ -1,9 +1,4 @@
-import User from '../models/User.js';
-import Booking from '../models/Booking.js';
-import Bus from '../models/Bus.js';
-import Trip from '../models/Trip.js';
-import Complaint from '../models/Complaint.js';
-import Route from '../models/Route.js';
+import prisma from '../lib/prisma.js';
 
 export const getDashboardAnalytics = async (req, res, next) => {
   try {
@@ -17,19 +12,26 @@ export const getDashboardAnalytics = async (req, res, next) => {
       todayTrips,
       openComplaints,
       routes,
+      revenueAgg,
     ] = await Promise.all([
-      User.countDocuments({ role: 'STUDENT' }),
-      User.countDocuments({ role: 'DRIVER' }),
-      Bus.countDocuments(),
-      Booking.countDocuments({ isActive: true }),
-      Booking.countDocuments({ isActive: true, paymentStatus: { $regex: 'Paid', $options: 'i' } }),
-      Trip.countDocuments(),
-      Trip.countDocuments({ status: { $in: ['UPCOMING', 'IN_PROGRESS'] } }),
-      Complaint.countDocuments({ status: 'OPEN' }),
-      Route.find({ isActive: true }),
+      prisma.user.count({ where: { role: 'STUDENT' } }),
+      prisma.user.count({ where: { role: 'DRIVER' } }),
+      prisma.bus.count(),
+      prisma.booking.count({ where: { isActive: true } }),
+      prisma.booking.count({ where: { isActive: true, paymentStatus: { contains: 'Paid', mode: 'insensitive' } } }),
+      prisma.trip.count(),
+      prisma.trip.count({ where: { status: { in: ['UPCOMING', 'IN_PROGRESS'] } } }),
+      prisma.complaint.count({ where: { status: 'OPEN' } }),
+      prisma.route.findMany({ where: { isActive: true } }),
+      // Collected revenue = sum of the actual paid amounts on record (₹42,900
+      // per student per the Route 12 sheet; partial payments included).
+      prisma.booking.aggregate({
+        where: { isActive: true, paymentStatus: { contains: 'Paid', mode: 'insensitive' } },
+        _sum: { amountPaid: true },
+      }),
     ]);
 
-    const totalRevenue = paidBookings * 12000;
+    const totalRevenue = revenueAgg._sum.amountPaid || 0;
 
     const routeOccupancy = routes.map((r) => ({
       routeId: r.id,
@@ -72,12 +74,16 @@ export const getRevenueChart = async (req, res, next) => {
 
     const data = await Promise.all(
       months.map(async (m) => {
-        const count = await Booking.countDocuments({
+        const where = {
           isActive: true,
-          createdAt: { $gte: m.start, $lte: m.end },
-          paymentStatus: { $regex: 'Paid', $options: 'i' },
-        });
-        return { label: m.label, revenue: count * 12000, bookings: count };
+          createdAt: { gte: m.start, lte: m.end },
+          paymentStatus: { contains: 'Paid', mode: 'insensitive' },
+        };
+        const [count, rev] = await Promise.all([
+          prisma.booking.count({ where }),
+          prisma.booking.aggregate({ where, _sum: { amountPaid: true } }),
+        ]);
+        return { label: m.label, revenue: rev._sum.amountPaid || 0, bookings: count };
       })
     );
 

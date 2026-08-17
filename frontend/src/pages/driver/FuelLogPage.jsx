@@ -1,27 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Line } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js'
 import PageHeader from '../../components/common/PageHeader.jsx'
-import { MOCK_TRIPS } from '../../utils/helpers.js'
+import { tripService } from '../../api/services.js'
 import { Fuel, TrendingDown, Activity, Download } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
-
-const FUEL_DATA = {
-  labels: ['01 May', '08 May', '15 May', '22 May', '29 May', '05 Jun', '07 Aug'],
-  datasets: [{
-    label: 'Fuel Consumption (L)',
-    data: [95, 102, 89, 110, 87, 101, 96],
-    borderColor: '#40A047',
-    backgroundColor: 'rgba(64,160,71,0.08)',
-    tension: 0.4,
-    fill: true,
-    pointBackgroundColor: '#40A047',
-    pointRadius: 4,
-  }]
-}
 
 const CHART_OPTIONS = {
   responsive: true,
@@ -32,12 +18,39 @@ const CHART_OPTIONS = {
   }
 }
 
-const TRIPS_FUEL = MOCK_TRIPS.filter(t => t.fuelUsed).map(t => ({
-  date: t.date, trip: t.routeName, distance: t.distance, fuelUsed: t.fuelUsed, fuelCost: t.fuelCost, avgMileage: t.avgMileage
-}))
+const parseNum = (str) => {
+  const m = String(str || '').match(/[\d.]+/)
+  return m ? parseFloat(m[0]) : 0
+}
 
 export default function FuelLogPage() {
   const [tab, setTab] = useState('chart')
+  const [trips, setTrips] = useState([])
+
+  useEffect(() => {
+    tripService.getMy().then(r => setTrips(r.data || [])).catch(() => {})
+  }, [])
+
+  const tripsFuel = trips.filter(t => t.fuelUsed)
+
+  const totalFuel = tripsFuel.reduce((s, t) => s + parseNum(t.fuelUsed), 0)
+  const totalCost = tripsFuel.reduce((s, t) => s + parseNum(t.fuelCost), 0)
+  const totalDistance = tripsFuel.reduce((s, t) => s + parseNum(t.distance), 0)
+  const avgMileage = totalFuel > 0 ? (totalDistance / totalFuel).toFixed(1) : '0'
+
+  const fuelData = {
+    labels: tripsFuel.map(t => t.date).reverse() || [],
+    datasets: [{
+      label: 'Fuel Consumption (L)',
+      data: tripsFuel.map(t => parseNum(t.fuelUsed)).reverse() || [0],
+      borderColor: '#40A047',
+      backgroundColor: 'rgba(64,160,71,0.08)',
+      tension: 0.4,
+      fill: true,
+      pointBackgroundColor: '#40A047',
+      pointRadius: 4,
+    }]
+  }
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
@@ -53,10 +66,10 @@ export default function FuelLogPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Fuel Used', value: '101 L', icon: Fuel, color: 'text-[#40A047]', bg: 'bg-green-100' },
-          { label: 'Total Fuel Cost', value: '₹10,564', icon: TrendingDown, color: 'text-blue-600', bg: 'bg-blue-100' },
-          { label: 'Avg Mileage', value: '4.2 km/L', icon: Activity, color: 'text-purple-600', bg: 'bg-purple-100' },
-          { label: 'Total Distance', value: '508 km', icon: Activity, color: 'text-orange-600', bg: 'bg-orange-100' },
+          { label: 'Total Fuel Used', value: `${totalFuel} L`, icon: Fuel, color: 'text-[#40A047]', bg: 'bg-green-100' },
+          { label: 'Total Fuel Cost', value: `₹${totalCost.toLocaleString('en-IN')}`, icon: TrendingDown, color: 'text-blue-600', bg: 'bg-blue-100' },
+          { label: 'Avg Mileage', value: `${avgMileage} km/L`, icon: Activity, color: 'text-purple-600', bg: 'bg-purple-100' },
+          { label: 'Total Distance', value: `${totalDistance} km`, icon: Activity, color: 'text-orange-600', bg: 'bg-orange-100' },
         ].map(({ label, value, icon: Icon, color, bg }) => (
           <div key={label} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm">
             <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${bg}`}>
@@ -81,7 +94,11 @@ export default function FuelLogPage() {
       {tab === 'chart' && (
         <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
           <h2 className="text-sm font-bold text-gray-900 mb-4">Fuel Consumption (Liters)</h2>
-          <Line data={FUEL_DATA} options={CHART_OPTIONS} height={90} />
+          {tripsFuel.length === 0 ? (
+            <p className="text-center text-sm text-gray-400 py-10">No fuel data yet. Completed trips with fuel logs will appear here.</p>
+          ) : (
+            <Line data={fuelData} options={CHART_OPTIONS} height={90} />
+          )}
         </div>
       )}
 
@@ -95,10 +112,13 @@ export default function FuelLogPage() {
                 ))}
               </tr></thead>
               <tbody>
-                {TRIPS_FUEL.concat(TRIPS_FUEL).map((t, i) => (
-                  <tr key={i} className="border-b border-gray-50 hover:bg-green-50/30">
+                {tripsFuel.length === 0 && (
+                  <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No fuel logs yet</td></tr>
+                )}
+                {tripsFuel.map((t, i) => (
+                  <tr key={t.tripId || i} className="border-b border-gray-50 hover:bg-green-50/30">
                     <td className="px-4 py-3 text-gray-600">{t.date}</td>
-                    <td className="px-4 py-3 font-medium text-gray-800">{t.trip}</td>
+                    <td className="px-4 py-3 font-medium text-gray-800">{t.routeName}</td>
                     <td className="px-4 py-3 text-gray-600">{t.distance}</td>
                     <td className="px-4 py-3 font-semibold text-[#40A047]">{t.fuelUsed}</td>
                     <td className="px-4 py-3 text-gray-700">{t.fuelCost}</td>
@@ -113,25 +133,23 @@ export default function FuelLogPage() {
 
       {tab === 'summary' && (
         <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-          <h2 className="text-sm font-bold text-gray-900 mb-4">Monthly Summary</h2>
-          {[
-            { month: 'May 2026', trips: 22, fuel: '95L', cost: '₹8,740', mileage: '4.4 km/L' },
-            { month: 'Jun 2026', trips: 20, fuel: '101L', cost: '₹9,320', mileage: '4.1 km/L' },
-            { month: 'Jul 2026', trips: 21, fuel: '98L', cost: '₹9,056', mileage: '4.3 km/L' },
-            { month: 'Aug 2026', trips: 5, fuel: '24L', cost: '₹2,220', mileage: '4.2 km/L' },
-          ].map((m, i) => (
-            <div key={i} className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
-              <div>
-                <p className="text-sm font-bold text-gray-900">{m.month}</p>
-                <p className="text-xs text-gray-500">{m.trips} trips</p>
+          <h2 className="text-sm font-bold text-gray-900 mb-4">Trip Summary (from completed trips)</h2>
+          <div className="space-y-2.5">
+            {tripsFuel.map((m, i) => (
+              <div key={m.tripId || i} className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
+                <div>
+                  <p className="text-sm font-bold text-gray-900">{m.routeName}</p>
+                  <p className="text-xs text-gray-500">{m.date} · {m.startTime} – {m.endTime}</p>
+                </div>
+                <div className="grid grid-cols-3 gap-6 text-right">
+                  <div><p className="text-sm font-bold text-[#40A047]">{m.fuelUsed}</p><p className="text-xs text-gray-400">Fuel</p></div>
+                  <div><p className="text-sm font-bold text-gray-800">{m.fuelCost}</p><p className="text-xs text-gray-400">Cost</p></div>
+                  <div><p className="text-sm font-bold text-blue-600">{m.avgMileage}</p><p className="text-xs text-gray-400">Mileage</p></div>
+                </div>
               </div>
-              <div className="grid grid-cols-3 gap-6 text-right">
-                <div><p className="text-sm font-bold text-[#40A047]">{m.fuel}</p><p className="text-xs text-gray-400">Fuel</p></div>
-                <div><p className="text-sm font-bold text-gray-800">{m.cost}</p><p className="text-xs text-gray-400">Cost</p></div>
-                <div><p className="text-sm font-bold text-blue-600">{m.mileage}</p><p className="text-xs text-gray-400">Mileage</p></div>
-              </div>
-            </div>
-          ))}
+            ))}
+            {tripsFuel.length === 0 && <p className="text-center text-sm text-gray-400 py-6">No completed trips with fuel data yet.</p>}
+          </div>
         </div>
       )}
     </motion.div>

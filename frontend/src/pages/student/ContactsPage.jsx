@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { contactService } from '../../api/services.js'
-import { MOCK_CONTACTS } from '../../utils/helpers.js'
 import { Phone, User, Info } from 'lucide-react'
 
 const ROLE_COLORS = {
@@ -12,10 +11,10 @@ const ROLE_COLORS = {
 }
 
 export default function ContactsPage() {
-  const [contacts, setContacts] = useState(MOCK_CONTACTS)
+  const [contacts, setContacts] = useState([])
 
   useEffect(() => {
-    contactService.getAll().then(r => { if (r.data?.length) setContacts(r.data) }).catch(() => {})
+    contactService.getAll().then(r => setContacts(r.data || [])).catch(() => {})
   }, [])
 
   return (
@@ -23,6 +22,12 @@ export default function ContactsPage() {
       <h1 className="text-xl font-bold text-gray-900">Contacts & Helpline</h1>
 
       <div className="space-y-3">
+        {contacts.length === 0 && (
+          <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
+            <Phone size={36} className="mx-auto text-gray-200 mb-3" />
+            <p className="text-gray-400 text-sm">No contacts available</p>
+          </div>
+        )}
         {contacts.map((c, i) => (
           <motion.div key={c._id || i} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
             className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center justify-between gap-4">

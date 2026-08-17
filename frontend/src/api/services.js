@@ -21,6 +21,9 @@ export const userService = {
 export const routeService = {
   getAll: () => api.get('/routes'),
   getById: (id) => api.get(`/routes/${id}`),
+  getStops: (id) => api.get(`/routes/${id}/stops`),
+  createStop: (id, data) => api.post(`/routes/${id}/stops`, data),
+  deleteStop: (id, stopId) => api.delete(`/routes/${id}/stops/${stopId}`),
   create: (data) => api.post('/routes', data),
   update: (id, data) => api.put(`/routes/${id}`, data),
   delete: (id) => api.delete(`/routes/${id}`),
@@ -41,6 +44,7 @@ export const bookingService = {
   getMy: () => api.get('/bookings/my'),
   create: (data) => api.post('/bookings', data),
   cancel: (id) => api.put(`/bookings/${id}/cancel`),
+  remove: (id) => api.delete(`/bookings/${id}`),
 }
 
 // Seats
@@ -52,7 +56,9 @@ export const seatService = {
 export const tripService = {
   getAll: (params) => api.get('/trips', { params }),
   getMy: () => api.get('/trips/my'),
+  getCurrent: () => api.get('/trips/current'),
   getById: (id) => api.get(`/trips/${id}`),
+  getSeats: (id) => api.get(`/trips/${id}/seats`),
   create: (data) => api.post('/trips', data),
   updateStatus: (id, status) => api.put(`/trips/${id}/status`, { status }),
 }
@@ -110,4 +116,44 @@ export const liveLocationService = {
   upsertMy: (data) => api.put('/live-location/my', data),
   getByRoute: (routeId) => api.get(`/live-location/route/${routeId}`),
   getByBus: (busNumber) => api.get(`/live-location/bus/${encodeURIComponent(busNumber)}`),
+}
+
+// Payments
+export const paymentService = {
+  getAll: (params) => api.get('/payments', { params }),
+  getMy: () => api.get('/payments/my'),
+  create: (data) => api.post('/payments', data),
+  updateStatus: (paymentId, status) => api.put(`/payments/${paymentId}/status`, { status }),
+}
+
+// Trip-scoped tracking
+export const trackingService = {
+  getByTrip: (tripId) => api.get(`/tracking/${tripId}`),
+  postLocation: (tripId, data) => api.post(`/tracking/${tripId}/location`, data),
+}
+
+// Students — real records from the Route 12 sheet (PostgreSQL)
+export const studentService = {
+  getAll: (params) => api.get('/students', { params }),
+  getByRoll: (roll) => api.get(`/students/${roll}`),
+  getMe: () => api.get('/students/me'),
+}
+
+// Digital pass (derived from the actual booking record)
+export const passService = {
+  getMy: () => api.get('/pass/my'),
+}
+
+// Admin CSV import (Route 12 sheet)
+export const importService = {
+  route12: (csv) => api.post('/import/route12', { csv }),
+}
+
+// HypeGPS tracker status + device mappings (admin only — the API hash never leaves the backend)
+export const hypegpsService = {
+  getDevices: () => api.get('/hypegps/devices'),
+  getMappings: () => api.get('/hypegps/mappings'),
+  createMapping: (data) => api.post('/hypegps/mappings', data),
+  updateMapping: (id, data) => api.put(`/hypegps/mappings/${id}`, data),
+  deleteMapping: (id) => api.delete(`/hypegps/mappings/${id}`),
 }

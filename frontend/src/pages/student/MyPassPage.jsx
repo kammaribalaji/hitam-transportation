@@ -1,38 +1,26 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { toPng } from 'html-to-image'
 import { motion } from 'framer-motion'
 import { bookingService } from '../../api/services.js'
 import { useAuth } from '../../hooks/useAuth.js'
 import QRCode from '../../components/common/QRCode.jsx'
-import { Download, CheckCircle, Bus, MapPin, Calendar, User } from 'lucide-react'
+import { formatCurrency } from '../../utils/helpers.js'
+import { Download, CheckCircle, Bus, User, QrCode } from 'lucide-react'
 import toast from 'react-hot-toast'
-
-const MOCK_PASS = {
-  bookingId: 'HITAM-PASS-2026-8842',
-  studentName: 'Rahul Sharma',
-  rollNumber: '21CS1001',
-  department: 'CSE - 2nd Year',
-  busNumber: 'TS 09 AB 1234',
-  routeName: 'R1 - Main Campus to City Center',
-  seatNumber: 11,
-  pickupPoint: 'Main Gate',
-  paymentStatus: 'Paid (Annual Pass)',
-  paymentDate: '03 Aug 2026',
-  validTill: '03 Aug 2027',
-  validityPeriod: 'Valid for 1 Year (AY 2026-2027)',
-  qrCodeData: 'HITAM|21CS1001|TS09AB1234|SEAT11|PAID_1YR',
-  bookingDate: '03 Aug 2026',
-  amountPaid: 12000,
-}
 
 export default function MyPassPage() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [pass, setPass] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [downloading, setDownloading] = useState(false)
+  const passRef = useRef(null)
 
   useEffect(() => {
     bookingService.getMy()
-      .then(r => setPass(r.data || MOCK_PASS))
-      .catch(() => setPass({ ...MOCK_PASS, studentName: user?.name || 'Rahul Sharma', rollNumber: user?.rollNumber || '21CS1001', department: `${user?.department || 'CSE'} - ${user?.year || '2nd Year'}` }))
+      .then(r => setPass(r.data || null))
+      .catch(() => setPass(null))
       .finally(() => setLoading(false))
   }, [user])
 
@@ -42,14 +30,59 @@ export default function MyPassPage() {
     </div>
   )
 
-  const p = pass || MOCK_PASS
+  if (!pass) {
+    return (
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 max-w-2xl mx-auto">
+        <h1 className="text-xl font-bold text-gray-900">My Digital Bus Pass</h1>
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 text-center">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <QrCode size={30} className="text-gray-400" />
+          </div>
+          <p className="text-base font-bold text-gray-900 mb-1">No Active Bus Pass</p>
+          <p className="text-sm text-gray-500 mb-6">Book a seat and complete the payment to generate your digital bus pass with QR code.</p>
+          <button onClick={() => navigate('/student/book-seat')}
+            className="px-8 py-3 bg-[#40A047] hover:bg-[#2d7a33] text-white font-bold rounded-xl transition-all text-sm shadow-lg shadow-green-600/20">
+            Book a Seat
+          </button>
+        </div>
+      </motion.div>
+    )
+  }
+
+  const p = pass
+  // Waitlisted passengers have seat 0 in the DB; show the sheet's label instead.
+  const seatLabel = p.seatNumber >= 1 ? p.seatNumber : 'WAITLIST1'
+
+  // Capture the pass card as a PNG and save it to the device.
+  const downloadPass = async () => {
+    if (!passRef.current) return
+    setDownloading(true)
+    try {
+      const dataUrl = await toPng(passRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: '#ffffff',
+        skipFonts: true, // avoids cross-origin Google Fonts cssRules errors; PNG uses system font
+      })
+      const safeRoll = String(p?.studentRollNumber || 'student').replace(/[^a-zA-Z0-9]/g, '')
+      const link = document.createElement('a')
+      link.download = `HITAM-BusPass-${safeRoll}-Seat${seatLabel}.png`
+      link.href = dataUrl
+      link.click()
+      toast.success('Bus pass saved as PNG!')
+    } catch {
+      toast.error('Could not generate the image. Try again.')
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 max-w-2xl mx-auto">
       <h1 className="text-xl font-bold text-gray-900">My Digital Bus Pass</h1>
 
       {/* Pass card */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
+      <div ref={passRef} className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
         {/* Header strip */}
         <div className="bg-[#1E293B] px-6 py-4">
           <div className="flex items-center justify-between">
@@ -75,8 +108,8 @@ export default function MyPassPage() {
               </div>
               <div>
                 <p className="text-lg font-bold text-gray-900">{p.studentName}</p>
-                <p className="text-sm font-semibold text-[#40A047]">{p.rollNumber}</p>
-                <p className="text-xs text-gray-500">{p.department}</p>
+                <p className="text-sm font-semibold text-[#40A047]">{p.studentRollNumber}</p>
+                <p className="text-xs text-gray-500">{p.department} · {p.year}</p>
               </div>
             </div>
             <div className="text-center flex-shrink-0">
@@ -92,11 +125,11 @@ export default function MyPassPage() {
             {[
               ['Bus Number', p.busNumber],
               ['Route', p.routeName],
-              ['Seat Number', String(p.seatNumber)],
+              ['Seat Number', String(seatLabel)],
               ['Pickup Point', p.pickupPoint],
-              ['Payment Date', p.paymentDate],
-              ['Valid Till (1 Year)', p.validTill],
-              ['Fee Structure', 'Annual Fee (₹12,000)'],
+              ['Payment Date', p.paymentDate || '—'],
+              ['Valid Till (1 Year)', p.validTill || '—'],
+              ['Fee Structure', `Annual Fee (${p.amountPaid ? `₹${Number(p.amountPaid).toLocaleString('en-IN')}` : '—'})`],
             ].map(([k, v]) => (
               <div key={k}>
                 <p className="text-xs text-gray-500">{k}</p>
@@ -105,24 +138,33 @@ export default function MyPassPage() {
             ))}
             <div>
               <p className="text-xs text-gray-500">Pass Status</p>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 mt-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 mt-1 text-xs font-bold rounded-full ${String(p.paymentStatus || '').toLowerCase().includes('paid') ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                 <CheckCircle size={12} />
-                Paid · 1 Year Valid
+                {p.paymentStatus || 'Pending'}
               </span>
             </div>
           </div>
 
           <div className="mt-5 p-3 bg-green-50 rounded-xl border border-green-100">
-            <p className="text-xs text-green-700 font-medium text-center">{p.validityPeriod}</p>
+            <p className="text-xs text-green-700 font-medium text-center">{p.validityPeriod || 'Complete payment to activate validity.'}</p>
           </div>
         </div>
       </div>
 
+      {/* Pending payment -> resume payment path */}
+      {!String(p.paymentStatus || '').toLowerCase().includes('paid') && (
+        <button onClick={() => navigate('/student/payment', { state: { bookingId: p.bookingId, pendingSeat: p.seatNumber, selectedRouteId: p.routeId } })}
+          className="w-full py-3.5 bg-[#40A047] text-white font-bold rounded-xl hover:bg-[#2d7a33] transition-colors flex items-center justify-center gap-2 text-sm shadow-lg shadow-green-600/20">
+          <CheckCircle size={18} />
+          Complete Payment · {p.feeAmount ? formatCurrency(p.feeAmount) : (p.amountPaid ? formatCurrency(p.amountPaid) : '—')}
+        </button>
+      )}
+
       {/* Download button */}
-      <button onClick={() => toast.success('Bus Pass downloaded to device!')}
-        className="w-full py-3.5 border-2 border-[#40A047] text-[#40A047] font-bold rounded-xl hover:bg-green-50 transition-colors flex items-center justify-center gap-2 text-sm">
+      <button onClick={downloadPass} disabled={downloading}
+        className="w-full py-3.5 border-2 border-[#40A047] text-[#40A047] font-bold rounded-xl hover:bg-green-50 transition-colors flex items-center justify-center gap-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed">
         <Download size={18} />
-        Download Pass
+        {downloading ? 'Generating…' : 'Download Pass as PNG'}
       </button>
     </motion.div>
   )

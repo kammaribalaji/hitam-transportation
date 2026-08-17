@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import prisma from '../lib/prisma.js';
+import { serialize } from '../lib/serialize.js';
 
 export const protect = async (req, res, next) => {
   try {
@@ -9,9 +10,10 @@ export const protect = async (req, res, next) => {
     }
     const token = auth.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findOne({ rollNumber: decoded.rollNumber }).select('-passwordHash');
+    const user = await prisma.user.findFirst({ where: { rollNumber: decoded.rollNumber } });
     if (!user) return res.status(401).json({ message: 'User not found' });
-    req.user = user;
+    const { passwordHash, ...safeUser } = user;
+    req.user = serialize(safeUser);
     next();
   } catch {
     return res.status(401).json({ message: 'Invalid token' });

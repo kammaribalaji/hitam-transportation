@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Users, UserCheck, Route, Bus, BookOpen,
   CreditCard, MessageSquare, BarChart2, TrendingUp,
   Settings, Bell, LogOut, Menu, Megaphone, Search, X,
-  ChevronDown
+  ChevronDown, UploadCloud, Satellite
 } from 'lucide-react'
 
 const navItems = [
@@ -15,11 +15,14 @@ const navItems = [
   { to: '/admin/drivers', icon: UserCheck, label: 'Drivers' },
   { to: '/admin/buses', icon: Bus, label: 'Buses' },
   { to: '/admin/routes', icon: Route, label: 'Routes' },
+  { to: '/admin/import', icon: UploadCloud, label: 'Import Data' },
   { to: '/admin/bookings', icon: BookOpen, label: 'Bookings' },
   { to: '/admin/payments', icon: CreditCard, label: 'Payments' },
   { to: '/admin/complaints', icon: MessageSquare, label: 'Complaints' },
+  { to: '/admin/announcements', icon: Megaphone, label: 'Announcements' },
   { to: '/admin/reports', icon: BarChart2, label: 'Reports' },
   { to: '/admin/analytics', icon: TrendingUp, label: 'Analytics' },
+  { to: '/admin/gps', icon: Satellite, label: 'GPS Tracking' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },
 ]
 
@@ -29,12 +32,14 @@ const PAGE_TITLES = {
   '/admin/drivers': 'Drivers',
   '/admin/buses': 'Buses',
   '/admin/routes': 'Routes',
+  '/admin/import': 'Import Data',
   '/admin/bookings': 'Bookings',
   '/admin/payments': 'Payments',
   '/admin/complaints': 'Complaints',
   '/admin/announcements': 'Announcements',
   '/admin/reports': 'Reports',
   '/admin/analytics': 'Analytics',
+  '/admin/gps': 'GPS Tracking',
   '/admin/settings': 'Settings',
 }
 

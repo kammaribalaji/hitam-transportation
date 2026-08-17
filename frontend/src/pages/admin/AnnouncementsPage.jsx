@@ -3,7 +3,6 @@ import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { notificationService } from '../../api/services.js'
-import { MOCK_NOTIFICATIONS } from '../../utils/helpers.js'
 import PageHeader from '../../components/common/PageHeader.jsx'
 import { Megaphone, Send, Bell } from 'lucide-react'
 
@@ -20,7 +19,7 @@ const TARGET_ROLES = [
 ]
 
 export default function AnnouncementsPage() {
-  const [announcements, setAnnouncements] = useState(MOCK_NOTIFICATIONS.filter(n => ['ANNOUNCEMENT','DELAY','SYSTEM'].includes(n.type)))
+  const [announcements, setAnnouncements] = useState([])
   const [category, setCategory] = useState('ANNOUNCEMENT')
   const [targetRole, setTargetRole] = useState('ALL')
   const [loading, setLoading] = useState(false)
@@ -28,8 +27,8 @@ export default function AnnouncementsPage() {
 
   useEffect(() => {
     notificationService.getAll().then(r => {
-      const filtered = r.data?.filter(n => ['ANNOUNCEMENT','DELAY','SYSTEM'].includes(n.type))
-      if (filtered?.length) setAnnouncements(filtered)
+      const filtered = (r.data || []).filter(n => ['ANNOUNCEMENT','DELAY','SYSTEM'].includes(n.type))
+      setAnnouncements(filtered)
     }).catch(() => {})
   }, [])
 
@@ -41,10 +40,8 @@ export default function AnnouncementsPage() {
       setAnnouncements(prev => [{ ...res.data, time: 'Just Now' }, ...prev])
       toast.success('✅ Announcement posted to Student Portal!')
       reset()
-    } catch {
-      setAnnouncements(prev => [{ _id: Date.now(), title: data.title, message: data.message, type: category, time: 'Just Now', isRead: false }, ...prev])
-      toast.success('✅ Announcement posted!')
-      reset()
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to post announcement')
     } finally {
       setLoading(false)
     }

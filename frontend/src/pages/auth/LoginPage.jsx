@@ -12,27 +12,17 @@ const ROLES = [
   { value: 'ADMIN', label: 'Admin', icon: ShieldCheck },
 ]
 
-const DEMO = {
-  STUDENT: { rollNumber: '21CS1001', password: 'hitam123' },
-  DRIVER: { rollNumber: 'DRV12345', password: 'hitam123' },
-  ADMIN: { rollNumber: 'ADMIN001', password: 'hitam123' },
-}
-
 export default function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [role, setRole] = useState('STUDENT')
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
-    defaultValues: { rollNumber: '21CS1001', password: 'hitam123' }
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: { rollNumber: '', password: '' }
   })
 
-  const onRoleChange = (r) => {
-    setRole(r)
-    setValue('rollNumber', DEMO[r].rollNumber)
-    setValue('password', DEMO[r].password)
-  }
+  const onRoleChange = (r) => setRole(r)
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -43,7 +33,7 @@ export default function LoginPage() {
       else if (user.role === 'DRIVER') navigate('/driver')
       else navigate('/student')
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Invalid credentials. Try demo credentials.')
+      toast.error(err.response?.data?.message || 'Invalid credentials')
     } finally {
       setLoading(false)
     }
@@ -120,7 +110,7 @@ export default function LoginPage() {
                 <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input {...register('rollNumber', { required: 'Required' })}
                   className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#40A047]/30 focus:border-[#40A047] transition-all"
-                  placeholder={role === 'STUDENT' ? '21CS1001' : 'User ID'} />
+                  placeholder={role === 'STUDENT' ? 'Enter Roll Number' : 'Enter User ID'} />
               </div>
               {errors.rollNumber && <p className="text-red-500 text-xs mt-1">{errors.rollNumber.message}</p>}
             </div>
@@ -161,19 +151,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 p-4 bg-green-50 rounded-xl border border-green-200">
-            <p className="text-xs font-bold text-green-800 mb-2">Demo Credentials</p>
-            <div className="space-y-1">
-              {ROLES.map(({ value, label }) => (
-                <div key={value} className="flex justify-between text-xs text-green-700">
-                  <span className="font-medium">{label}:</span>
-                  <span>{DEMO[value].rollNumber} / {DEMO[value].password}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <p className="text-center text-sm text-gray-500 mt-4">
+          <p className="text-center text-sm text-gray-500 mt-6">
             New here?{' '}
             <span className="text-[#40A047] font-semibold cursor-pointer hover:underline">Contact Transport Office</span>
           </p>

@@ -14,20 +14,15 @@ const SEVERITIES = [
   { value: 'HIGH', label: '🔴 High', bg: 'bg-red-50 border-red-200 text-red-700' },
 ]
 
-const MOCK_RECENT = [
-  { issueId: 'ISS-001', issueType: 'Traffic Issue', severity: 'LOW', description: 'Minor traffic jam near Engineering Block', status: 'RESOLVED' },
-  { issueId: 'ISS-002', issueType: 'Tire Issue', severity: 'MEDIUM', description: 'Front tire pressure low warning', status: 'IN_PROGRESS' },
-]
-
 export default function ReportIssuePage() {
-  const [issues, setIssues] = useState(MOCK_RECENT)
+  const [issues, setIssues] = useState([])
   const [severity, setSeverity] = useState('LOW')
   const [issueType, setIssueType] = useState('')
   const [loading, setLoading] = useState(false)
   const { register, handleSubmit, reset, formState: { errors } } = useForm()
 
   useEffect(() => {
-    issueService.getAll().then(r => { if (r.data?.length) setIssues(r.data) }).catch(() => {})
+    issueService.getAll().then(r => setIssues(r.data || [])).catch(() => {})
   }, [])
 
   const onSubmit = async (data) => {
@@ -40,14 +35,8 @@ export default function ReportIssuePage() {
       reset()
       setIssueType('')
       setSeverity('LOW')
-    } catch {
-      toast.success('Issue report submitted (demo)')
-      setIssues(prev => [{
-        issueId: `ISS-${Date.now()}`, issueType, severity, description: data.description, status: 'OPEN'
-      }, ...prev])
-      reset()
-      setIssueType('')
-      setSeverity('LOW')
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to submit issue report')
     } finally {
       setLoading(false)
     }

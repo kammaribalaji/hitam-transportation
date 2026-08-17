@@ -1,0 +1,399 @@
+// HITAM Transport — PostgreSQL schema (migrated from MongoDB/Mongoose)
+// Table names mirror the original Mongoose collections so API contracts stay identical.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enums ----------
+
+enum Role {
+  STUDENT
+  DRIVER
+  ADMIN
+  STAFF
+}
+
+enum BusStatus {
+  ACTIVE
+  MAINTENANCE
+  INACTIVE
+  OUT_OF_SERVICE
+}
+
+enum TripStatus {
+  UPCOMING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  PENDING
+  CANCELLED
+  COMPLETED
+}
+
+enum SeatStatus {
+  AVAILABLE
+  BOOKED
+  SELECTED
+  RESERVED
+}
+
+enum ComplaintStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum PassengerStatus {
+  BOARDED
+  PENDING
+  ABSENT
+}
+
+enum LocationSource {
+  GPS
+  SIMULATED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+}
+
+// ---------- Tables ----------
+
+model User {
+  id                String   @id @default(uuid()) @db.Uuid
+  rollNumber        String   @unique
+  name              String
+  department        String   @default("")
+  year              String   @default("")
+  email             String   @default("")
+  phone             String   @default("")
+  role              Role     @default(STUDENT)
+  assignedRouteId   String   @default("12")
+  transportFeePaid  Boolean  @default(false)
+  boardingPoint     String   @default("")   // actual boarding point from the Route 12 sheet
+  feeAmount         Float    @default(0)    // actual Amount from the Route 12 sheet
+  feePaidAmount     Float    @default(0)    // actual Paid from the Route 12 sheet
+  feeBalance        Float    @default(0)    // actual Balance from the Route 12 sheet
+  status            String   @default("ACTIVE")
+  passwordHash      String
+  licenseNo         String   @default("")
+  address           String   @default("")
+  experience        String   @default("")
+  emergencyContact  String   @default("")
+  assignedBusNumber String   @default("")
+  avatarInitial     String   @default("U")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([role])
+  @@index([assignedRouteId])
+}
+
+// Maps an application route to a physical HypeGPS tracker device.
+// deviceId = the HypeGPS device id (e.g. "1368"); busNumber = the bus that
+// carries the tracker; routeId = the app route served by that bus.
+model GpsDevice {
+  id        String   @id @default(uuid()) @db.Uuid
+  deviceId  String   @unique
+  busNumber String   @unique
+  routeId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([routeId])
+}
+
+model Bus {
+  id          String    @id @default(uuid()) @db.Uuid
+  busNumber   String    @unique
+  busType     String    @default("AC Seater")
+  capacity    Int       @default(40)
+  driverId    String    @default("")
+  driverName  String    @default("")
+  routeId     String    @default("")
+  routeName   String    @default("")
+  status      BusStatus @default(ACTIVE)
+  fuelLevel   Int       @default(75)
+  engineStatus String   @default("Good")
+  batteryHealth String  @default("Good")
+  tirePressure String   @default("Good")
+  odometer    Int       @default(45230)
+  lastService String    @default("15 Jan 2026")
+  model       String    @default("Ashok Leyland Viking")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([routeId])
+  @@index([driverId])
+}
+
+// Route `id` is the user-facing route code (R1, R2, ...) used across the API/frontend.
+model Route {
+  id            String      @id
+  name          String
+  busNumber     String
+  pickupPoint   String
+  reportingTime String
+  feeAmount     Float       @default(12000)
+  totalSeats    Int         @default(40)
+  bookedSeats   Int         @default(0)
+  stops         String[]
+  startPoint    String      @default("")
+  endPoint      String      @default("HITAM Campus")
+  distance      String      @default("")
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  routeStops RouteStop[]
+}
+
+// Route stops carry the real lat/lng + schedule used by live tracking maps.
+model RouteStop {
+  id        String  @id @default(uuid()) @db.Uuid
+  routeId   String
+  name      String
+  latitude  Float
+  longitude Float
+  stopTime  String  @default("")
+  stopOrder Int
+
+  route Route @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@unique([routeId, stopOrder])
+  @@index([routeId])
+}
+
+model Trip {
+  id               String     @id @default(uuid()) @db.Uuid
+  tripId           String     @unique
+  routeId          String
+  routeName        String     @default("")
+  driverRollNumber String     @default("")
+  busNumber        String     @default("")
+  startTime        String     @default("")
+  endTime          String     @default("")
+  studentCount     Int        @default(0)
+  status           TripStatus @default(UPCOMING)
+  date             String     @default("")
+  distance         String     @default("")
+  fuelUsed         String     @default("")
+  fuelCost         String     @default("")
+  avgMileage       String     @default("")
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([routeId])
+  @@index([driverRollNumber])
+  @@index([status])
+}
+
+// Seat collisions exist in the REAL Route 12 sheet data: seat 31 is assigned to
+// two students and one student is waitlisted (stored as seat 0). The partial
+// unique index "Booking_tripId_seatNumber_active_key" that previously guarded
+// "one active booking per seat" was REMOVED in migration
+// 20260812140000_relax_booking_seat_unique so the sheet can be imported exactly.
+model Booking {
+  id                String        @id @default(uuid()) @db.Uuid
+  bookingId         String        @unique
+  tripId            String        @default("TRIP-001")
+  studentRollNumber String
+  studentName       String
+  department        String        @default("")
+  year              String        @default("")
+  busNumber         String
+  routeId           String
+  routeName         String
+  seatNumber        Int
+  pickupPoint       String
+  paymentStatus     String        @default("UNPAID")
+  paymentMethod     String        @default("")
+  paymentDate       String        @default("")
+  validTill         String        @default("")
+  validityPeriod    String        @default("")
+  qrCodeData        String
+  bookingDate       String        @default("")
+  amountPaid        Float         @default(0)
+  isActive          Boolean       @default(true)
+  status            BookingStatus @default(CONFIRMED)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([studentRollNumber])
+  @@index([routeId])
+  @@index([tripId])
+  @@index([seatNumber])
+  @@index([bookingDate])
+  @@index([status])
+}
+
+model Seat {
+  id        String     @id @default(uuid()) @db.Uuid
+  routeId   String
+  seatId    Int
+  status    SeatStatus @default(AVAILABLE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([routeId, seatId])
+}
+
+// Every student payment is stored here; booking.paymentStatus mirrors the
+// latest payment so the existing pass/payment UI keeps working.
+model Payment {
+  id                String        @id @default(uuid()) @db.Uuid
+  paymentId         String        @unique
+  studentRollNumber String
+  studentName       String
+  routeId           String        @default("")
+  bookingId         String        @default("")
+  amount            Float
+  method            String        @default("UPI")
+  status            PaymentStatus @default(PENDING)
+  transactionRef    String        @default("")
+  date              String        @default("")
+  validTill         String        @default("")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([studentRollNumber])
+  @@index([bookingId])
+  @@index([status])
+}
+
+model BusLocation {
+  id               String         @id @default(uuid()) @db.Uuid
+  driverRollNumber String         @unique
+  routeId          String
+  busNumber        String         @default("")
+  latitude         Float
+  longitude        Float
+  speed            Float          @default(0)
+  heading          Float?
+  source           LocationSource @default(GPS)
+  lastPingAt       DateTime       @default(now())
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([routeId])
+  @@index([busNumber])
+  @@index([lastPingAt])
+}
+
+model Passenger {
+  id         String          @id @default(uuid()) @db.Uuid
+  rollNumber String
+  name       String
+  dept       String          @default("")
+  seatNo     Int
+  pickup     String          @default("")
+  feePaid    Boolean         @default(true)
+  boarded    Boolean         @default(false)
+  routeId    String          @default("R1")
+  tripDate   String          @default("")
+  status     PassengerStatus @default(PENDING)
+  scannedAt  String?
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  @@index([rollNumber])
+  @@index([routeId])
+}
+
+model Notification {
+  id         String   @id @default(uuid()) @db.Uuid
+  title      String
+  message    String
+  time       String   @default("Just now")
+  isRead     Boolean  @default(false)
+  type       String   @default("GENERAL")
+  targetRole String   @default("ALL")
+  userId     String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
+  @@index([targetRole])
+  @@index([type])
+}
+
+model Complaint {
+  id                String          @id @default(uuid()) @db.Uuid
+  complaintId       String          @unique
+  studentRollNumber String          @default("")
+  studentName       String          @default("")
+  category          String          @default("General")
+  description       String          @default("")
+  status            ComplaintStatus @default(OPEN)
+  date              String          @default("")
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([studentRollNumber])
+  @@index([status])
+}
+
+model DriverContact {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  role      String
+  phone     String
+  busNumber String   @default("")
+  subtitle  String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model IssueReport {
+  id               String      @id @default(uuid()) @db.Uuid
+  issueId          String      @unique
+  driverRollNumber String      @default("")
+  issueType        String      @default("")
+  severity         Severity    @default(LOW)
+  description      String      @default("")
+  status           IssueStatus @default(OPEN)
+  photoUrl         String      @default("")
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  @@index([driverRollNumber])
+  @@index([status])
+}
+
+model Settings {
+  id               String   @id @default(uuid()) @db.Uuid
+  collegeName      String   @default("HITAM College")
+  transportIncharge String  @default("Transport Office")
+  email            String   @default("transport@hitam.edu.in")
+  phone            String   @default("+91 40 1234 5678")
+  address          String   @default("HITAM Campus, Hyderabad")
+  dateFormat       String   @default("DD/MM/YYYY")
+  currency         String   @default("INR")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
