@@ -1,83 +1,52 @@
-# Render Blueprint — HITAM Transport
-# Docs: https://render.com/docs/blueprint-spec
-#
-# Provisions three resources from this repo:
-#   1. A free PostgreSQL database
-#   2. The Express + Prisma API (backend/)
-#   3. The React static site (frontend/), which proxies /api/* to the API
-#
-# How to deploy:
-#   1. Push this repo to GitHub.
-#   2. https://render.com -> New -> Blueprint -> select the repo.
-#   3. Enter your HypeGPS API hash when prompted (HYPEGPS_API_HASH).
-#   4. Create. Render applies the schema migrations, seeds Route 12 demo
-#      data once, and deploys both services automatically.
-#
-# Notes:
-#   - JWT_SECRET is generated randomly by Render (never committed).
-#   - If a service subdomain is already taken, Render appends a suffix —
-#     then update CLIENT_URL (API service) and the /api/* rewrite
-#     destination (web service) in the Render dashboard.
-
-databases:
-  - name: hitam-transport-db
-    plan: free
-    region: oregon
-    postgresMajorVersion: "16"
-    databaseName: college_transport
-    user: hitam_transport
-
 services:
-  # ---------------- API (Express + Prisma) ----------------
+  # 1. Backend Web Service (Node.js / Express / Prisma)
   - type: web
-    name: hitam-transport-api
-    runtime: node
+    name: hitam-transport-backend
+    env: node
     rootDir: backend
+    buildCommand: npm install && npx prisma db push && node prisma/seed.js
+    startCommand: node src/server.js
     plan: free
-    region: oregon
-    buildCommand: npm install && npx prisma generate
-    # Applies pending Prisma migrations before each deploy goes live.
-    preDeployCommand: npx prisma migrate deploy
-    startCommand: npm start
     healthCheckPath: /api/health
-    # Runs once after the FIRST successful deploy: loads the Route 12 sheet
-    # demo data (users, bookings, payments, seats, trips, GPS mapping).
-    initialDeployHook: npm run seed
     envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: JWT_SECRET
+        generateValue: true
       - key: DATABASE_URL
         fromDatabase:
           name: hitam-transport-db
           property: connectionString
-      - key: JWT_SECRET
-        generateValue: true
-      - key: JWT_EXPIRES_IN
-        value: 7d
-      # Frontend origin allowed by CORS. Only used for direct cross-origin
-      # API calls — normal traffic is same-origin via the /api/* rewrite.
       - key: CLIENT_URL
-        value: https://hitam-transport-web.onrender.com
-      - key: HYPEGPS_API_URL
-        value: https://platform.hypegps.com/api/get_devices
-      # Real GPS tracking. Render asks for this value during Blueprint setup;
-      # it is never stored in this file or in git.
-      - key: HYPEGPS_API_HASH
-        sync: false
+        fromService:
+          type: web
+          name: hitam-transport-frontend
+          property: host
 
-  # ---------------- Frontend (React static site) ----------------
+  # 2. Frontend Static Site (React / Vite / Tailwind)
   - type: web
-    name: hitam-transport-web
-    runtime: static
+    name: hitam-transport-frontend
+    env: static
     rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
     plan: free
-    buildCommand: npm run build
-    staticPublishPath: ./dist
-    headers:
-      - path: /assets/*
-        name: Cache-Control
-        value: public, max-age=31536000, immutable
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: hitam-transport-backend
+          property: host
     routes:
-      # Send every /api/* request to the backend (same-origin from the
-      # browser's point of view, so no CORS issues).
       - type: rewrite
-        source: /api/*
-        destination: https://hitam-transport-api.onrender.com/api/*
+        source: /*
+        destination: /index.html
+
+# 3. Managed PostgreSQL Database
+databases:
+  - name: hitam-transport-db
+    databaseName: hitam_transport
+    user: hitam_admin
+    plan: free
