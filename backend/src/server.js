@@ -36,7 +36,7 @@ dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 
-// Tolerant CORS configuration for Vercel and local dev
+// Tolerant CORS configuration for Vercel, localhost, and custom domains
 const allowedOrigin = process.env.CLIENT_URL;
 app.use(
   cors({
@@ -59,32 +59,55 @@ prisma.$connect()
     console.error('DB connection warning:', err.message);
   });
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/routes', routeRoutes);
-app.use('/api/buses', busRoutes);
-app.use('/api/bookings', bookingRoutes);
-app.use('/api/seats', seatRoutes);
-app.use('/api/trips', tripRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/complaints', complaintRoutes);
-app.use('/api/issues', issueRoutes);
-app.use('/api/contacts', contactRoutes);
-app.use('/api/passengers', passengerRoutes);
-app.use('/api/settings', settingsRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/live-location', liveLocationRoutes);
-app.use('/api/payments', paymentRoutes);
-app.use('/api/tracking', trackingRoutes);
-app.use('/api/hypegps', hypegpsRoutes);
-app.use('/api/students', studentRoutes);
-app.use('/api/pass', passRoutes);
-app.use('/api/import', importRoutes);
+// Register all routes for both /api/* and root /* to prevent 404s
+const registerRoutes = (prefix = '') => {
+  app.use(`${prefix}/auth`, authRoutes);
+  app.use(`${prefix}/users`, userRoutes);
+  app.use(`${prefix}/routes`, routeRoutes);
+  app.use(`${prefix}/buses`, busRoutes);
+  app.use(`${prefix}/bookings`, bookingRoutes);
+  app.use(`${prefix}/seats`, seatRoutes);
+  app.use(`${prefix}/trips`, tripRoutes);
+  app.use(`${prefix}/notifications`, notificationRoutes);
+  app.use(`${prefix}/complaints`, complaintRoutes);
+  app.use(`${prefix}/issues`, issueRoutes);
+  app.use(`${prefix}/contacts`, contactRoutes);
+  app.use(`${prefix}/passengers`, passengerRoutes);
+  app.use(`${prefix}/settings`, settingsRoutes);
+  app.use(`${prefix}/analytics`, analyticsRoutes);
+  app.use(`${prefix}/live-location`, liveLocationRoutes);
+  app.use(`${prefix}/payments`, paymentRoutes);
+  app.use(`${prefix}/tracking`, trackingRoutes);
+  app.use(`${prefix}/hypegps`, hypegpsRoutes);
+  app.use(`${prefix}/students`, studentRoutes);
+  app.use(`${prefix}/pass`, passRoutes);
+  app.use(`${prefix}/import`, importRoutes);
+  app.get(`${prefix}/health`, (req, res) =>
+    res.json({ status: 'ok', serverless: Boolean(process.env.VERCEL), timestamp: new Date().toISOString() })
+  );
+};
 
-// Health check endpoint
-app.get('/api/health', (req, res) => res.json({ status: 'ok', serverless: Boolean(process.env.VERCEL), timestamp: new Date().toISOString() }));
-app.get('/', (req, res) => res.json({ message: 'HITAM Transport Management System API is running', status: 'ok' }));
+// 1. Standard /api prefix
+registerRoutes('/api');
+
+// 2. Direct root prefix (fallback)
+registerRoutes('');
+
+// Root status endpoint
+app.get('/', (req, res) =>
+  res.json({
+    message: 'HITAM Transport Management System API is running',
+    status: 'ok',
+    serverless: Boolean(process.env.VERCEL),
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      routes: '/api/routes',
+      bookings: '/api/bookings',
+      passengers: '/api/passengers',
+    },
+  })
+);
 
 app.use(errorHandler);
 
