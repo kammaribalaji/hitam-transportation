@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { bookingService } from '../../api/services.js'
 import { useAuth } from '../../hooks/useAuth.js'
 import QRCode from '../../components/common/QRCode.jsx'
-import { formatCurrency } from '../../utils/helpers.js'
+import { formatCurrency, isPassPaid } from '../../utils/helpers.js'
 import { Download, CheckCircle, Bus, User, QrCode } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -138,7 +138,7 @@ export default function MyPassPage() {
             ))}
             <div>
               <p className="text-xs text-gray-500">Pass Status</p>
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 mt-1 text-xs font-bold rounded-full ${String(p.paymentStatus || '').toLowerCase().includes('paid') ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 mt-1 text-xs font-bold rounded-full ${isPassPaid(p.paymentStatus) ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                 <CheckCircle size={12} />
                 {p.paymentStatus || 'Pending'}
               </span>
@@ -152,7 +152,7 @@ export default function MyPassPage() {
       </div>
 
       {/* Pending payment -> resume payment path */}
-      {!String(p.paymentStatus || '').toLowerCase().includes('paid') && (
+      {!isPassPaid(p.paymentStatus) && (
         <button onClick={() => navigate('/student/payment', { state: { bookingId: p.bookingId, pendingSeat: p.seatNumber, selectedRouteId: p.routeId } })}
           className="w-full py-3.5 bg-[#40A047] text-white font-bold rounded-xl hover:bg-[#2d7a33] transition-colors flex items-center justify-center gap-2 text-sm shadow-lg shadow-green-600/20">
           <CheckCircle size={18} />

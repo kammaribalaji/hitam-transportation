@@ -75,7 +75,7 @@ export default function StudentListPage() {
       {/* List */}
       <div className="space-y-2.5">
         {filtered.map((p, i) => (
-          <motion.div key={p.rollNumber} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+          <motion.div key={p.id || p.rollNumber || i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
             className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-10 h-10 bg-[#40A047] rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">

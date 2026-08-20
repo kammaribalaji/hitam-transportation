@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuth } from '../../hooks/useAuth.js'
 import { notificationService, bookingService, routeService } from '../../api/services.js'
 import StatCard from '../../components/common/StatCard.jsx'
+import { isPassPaid } from '../../utils/helpers.js'
 import { Bus, MapPin, Clock, Armchair, QrCode, Navigation, CreditCard, Bell, ChevronRight, CheckCircle, Megaphone } from 'lucide-react'
 
 export default function StudentDashboard() {
@@ -11,19 +12,59 @@ export default function StudentDashboard() {
   const navigate = useNavigate()
   const [notifications, setNotifications] = useState([])
   const [booking, setBooking] = useState(null)
-  const [route, setRoute] = useState(null)
+  const [routes, setRoutes] = useState([])
+  const [routeStops, setRouteStops] = useState([])
+
   const firstName = user?.name?.split(' ')[0] || 'Student'
 
   useEffect(() => {
     notificationService.getAll().then(r => setNotifications(r.data || [])).catch(() => {})
     bookingService.getMy().then(r => setBooking(r.data)).catch(() => {})
-    routeService.getAll()
-      .then(r => {
-        const list = r.data || []
-        setRoute(list.find(x => x.id === (user?.assignedRouteId || '12')) || list[0] || null)
-      })
-      .catch(() => {})
+    routeService.getAll().then(r => setRoutes(r.data || [])).catch(() => {})
   }, [user])
+
+  // Determine active route ID from booking first, then user, then default
+  const activeRouteId = useMemo(() => {
+    return String(booking?.routeId || user?.assignedRouteId || '12')
+  }, [booking, user])
+
+  const route = useMemo(() => {
+    return routes.find(r => String(r.id) === activeRouteId) || routes[0] || null
+  }, [routes, activeRouteId])
+
+  // Fetch stops for the active route to find exact stop time
+  useEffect(() => {
+    if (!activeRouteId) return
+    routeService.getStops(activeRouteId)
+      .then(r => setRouteStops(r.data?.stops || []))
+      .catch(() => setRouteStops([]))
+  }, [activeRouteId])
+
+  const userBoardingPoint = booking?.pickupPoint || user?.boardingPoint || route?.pickupPoint || 'Campus Gate'
+
+  const matchedStop = useMemo(() => {
+    if (!routeStops.length || !userBoardingPoint) return null
+    const cleanUserStop = userBoardingPoint.toLowerCase().trim()
+    return routeStops.find(s => s.name?.toLowerCase().trim() === cleanUserStop) ||
+           routeStops.find(s => s.name?.toLowerCase().includes(cleanUserStop) || cleanUserStop.includes(s.name?.toLowerCase())) || null
+  }, [routeStops, userBoardingPoint])
+
+  const scheduledTime = matchedStop?.stopTime || route?.reportingTime || '07:00 AM'
+  const assignedRouteNumber = `Route ${route?.id || activeRouteId}`
+  const assignedBusNumber = booking?.busNumber || route?.busNumber || user?.assignedBusNumber || 'TS 09 AB 1234'
+  const routeSubtitle = route?.name ? (route.name.split(' - ')[1] || route.name) : 'HITAM College Transit'
+
+  const isPaid = (user?.feeBalance != null && user.feeBalance <= 0 && user.feePaidAmount > 0) ||
+                 user?.transportFeePaid ||
+                 booking?.paymentStatus === 'PAID'
+  const isPartial = !isPaid && (
+    (user?.feePaidAmount && user.feePaidAmount > 0) ||
+    booking?.paymentStatus === 'PARTIAL' ||
+    booking?.paymentStatus === 'PARTIALLY PAID'
+  )
+
+  const seatNumber = booking?.seatNumber != null ? booking.seatNumber : 26
+  const seatDisplay = seatNumber > 0 ? `Seat ${seatNumber}` : 'Waitlist 1'
 
   const quickActions = [
     { label: 'View My Pass', icon: QrCode, to: '/student/my-pass', color: 'bg-green-50', iconColor: 'text-[#40A047]' },
@@ -45,31 +86,57 @@ export default function StudentDashboard() {
           <p className="text-sm text-gray-500 mt-0.5">Here's your transport overview.</p>
           <div className="flex flex-wrap items-center gap-2 mt-2">
             <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-full">{user?.rollNumber || '—'}</span>
-            <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-full">{user?.year || '—'}</span>
+            <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-full">{user?.year || '2nd Year'}</span>
+            <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full">{assignedRouteNumber}</span>
           </div>
         </div>
         {(() => {
-          const fs = user?.paymentStatus || (user?.transportFeePaid ? 'PAID' : 'UNPAID')
-          const badge = {
-            PAID: { text: 'Transport Fee: Paid', cls: 'bg-green-50 text-green-700 border-green-200' },
-            'PARTIALLY PAID': { text: 'Transport Fee: Partially Paid', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
-            UNPAID: { text: 'Transport Fee: Due', cls: 'bg-red-50 text-red-600 border-red-200' },
-          }[fs]
-          return badge ? (
+          const badge = isPaid
+            ? { text: 'Transport Fee: Paid', cls: 'bg-green-50 text-green-700 border-green-200' }
+            : isPartial
+              ? { text: 'Transport Fee: Partially Paid', cls: 'bg-amber-50 text-amber-700 border-amber-200' }
+              : { text: 'Transport Fee: Due', cls: 'bg-red-50 text-red-600 border-red-200' }
+          return (
             <span className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-full border ${badge.cls}`}>
               <CheckCircle size={15} />
               {badge.text}
             </span>
-          ) : null
+          )
         })()}
       </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Assigned Route" value={route?.id || '—'} subtitle={route ? (route.name.split(' - ')[1] || route.name) : 'No route assigned'} icon={Bus} />
-        <StatCard title="Bus Number" value={route?.busNumber || '—'} subtitle="Active" icon={Bus} iconBg="bg-blue-50" iconColor="text-blue-600" />
-        <StatCard title="Boarding Point" value={(user?.boardingPoint || route?.pickupPoint || '—').split(' ').slice(0, 3).join(' ')} subtitle={user?.boardingPoint || route?.pickupPoint || '—'} icon={MapPin} iconBg="bg-purple-50" iconColor="text-purple-600" />
-        <StatCard title="Reporting Time" value={route?.reportingTime || '—'} subtitle="Daily" icon={Clock} iconBg="bg-orange-50" iconColor="text-orange-600" />
+        <StatCard
+          title="ASSIGNED ROUTE"
+          value={assignedRouteNumber}
+          subtitle={routeSubtitle}
+          icon={Bus}
+        />
+        <StatCard
+          title="BUS NUMBER"
+          value={assignedBusNumber}
+          subtitle="Active Fleet Vehicle"
+          icon={Bus}
+          iconBg="bg-blue-50"
+          iconColor="text-blue-600"
+        />
+        <StatCard
+          title="BOARDING POINT"
+          value={userBoardingPoint}
+          subtitle={matchedStop ? `Stop #${matchedStop.stopOrder || ''}` : userBoardingPoint}
+          icon={MapPin}
+          iconBg="bg-purple-50"
+          iconColor="text-purple-600"
+        />
+        <StatCard
+          title="REPORTING TIME"
+          value={scheduledTime}
+          subtitle="Daily Morning Transit"
+          icon={Clock}
+          iconBg="bg-orange-50"
+          iconColor="text-orange-600"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
@@ -82,17 +149,39 @@ export default function StudentDashboard() {
               <span className="px-2.5 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">On Time</span>
             </div>
             <div className="grid grid-cols-3 gap-4 mb-4">
-              <div><p className="text-xs text-gray-500">Date</p><p className="text-sm font-bold mt-0.5">Today</p></div>
-              <div><p className="text-xs text-gray-500">Time</p><p className="text-sm font-bold mt-0.5">{route?.reportingTime || '—'}</p></div>
-              <div><p className="text-xs text-gray-500">Boarding Point</p><p className="text-sm font-bold mt-0.5">{user?.boardingPoint || route?.pickupPoint || '—'}</p></div>
+              <div>
+                <p className="text-xs text-gray-500">Date</p>
+                <p className="text-sm font-bold mt-0.5">Today</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Time</p>
+                <p className="text-sm font-bold mt-0.5">{scheduledTime}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Boarding Point</p>
+                <p className="text-sm font-bold mt-0.5">{userBoardingPoint}</p>
+              </div>
             </div>
             <div className="grid grid-cols-3 gap-4 mb-5">
-              <div><p className="text-xs text-gray-500">Seat</p><p className="text-sm font-bold mt-0.5">{booking?.seatNumber || '—'}</p></div>
-              <div><p className="text-xs text-gray-500">Route</p><p className="text-sm font-bold mt-0.5">{route?.id || '—'}</p></div>
-              <div><p className="text-xs text-gray-500">Pass</p><p className="text-sm font-bold mt-0.5 text-green-600">{booking ? (String(booking.paymentStatus || '').toLowerCase().includes('paid') ? 'Active' : 'Payment Pending') : 'Pending'}</p></div>
+              <div>
+                <p className="text-xs text-gray-500">Seat</p>
+                <p className="text-sm font-bold mt-0.5 text-[#40A047]">{seatDisplay}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Route</p>
+                <p className="text-sm font-bold mt-0.5">{assignedRouteNumber}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Pass</p>
+                <p className={`text-sm font-bold mt-0.5 ${isPaid ? 'text-green-600' : isPartial ? 'text-amber-600' : 'text-red-500'}`}>
+                  {isPaid ? 'Active' : isPartial ? 'Partially Paid' : 'Payment Due'}
+                </p>
+              </div>
             </div>
-            <button onClick={() => navigate('/student/book-seat')}
-              className="w-full py-2.5 bg-[#40A047] hover:bg-[#2d7a33] text-white text-sm font-bold rounded-xl transition-colors">
+            <button
+              onClick={() => navigate('/student/book-seat')}
+              className="w-full py-2.5 bg-[#40A047] hover:bg-[#2d7a33] text-white text-sm font-bold rounded-xl transition-colors"
+            >
               View Bus & Seats
             </button>
           </div>
@@ -102,8 +191,12 @@ export default function StudentDashboard() {
             <h2 className="text-sm font-bold text-gray-900 mb-3">Quick Actions</h2>
             <div className="grid grid-cols-2 gap-3">
               {quickActions.map(({ label, icon: Icon, to, color, iconColor }) => (
-                <motion.button key={to} whileHover={{ scale: 1.01 }} onClick={() => navigate(to)}
-                  className="flex items-center gap-3 bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all text-left">
+                <motion.button
+                  key={to}
+                  whileHover={{ scale: 1.01 }}
+                  onClick={() => navigate(to)}
+                  className="flex items-center gap-3 bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all text-left"
+                >
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
                     <Icon size={20} className={iconColor} />
                   </div>
@@ -123,7 +216,9 @@ export default function StudentDashboard() {
               <div className="flex items-center gap-2 mb-3">
                 <Megaphone size={16} className="text-[#40A047]" />
                 <h2 className="text-sm font-bold text-gray-900">Announcements</h2>
-                <span className="ml-auto px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded-full">{announcements.length}</span>
+                <span className="ml-auto px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded-full">
+                  {announcements.length}
+                </span>
               </div>
               <div className="space-y-2.5">
                 {announcements.slice(0, 2).map((a) => (
@@ -145,13 +240,27 @@ export default function StudentDashboard() {
               <div className="flex items-center gap-2">
                 <Bell size={16} className="text-[#40A047]" />
                 <h2 className="text-sm font-bold text-gray-900">Notifications</h2>
-                {unreadCount > 0 && <span className="w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">{unreadCount}</span>}
+                {unreadCount > 0 && (
+                  <span className="w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    {unreadCount}
+                  </span>
+                )}
               </div>
-              <button onClick={() => navigate('/student/notifications')} className="text-xs text-[#40A047] font-semibold hover:underline">View All</button>
+              <button
+                onClick={() => navigate('/student/notifications')}
+                className="text-xs text-[#40A047] font-semibold hover:underline"
+              >
+                View All
+              </button>
             </div>
             <div className="space-y-3">
               {recentNotifs.map((n) => (
-                <div key={n._id} className={`flex gap-3 pb-3 border-b border-gray-50 last:border-0 last:pb-0 ${!n.isRead ? 'opacity-100' : 'opacity-70'}`}>
+                <div
+                  key={n._id}
+                  className={`flex gap-3 pb-3 border-b border-gray-50 last:border-0 last:pb-0 ${
+                    !n.isRead ? 'opacity-100' : 'opacity-70'
+                  }`}
+                >
                   <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Bell size={14} className="text-[#40A047]" />
                   </div>

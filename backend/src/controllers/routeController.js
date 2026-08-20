@@ -1,8 +1,12 @@
+import fs from 'fs';
+import path from 'path';
 import prisma from '../lib/prisma.js';
 import { AppError } from '../middlewares/errorHandler.js';
 import { serialize, serializeMany } from '../lib/serialize.js';
 
 const num = (v, fallback = 0) => (v === undefined || v === null || v === '' ? fallback : Number(v));
+
+const polylinesDir = path.resolve('./src/data/polylines');
 
 const ROUTE_FIELDS = {
   name: (v) => String(v),
@@ -131,7 +135,7 @@ export const createRouteStop = async (req, res, next) => {
       },
     });
 
-    // Keep route.stops (name array) in sync so the old stop-list UI works too.
+    // Keep route.stops (name array) in sync
     const allStops = await prisma.routeStop.findMany({ where: { routeId: route.id }, orderBy: { stopOrder: 'asc' } });
     await prisma.route.update({
       where: { id: route.id },
@@ -156,6 +160,45 @@ export const deleteRouteStop = async (req, res, next) => {
       data: { stops: remaining.map((s) => s.name) },
     });
     res.json({ message: 'Stop deleted' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Google Maps-like road polyline geometries for all 23 routes
+// ---------------------------------------------------------------------------
+
+export const getRoutePolyline = async (req, res, next) => {
+  try {
+    const routeId = String(req.params.id).replace(/\D/g, '');
+    const filePath = path.join(polylinesDir, `route${routeId}.json`);
+    if (fs.existsSync(filePath)) {
+      const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      return res.json({ routeId, coordinates: data, pointsCount: data.length, source: 'road_geometry' });
+    }
+    // Fallback to stops
+    const stops = await prisma.routeStop.findMany({
+      where: { routeId },
+      orderBy: { stopOrder: 'asc' },
+    });
+    const coordinates = stops.map((s) => [s.latitude, s.longitude]);
+    res.json({ routeId, coordinates, pointsCount: coordinates.length, source: 'stops_fallback' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getAllPolylines = async (req, res, next) => {
+  try {
+    const result = {};
+    for (let i = 1; i <= 23; i++) {
+      const filePath = path.join(polylinesDir, `route${i}.json`);
+      if (fs.existsSync(filePath)) {
+        result[`route${i}`] = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      }
+    }
+    res.json(result);
   } catch (err) {
     next(err);
   }

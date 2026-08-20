@@ -32,7 +32,29 @@ const REQUEST_TIMEOUT_MS = 8000;
 // Bootstrap mapping used ONLY while the GpsDevice table is empty. The seeded
 // table is the source of truth; any DB row overrides this fallback.
 const ROUTE_TO_DEVICE_FALLBACK = {
+  '1': '1357',
+  '2': '1358',
+  '3': '1359',
+  '4': '1360',
+  '5': '1361',
+  '6': '1362',
+  '7': '1363',
+  '8': '1364',
+  '9': '1365',
+  '10': '1366',
+  '11': '1367',
   '12': '1368',
+  '13': '1369',
+  '14': '1370',
+  '15': '1371',
+  '16': '1372',
+  '17': '1373',
+  '18': '1374',
+  '19': '1375',
+  '20': '1376',
+  '21': '1377',
+  '22': '1378',
+  '23': '1379',
 };
 
 export const SOURCE = 'HYPEGPS';

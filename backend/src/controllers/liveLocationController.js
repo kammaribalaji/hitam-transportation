@@ -150,3 +150,81 @@ export const getLiveLocationByBus = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getAllLiveLocations = async (req, res, next) => {
+  try {
+    const routes = await prisma.route.findMany({
+      include: {
+        routeStops: { orderBy: { stopOrder: 'asc' } },
+      },
+    });
+
+    const routeMap = new Map(routes.map(r => [String(r.id), r]));
+    const allRouteIds = Array.from({ length: 23 }, (_, i) => String(i + 1));
+
+    const results = await Promise.all(
+      allRouteIds.map(async (routeId) => {
+        const dbRoute = routeMap.get(routeId);
+        const routeName = dbRoute?.name || `Route ${routeId}`;
+        const busNumber = dbRoute?.busNumber || dbRoute?.bus?.busNumber || `TS 09 UB ${1200 + parseInt(routeId)}`;
+        const startPoint = dbRoute?.startPoint || (routeId === '12' ? 'Sangareddy Old Bus Stand' : `Terminal ${routeId}`);
+        const endPoint = dbRoute?.endPoint || 'HITAM College';
+        const stopsCount = dbRoute?.routeStops?.length || 0;
+
+        try {
+          const gps = await getRouteHypegpsPayload(routeId);
+          if (gps) {
+            return {
+              ...gps,
+              routeId,
+              routeName,
+              busNumber,
+              startPoint,
+              endPoint,
+              stopsCount,
+            };
+          }
+        } catch {
+          // Fall through to DB or fallback
+        }
+
+        const doc = await prisma.busLocation.findFirst({
+          where: { routeId },
+          orderBy: { lastPingAt: 'desc' },
+        });
+
+        if (doc) {
+          return {
+            ...serialize(doc),
+            routeId,
+            routeName,
+            busNumber,
+            startPoint,
+            endPoint,
+            stopsCount,
+          };
+        }
+
+        return {
+          routeId,
+          routeName,
+          busNumber,
+          latitude: dbRoute?.routeStops?.[0]?.latitude || 17.5953,
+          longitude: dbRoute?.routeStops?.[0]?.longitude || 78.4531,
+          speed: 0,
+          heading: null,
+          status: 'offline',
+          isStale: true,
+          startPoint,
+          endPoint,
+          stopsCount,
+        };
+      })
+    );
+
+    res.json(results);
+  } catch (err) {
+    next(err);
+  }
+};
+

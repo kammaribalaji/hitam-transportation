@@ -22,11 +22,16 @@ export const createPayment = async (req, res, next) => {
       if (booking.studentRollNumber !== req.user.rollNumber && req.user.role !== 'ADMIN') {
         throw new AppError('This booking does not belong to you', 403);
       }
-      if (booking.paymentStatus?.toLowerCase().includes('paid')) {
+
+      // Block only FULLY-paid bookings. A naive substring check like
+      // `status.includes('paid')` also matches "UNPAID"/"Partially Paid" and
+      // wrongly rejects fresh bookings, so compare the derived status instead.
+      const route = await tx.route.findUnique({ where: { id: booking.routeId } });
+      const bookingFeeAmount = route?.feeAmount || booking.amountPaid || 0;
+      if (derivePaymentStatus(bookingFeeAmount, booking.amountPaid || 0) === 'PAID') {
         throw new AppError('This booking is already paid', 400);
       }
 
-      const route = await tx.route.findUnique({ where: { id: booking.routeId } });
       const payAmount = Number(amount) || route?.feeAmount || booking.amountPaid || 12000;
       const now = new Date();
       const validTillDate = new Date(now);

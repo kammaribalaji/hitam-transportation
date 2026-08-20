@@ -22,6 +22,8 @@ export const routeService = {
   getAll: () => api.get('/routes'),
   getById: (id) => api.get(`/routes/${id}`),
   getStops: (id) => api.get(`/routes/${id}/stops`),
+  getPolyline: (id) => api.get(`/routes/${id}/polyline`),
+  getAllPolylines: () => api.get('/routes/all/polylines'),
   createStop: (id, data) => api.post(`/routes/${id}/stops`, data),
   deleteStop: (id, stopId) => api.delete(`/routes/${id}/stops/${stopId}`),
   create: (data) => api.post('/routes', data),
@@ -113,6 +115,7 @@ export const analyticsService = {
 
 // Live Location
 export const liveLocationService = {
+  getAll: () => api.get('/live-location/all'),
   upsertMy: (data) => api.put('/live-location/my', data),
   getByRoute: (routeId) => api.get(`/live-location/route/${routeId}`),
   getByBus: (busNumber) => api.get(`/live-location/bus/${encodeURIComponent(busNumber)}`),

@@ -5,10 +5,21 @@ export const getPassengersByRoute = async (req, res, next) => {
   try {
     const { routeId, date } = req.query;
     const where = {};
-    if (routeId) where.routeId = routeId;
+    if (routeId) where.routeId = String(routeId);
     if (date) where.tripDate = date;
     const passengers = await prisma.passenger.findMany({ where, orderBy: { seatNo: 'asc' } });
-    res.json(serializeMany(passengers));
+
+    // Deduplicate by Name (Primary Uniqueness Key)
+    const uniqueMap = new Map();
+    for (const p of passengers) {
+      const cleanName = p.name ? p.name.replace(/\s+/g, ' ').trim().toUpperCase() : p.rollNumber;
+      if (!uniqueMap.has(cleanName)) {
+        uniqueMap.set(cleanName, p);
+      }
+    }
+
+    const uniquePassengers = Array.from(uniqueMap.values());
+    res.json(serializeMany(uniquePassengers));
   } catch (err) {
     next(err);
   }

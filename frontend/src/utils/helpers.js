@@ -1,5 +1,11 @@
 export const formatCurrency = (amount) => `₹${Number(amount).toLocaleString('en-IN')}`
 
+// True only when a pass/booking is FULLY paid. A naive `.includes('paid')`
+// also matches "UNPAID" / "Partially Paid", so compare the leading token:
+//   'PAID', 'Paid (Annual Pass)'            -> true
+//   'UNPAID', 'PARTIALLY PAID', 'Pending'   -> false
+export const isPassPaid = (status) => String(status || '').toUpperCase().startsWith('PAID')
+
 export const getStatusColor = (status) => {
   const map = {
     CONFIRMED: 'bg-green-100 text-green-700',

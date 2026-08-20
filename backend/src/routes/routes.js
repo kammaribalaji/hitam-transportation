@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   getAllRoutes, getRouteById, createRoute, updateRoute, deleteRoute,
   getRouteStops, createRouteStop, deleteRouteStop,
+  getRoutePolyline, getAllPolylines,
 } from '../controllers/routeController.js';
 import { protect, authorize } from '../middlewares/auth.js';
 
@@ -10,7 +11,9 @@ const router = Router();
 router.use(protect);
 
 router.get('/', getAllRoutes);
+router.get('/all/polylines', getAllPolylines);
 router.get('/:id', getRouteById);
+router.get('/:id/polyline', getRoutePolyline);
 
 // Stops (real lat/lng + schedule) — /api/routes/12/stops
 router.get('/:id/stops', getRouteStops);
