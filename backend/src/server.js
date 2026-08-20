@@ -31,34 +31,35 @@ import importRoutes from './routes/import.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Load backend/.env regardless of which directory the server is started from.
+// Load backend/.env in local development
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
-
-// Fail fast if JWT_SECRET is missing — otherwise login and every protected route
-// fail with an obscure 500 error instead of a clear startup message.
-if (!process.env.JWT_SECRET) {
-  console.error('FATAL: JWT_SECRET is not set. Create backend/.env (see backend/.env.example).');
-  process.exit(1);
-}
-
-// Fail fast if the PostgreSQL connection string is missing.
-if (!process.env.DATABASE_URL) {
-  console.error('FATAL: DATABASE_URL is not set. Create backend/.env (see backend/.env.example).');
-  process.exit(1);
-}
 
 const app = express();
 
+// Tolerant CORS configuration for Vercel and local dev
+const allowedOrigin = process.env.CLIENT_URL;
+app.use(
+  cors({
+    origin: allowedOrigin ? [allowedOrigin, 'http://localhost:5173', /\.vercel\.app$/] : true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
+
+app.use(express.json());
+if (process.env.NODE_ENV !== 'production') {
+  app.use(morgan('dev'));
+}
+
+// Connect to DB
 prisma.$connect()
   .then(() => console.log('PostgreSQL connected'))
   .catch((err) => {
-    console.error('DB connection failed:', err.message);
+    console.error('DB connection warning:', err.message);
   });
 
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }));
-app.use(express.json());
-app.use(morgan('dev'));
-
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/routes', routeRoutes);
@@ -81,11 +82,16 @@ app.use('/api/students', studentRoutes);
 app.use('/api/pass', passRoutes);
 app.use('/api/import', importRoutes);
 
-app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
+// Health check endpoint
+app.get('/api/health', (req, res) => res.json({ status: 'ok', serverless: Boolean(process.env.VERCEL), timestamp: new Date().toISOString() }));
+app.get('/', (req, res) => res.json({ message: 'HITAM Transport Management System API is running', status: 'ok' }));
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`HITAM Transport API running on port ${PORT}`));
+// Only listen on port if not running in Vercel serverless environment
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`HITAM Transport API running on port ${PORT}`));
+}
 
 export default app;
