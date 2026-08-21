@@ -1,16 +1,24 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import prisma from '../lib/prisma.js';
 import { signToken } from '../config/jwt.js';
 import { AppError } from '../middlewares/errorHandler.js';
 import { withPaymentStatus } from '../lib/paymentStatus.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 // Load master dataset for instant on-the-fly student lookup
 let masterStudentsMap = new Map();
 try {
-  const masterFile = path.resolve("C:/PROJECT'S/HITAM TRANSPORT/complete_transport_data.json");
-  if (fs.existsSync(masterFile)) {
+  const possiblePaths = [
+    path.resolve(__dirname, '../data/master_transport_database.json'),
+    path.resolve("C:/PROJECT'S/HITAM TRANSPORT/master_transport_database.json"),
+    path.resolve("C:/PROJECT'S/HITAM TRANSPORT/hitam-transport/backend/src/data/master_transport_database.json"),
+  ];
+  let masterFile = possiblePaths.find((p) => fs.existsSync(p));
+  if (masterFile) {
     const json = JSON.parse(fs.readFileSync(masterFile, 'utf8'));
     if (Array.isArray(json.master_students)) {
       for (const s of json.master_students) {
@@ -26,6 +34,7 @@ try {
         }
       }
     }
+    console.log(`Loaded ${masterStudentsMap.size} master student/passenger entries into auth cache.`);
   }
 } catch (e) {
   console.warn('Could not pre-load master students map:', e.message);

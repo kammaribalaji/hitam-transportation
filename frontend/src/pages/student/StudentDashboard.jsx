@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 import { useAuth } from '../../hooks/useAuth.js'
 import { notificationService, bookingService, routeService } from '../../api/services.js'
 import StatCard from '../../components/common/StatCard.jsx'
-import { isPassPaid } from '../../utils/helpers.js'
 import { Bus, MapPin, Clock, Armchair, QrCode, Navigation, CreditCard, Bell, ChevronRight, CheckCircle, Megaphone } from 'lucide-react'
 
 export default function StudentDashboard() {
@@ -23,13 +22,16 @@ export default function StudentDashboard() {
     routeService.getAll().then(r => setRoutes(r.data || [])).catch(() => {})
   }, [user])
 
-  // Determine active route ID from booking first, then user, then default
+  // Determine active route ID dynamically from user or booking
   const activeRouteId = useMemo(() => {
-    return String(booking?.routeId || user?.assignedRouteId || '12')
-  }, [booking, user])
+    const rId = user?.assignedRouteId || booking?.routeId
+    return rId ? String(rId) : ''
+  }, [user, booking])
 
+  // Match the authentic route object
   const route = useMemo(() => {
-    return routes.find(r => String(r.id) === activeRouteId) || routes[0] || null
+    if (!routes.length || !activeRouteId) return null
+    return routes.find(r => String(r.id) === activeRouteId) || null
   }, [routes, activeRouteId])
 
   // Fetch stops for the active route to find exact stop time
@@ -40,31 +42,31 @@ export default function StudentDashboard() {
       .catch(() => setRouteStops([]))
   }, [activeRouteId])
 
-  const userBoardingPoint = booking?.pickupPoint || user?.boardingPoint || route?.pickupPoint || 'Campus Gate'
+  const userBoardingPoint = user?.boardingPoint || booking?.pickupPoint || booking?.boardingPoint || (route?.pickupPoint) || 'Not Assigned'
 
   const matchedStop = useMemo(() => {
-    if (!routeStops.length || !userBoardingPoint) return null
+    if (!routeStops.length || !userBoardingPoint || userBoardingPoint === 'Not Assigned') return null
     const cleanUserStop = userBoardingPoint.toLowerCase().trim()
     return routeStops.find(s => s.name?.toLowerCase().trim() === cleanUserStop) ||
            routeStops.find(s => s.name?.toLowerCase().includes(cleanUserStop) || cleanUserStop.includes(s.name?.toLowerCase())) || null
   }, [routeStops, userBoardingPoint])
 
-  const scheduledTime = matchedStop?.stopTime || route?.reportingTime || '07:00 AM'
-  const assignedRouteNumber = `Route ${route?.id || activeRouteId}`
-  const assignedBusNumber = booking?.busNumber || route?.busNumber || user?.assignedBusNumber || 'TS 09 AB 1234'
-  const routeSubtitle = route?.name ? (route.name.split(' - ')[1] || route.name) : 'HITAM College Transit'
+  const scheduledTime = matchedStop?.stopTime || route?.reportingTime || (activeRouteId ? '07:00 AM' : '—')
+  const assignedRouteNumber = activeRouteId ? `Route ${activeRouteId}` : 'No Route'
+  const assignedBusNumber = user?.assignedBusNumber || booking?.busNumber || route?.busNumber || (activeRouteId ? `TS 09 UB ${1200 + parseInt(activeRouteId)}` : '—')
+  const routeSubtitle = route?.name ? (route.name.split(' - ')[1] || route.name) : (activeRouteId ? `Route ${activeRouteId} Transit` : 'Transport Office')
 
-  const isPaid = (user?.feeBalance != null && user.feeBalance <= 0 && user.feePaidAmount > 0) ||
-                 user?.transportFeePaid ||
-                 booking?.paymentStatus === 'PAID'
+  const isPaid = (user?.feeBalance != null && user.feeBalance <= 0 && (user.feePaidAmount > 0 || user.transportFeePaid)) ||
+                 (user?.transportFeePaid) ||
+                 (booking?.paymentStatus === 'PAID')
   const isPartial = !isPaid && (
     (user?.feePaidAmount && user.feePaidAmount > 0) ||
     booking?.paymentStatus === 'PARTIAL' ||
     booking?.paymentStatus === 'PARTIALLY PAID'
   )
 
-  const seatNumber = booking?.seatNumber != null ? booking.seatNumber : 26
-  const seatDisplay = seatNumber > 0 ? `Seat ${seatNumber}` : 'Waitlist 1'
+  const seatNumber = booking?.seatNumber != null ? booking.seatNumber : 0
+  const seatDisplay = seatNumber > 0 ? `Seat ${seatNumber}` : 'Unassigned'
 
   const quickActions = [
     { label: 'View My Pass', icon: QrCode, to: '/student/my-pass', color: 'bg-green-50', iconColor: 'text-[#40A047]' },
@@ -124,7 +126,7 @@ export default function StudentDashboard() {
         <StatCard
           title="BOARDING POINT"
           value={userBoardingPoint}
-          subtitle={matchedStop ? `Stop #${matchedStop.stopOrder || ''}` : userBoardingPoint}
+          subtitle={matchedStop ? `Stop #${matchedStop.stopOrder || ''}` : (userBoardingPoint !== 'Not Assigned' ? userBoardingPoint : 'Select Stop')}
           icon={MapPin}
           iconBg="bg-purple-50"
           iconColor="text-purple-600"
@@ -132,7 +134,7 @@ export default function StudentDashboard() {
         <StatCard
           title="REPORTING TIME"
           value={scheduledTime}
-          subtitle="Daily Morning Transit"
+          subtitle="Scheduled Pickup Time"
           icon={Clock}
           iconBg="bg-orange-50"
           iconColor="text-orange-600"
@@ -159,7 +161,7 @@ export default function StudentDashboard() {
               </div>
               <div>
                 <p className="text-xs text-gray-500">Boarding Point</p>
-                <p className="text-sm font-bold mt-0.5">{userBoardingPoint}</p>
+                <p className="text-sm font-bold mt-0.5 truncate">{userBoardingPoint}</p>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-4 mb-5">

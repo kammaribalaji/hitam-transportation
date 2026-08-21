@@ -67,27 +67,36 @@ export const getMyBooking = async (req, res, next) => {
     });
 
     if (!booking) {
-      if (student) {
-        const routeId = String(student.assignedRouteId || passenger?.routeId || '12');
-        const route = await prisma.route.findUnique({ where: { id: routeId } });
-        const seatNo = passenger?.seatNo || 26;
-        const bookingId = `HITAM-PASS-${routeId}-${student.rollNumber}`;
+      if (student || passenger) {
+        const routeId = String(student?.assignedRouteId || passenger?.routeId || '');
+        const route = routeId ? await prisma.route.findUnique({ where: { id: routeId } }) : null;
+        const seatNo = passenger?.seatNo || 0;
+        const bookingId = `HITAM-PASS-${routeId || 'NA'}-${student?.rollNumber || roll}`;
+        const cleanName = student?.name || passenger?.name || roll;
+        const busNumber = student?.assignedBusNumber || route?.busNumber || (routeId ? `TS 09 UB ${1200 + parseInt(routeId)}` : '');
+        const pickupPoint = student?.boardingPoint || passenger?.pickup || route?.pickupPoint || '';
+        const feeAmount = student?.feeAmount ?? 42900;
+        const feePaidAmount = student?.feePaidAmount ?? (passenger?.feePaid ? 42900 : 0);
+        const feeBalance = student?.feeBalance ?? (student?.transportFeePaid ? 0 : feeAmount - feePaidAmount);
+        const isPaid = feeBalance <= 0 && (feePaidAmount > 0 || student?.transportFeePaid);
+        const isPartial = !isPaid && feePaidAmount > 0;
+
         booking = {
           id: bookingId,
           bookingId,
-          studentRollNumber: student.rollNumber,
-          studentName: student.name,
-          department: student.department || 'B.Tech',
-          year: student.year || '2nd Year',
-          busNumber: route?.busNumber || `TS 09 UB ${1200 + parseInt(routeId)}`,
+          studentRollNumber: student?.rollNumber || roll,
+          studentName: cleanName,
+          department: student?.department || passenger?.dept || 'B.Tech',
+          year: student?.year || '2nd Year',
+          busNumber,
           routeId,
-          routeName: route?.name || `Route ${routeId}`,
+          routeName: route?.name || (routeId ? `Route ${routeId}` : 'Unassigned'),
           seatNumber: seatNo,
-          pickupPoint: student.boardingPoint || passenger?.pickup || route?.pickupPoint || 'Campus Gate',
-          paymentStatus: student.feeBalance <= 0 ? 'PAID' : (student.feePaidAmount > 0 ? 'PARTIALLY PAID' : 'PENDING'),
-          amountPaid: student.feePaidAmount || 42900,
-          qrCodeData: JSON.stringify({ roll: student.rollNumber, routeId, seat: seatNo }),
-          status: 'CONFIRMED',
+          pickupPoint,
+          paymentStatus: isPaid ? 'PAID' : isPartial ? 'PARTIALLY PAID' : 'PENDING',
+          amountPaid: feePaidAmount,
+          qrCodeData: JSON.stringify({ roll, routeId, seat: seatNo, name: cleanName }),
+          status: seatNo > 0 ? 'CONFIRMED' : 'PENDING',
           isActive: true,
         };
       } else {
@@ -95,13 +104,24 @@ export const getMyBooking = async (req, res, next) => {
       }
     }
 
+    const routeId = String(student?.assignedRouteId || passenger?.routeId || booking.routeId || '');
+    const seatNo = passenger?.seatNo || booking.seatNumber || 0;
+    const feeAmount = student?.feeAmount ?? 42900;
+    const feePaidAmount = student?.feePaidAmount ?? booking.amountPaid ?? (passenger?.feePaid ? 42900 : 0);
+    const feeBalance = student?.feeBalance ?? (student?.transportFeePaid ? 0 : feeAmount - feePaidAmount);
+    const isPaid = feeBalance <= 0 && (feePaidAmount > 0 || student?.transportFeePaid);
+    const isPartial = !isPaid && feePaidAmount > 0;
+
     res.json(serialize({
       ...booking,
-      feeAmount: student?.feeAmount ?? booking.amountPaid ?? 42900,
-      feePaidAmount: student?.feePaidAmount ?? booking.amountPaid ?? 42900,
-      feeBalance: student?.feeBalance ?? 0,
-      paymentStatus: student?.feeBalance <= 0 ? 'PAID' : (student?.feePaidAmount > 0 ? 'PARTIALLY PAID' : 'PENDING'),
-      boardingPoint: student?.boardingPoint || passenger?.pickup || booking.pickupPoint,
+      routeId,
+      seatNumber: seatNo,
+      busNumber: student?.assignedBusNumber || booking.busNumber || (routeId ? `TS 09 UB ${1200 + parseInt(routeId)}` : ''),
+      boardingPoint: student?.boardingPoint || passenger?.pickup || booking.pickupPoint || '',
+      feeAmount,
+      feePaidAmount,
+      feeBalance,
+      paymentStatus: isPaid ? 'PAID' : isPartial ? 'PARTIALLY PAID' : 'PENDING',
     }));
   } catch (err) {
     next(err);
@@ -148,27 +168,36 @@ export const getMyPass = async (req, res, next) => {
     });
 
     if (!booking) {
-      if (student) {
-        const routeId = String(student.assignedRouteId || passenger?.routeId || '12');
-        const route = await prisma.route.findUnique({ where: { id: routeId } });
-        const seatNo = passenger?.seatNo || 26;
-        const bookingId = `HITAM-PASS-${routeId}-${student.rollNumber}`;
+      if (student || passenger) {
+        const routeId = String(student?.assignedRouteId || passenger?.routeId || '');
+        const route = routeId ? await prisma.route.findUnique({ where: { id: routeId } }) : null;
+        const seatNo = passenger?.seatNo || 0;
+        const bookingId = `HITAM-PASS-${routeId || 'NA'}-${student?.rollNumber || roll}`;
+        const cleanName = student?.name || passenger?.name || roll;
+        const busNumber = student?.assignedBusNumber || route?.busNumber || (routeId ? `TS 09 UB ${1200 + parseInt(routeId)}` : '');
+        const pickupPoint = student?.boardingPoint || passenger?.pickup || route?.pickupPoint || '';
+        const feeAmount = student?.feeAmount ?? 42900;
+        const feePaidAmount = student?.feePaidAmount ?? (passenger?.feePaid ? 42900 : 0);
+        const feeBalance = student?.feeBalance ?? (student?.transportFeePaid ? 0 : feeAmount - feePaidAmount);
+        const isPaid = feeBalance <= 0 && (feePaidAmount > 0 || student?.transportFeePaid);
+        const isPartial = !isPaid && feePaidAmount > 0;
+
         booking = {
           id: bookingId,
           bookingId,
-          studentRollNumber: student.rollNumber,
-          studentName: student.name,
-          department: student.department || 'B.Tech',
-          year: student.year || '2nd Year',
-          busNumber: route?.busNumber || `TS 09 UB ${1200 + parseInt(routeId)}`,
+          studentRollNumber: student?.rollNumber || roll,
+          studentName: cleanName,
+          department: student?.department || passenger?.dept || 'B.Tech',
+          year: student?.year || '2nd Year',
+          busNumber,
           routeId,
-          routeName: route?.name || `Route ${routeId}`,
+          routeName: route?.name || (routeId ? `Route ${routeId}` : 'Unassigned'),
           seatNumber: seatNo,
-          pickupPoint: student.boardingPoint || passenger?.pickup || route?.pickupPoint || 'Campus Gate',
-          paymentStatus: student.feeBalance <= 0 ? 'PAID' : (student.feePaidAmount > 0 ? 'PARTIALLY PAID' : 'PENDING'),
-          amountPaid: student.feePaidAmount || 42900,
-          qrCodeData: JSON.stringify({ roll: student.rollNumber, routeId, seat: seatNo }),
-          status: 'CONFIRMED',
+          pickupPoint,
+          paymentStatus: isPaid ? 'PAID' : isPartial ? 'PARTIALLY PAID' : 'PENDING',
+          amountPaid: feePaidAmount,
+          qrCodeData: JSON.stringify({ roll, routeId, seat: seatNo, name: cleanName }),
+          status: seatNo > 0 ? 'CONFIRMED' : 'PENDING',
           isActive: true,
         };
       } else {
@@ -176,13 +205,24 @@ export const getMyPass = async (req, res, next) => {
       }
     }
 
+    const routeId = String(student?.assignedRouteId || passenger?.routeId || booking.routeId || '');
+    const seatNo = passenger?.seatNo || booking.seatNumber || 0;
+    const feeAmount = student?.feeAmount ?? 42900;
+    const feePaidAmount = student?.feePaidAmount ?? booking.amountPaid ?? (passenger?.feePaid ? 42900 : 0);
+    const feeBalance = student?.feeBalance ?? (student?.transportFeePaid ? 0 : feeAmount - feePaidAmount);
+    const isPaid = feeBalance <= 0 && (feePaidAmount > 0 || student?.transportFeePaid);
+    const isPartial = !isPaid && feePaidAmount > 0;
+
     res.json(serialize({
       ...booking,
-      feeAmount: student?.feeAmount ?? booking.amountPaid ?? 42900,
-      feePaidAmount: student?.feePaidAmount ?? booking.amountPaid ?? 42900,
-      feeBalance: student?.feeBalance ?? 0,
-      paymentStatus: student?.feeBalance <= 0 ? 'PAID' : (student?.feePaidAmount > 0 ? 'PARTIALLY PAID' : 'PENDING'),
-      boardingPoint: student?.boardingPoint || passenger?.pickup || booking.pickupPoint,
+      routeId,
+      seatNumber: seatNo,
+      busNumber: student?.assignedBusNumber || booking.busNumber || (routeId ? `TS 09 UB ${1200 + parseInt(routeId)}` : ''),
+      boardingPoint: student?.boardingPoint || passenger?.pickup || booking.pickupPoint || '',
+      feeAmount,
+      feePaidAmount,
+      feeBalance,
+      paymentStatus: isPaid ? 'PAID' : isPartial ? 'PARTIALLY PAID' : 'PENDING',
     }));
   } catch (err) {
     next(err);
