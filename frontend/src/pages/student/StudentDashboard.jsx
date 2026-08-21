@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { useAuth } from '../../hooks/useAuth.js'
 import { notificationService, bookingService, routeService } from '../../api/services.js'
 import StatCard from '../../components/common/StatCard.jsx'
-import { Bus, MapPin, Clock, Armchair, QrCode, Navigation, CreditCard, Bell, ChevronRight, CheckCircle, Megaphone } from 'lucide-react'
+import { Bus, MapPin, Clock, Armchair, QrCode, Navigation, CreditCard, Bell, ChevronRight, CheckCircle, AlertCircle, Megaphone } from 'lucide-react'
 
 export default function StudentDashboard() {
   const { user } = useAuth()
@@ -22,10 +22,10 @@ export default function StudentDashboard() {
     routeService.getAll().then(r => setRoutes(r.data || [])).catch(() => {})
   }, [user])
 
-  // Determine active route ID dynamically from user or booking
+  // Determine active route ID dynamically from user or booking (no fake fallbacks)
   const activeRouteId = useMemo(() => {
     const rId = user?.assignedRouteId || booking?.routeId
-    return rId ? String(rId) : ''
+    return (rId && String(rId).trim() !== '' && String(rId) !== '0') ? String(rId).trim() : ''
   }, [user, booking])
 
   // Match the authentic route object
@@ -42,31 +42,35 @@ export default function StudentDashboard() {
       .catch(() => setRouteStops([]))
   }, [activeRouteId])
 
-  const userBoardingPoint = user?.boardingPoint || booking?.pickupPoint || booking?.boardingPoint || (route?.pickupPoint) || 'Not Assigned'
+  const isEnrolled = Boolean(activeRouteId && (booking?.seatNumber > 0 || user?.boardingPoint || booking?.pickupPoint))
+
+  const userBoardingPoint = user?.boardingPoint || booking?.pickupPoint || booking?.boardingPoint || (isEnrolled && route?.pickupPoint) || 'Not Enrolled'
 
   const matchedStop = useMemo(() => {
-    if (!routeStops.length || !userBoardingPoint || userBoardingPoint === 'Not Assigned') return null
+    if (!routeStops.length || !userBoardingPoint || userBoardingPoint === 'Not Enrolled') return null
     const cleanUserStop = userBoardingPoint.toLowerCase().trim()
     return routeStops.find(s => s.name?.toLowerCase().trim() === cleanUserStop) ||
            routeStops.find(s => s.name?.toLowerCase().includes(cleanUserStop) || cleanUserStop.includes(s.name?.toLowerCase())) || null
   }, [routeStops, userBoardingPoint])
 
-  const scheduledTime = matchedStop?.stopTime || route?.reportingTime || (activeRouteId ? '07:00 AM' : '—')
-  const assignedRouteNumber = activeRouteId ? `Route ${activeRouteId}` : 'No Route'
-  const assignedBusNumber = user?.assignedBusNumber || booking?.busNumber || route?.busNumber || (activeRouteId ? `TS 09 UB ${1200 + parseInt(activeRouteId)}` : '—')
-  const routeSubtitle = route?.name ? (route.name.split(' - ')[1] || route.name) : (activeRouteId ? `Route ${activeRouteId} Transit` : 'Transport Office')
+  const scheduledTime = matchedStop?.stopTime || route?.reportingTime || (isEnrolled ? '07:00 AM' : '—')
+  const assignedRouteNumber = isEnrolled ? `Route ${activeRouteId}` : 'Not Enrolled'
+  const assignedBusNumber = user?.assignedBusNumber || booking?.busNumber || route?.busNumber || (isEnrolled ? `TS 09 UB ${1200 + parseInt(activeRouteId)}` : '—')
+  const routeSubtitle = isEnrolled ? (route?.name ? (route.name.split(' - ')[1] || route.name) : `Route ${activeRouteId} Transit`) : 'No Route Assigned'
 
-  const isPaid = (user?.feeBalance != null && user.feeBalance <= 0 && (user.feePaidAmount > 0 || user.transportFeePaid)) ||
-                 (user?.transportFeePaid) ||
-                 (booking?.paymentStatus === 'PAID')
-  const isPartial = !isPaid && (
+  const isPaid = isEnrolled && (
+    (user?.feeBalance != null && user.feeBalance <= 0 && (user.feePaidAmount > 0 || user.transportFeePaid)) ||
+    (user?.transportFeePaid) ||
+    (booking?.paymentStatus === 'PAID')
+  )
+  const isPartial = isEnrolled && !isPaid && (
     (user?.feePaidAmount && user.feePaidAmount > 0) ||
     booking?.paymentStatus === 'PARTIAL' ||
     booking?.paymentStatus === 'PARTIALLY PAID'
   )
 
   const seatNumber = booking?.seatNumber != null ? booking.seatNumber : 0
-  const seatDisplay = seatNumber > 0 ? `Seat ${seatNumber}` : 'Unassigned'
+  const seatDisplay = seatNumber > 0 ? `Seat ${seatNumber}` : (isEnrolled ? 'Waitlist' : 'No Seat')
 
   const quickActions = [
     { label: 'View My Pass', icon: QrCode, to: '/student/my-pass', color: 'bg-green-50', iconColor: 'text-[#40A047]' },
@@ -89,10 +93,20 @@ export default function StudentDashboard() {
           <div className="flex flex-wrap items-center gap-2 mt-2">
             <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-full">{user?.rollNumber || '—'}</span>
             <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-full">{user?.year || '2nd Year'}</span>
-            <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full">{assignedRouteNumber}</span>
+            <span className={`px-2.5 py-1 text-xs font-bold rounded-full ${isEnrolled ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+              {assignedRouteNumber}
+            </span>
           </div>
         </div>
         {(() => {
+          if (!isEnrolled) {
+            return (
+              <span className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-full border bg-slate-50 text-slate-600 border-slate-200">
+                <AlertCircle size={15} />
+                Transport: Not Enrolled
+              </span>
+            )
+          }
           const badge = isPaid
             ? { text: 'Transport Fee: Paid', cls: 'bg-green-50 text-green-700 border-green-200' }
             : isPartial
@@ -118,7 +132,7 @@ export default function StudentDashboard() {
         <StatCard
           title="BUS NUMBER"
           value={assignedBusNumber}
-          subtitle="Active Fleet Vehicle"
+          subtitle={isEnrolled ? 'Active Fleet Vehicle' : 'No Vehicle Assigned'}
           icon={Bus}
           iconBg="bg-blue-50"
           iconColor="text-blue-600"
@@ -126,7 +140,7 @@ export default function StudentDashboard() {
         <StatCard
           title="BOARDING POINT"
           value={userBoardingPoint}
-          subtitle={matchedStop ? `Stop #${matchedStop.stopOrder || ''}` : (userBoardingPoint !== 'Not Assigned' ? userBoardingPoint : 'Select Stop')}
+          subtitle={matchedStop ? `Stop #${matchedStop.stopOrder || ''}` : (isEnrolled ? userBoardingPoint : 'Not Registered')}
           icon={MapPin}
           iconBg="bg-purple-50"
           iconColor="text-purple-600"
@@ -134,7 +148,7 @@ export default function StudentDashboard() {
         <StatCard
           title="REPORTING TIME"
           value={scheduledTime}
-          subtitle="Scheduled Pickup Time"
+          subtitle={isEnrolled ? 'Scheduled Pickup Time' : 'No Active Schedule'}
           icon={Clock}
           iconBg="bg-orange-50"
           iconColor="text-orange-600"
@@ -148,44 +162,62 @@ export default function StudentDashboard() {
           <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-bold text-gray-900">Next Trip</h2>
-              <span className="px-2.5 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">On Time</span>
+              <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${isEnrolled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                {isEnrolled ? 'On Time' : 'Not Active'}
+              </span>
             </div>
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div>
-                <p className="text-xs text-gray-500">Date</p>
-                <p className="text-sm font-bold mt-0.5">Today</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Time</p>
-                <p className="text-sm font-bold mt-0.5">{scheduledTime}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Boarding Point</p>
-                <p className="text-sm font-bold mt-0.5 truncate">{userBoardingPoint}</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-4 mb-5">
-              <div>
-                <p className="text-xs text-gray-500">Seat</p>
-                <p className="text-sm font-bold mt-0.5 text-[#40A047]">{seatDisplay}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Route</p>
-                <p className="text-sm font-bold mt-0.5">{assignedRouteNumber}</p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500">Pass</p>
-                <p className={`text-sm font-bold mt-0.5 ${isPaid ? 'text-green-600' : isPartial ? 'text-amber-600' : 'text-red-500'}`}>
-                  {isPaid ? 'Active' : isPartial ? 'Partially Paid' : 'Payment Due'}
+            {isEnrolled ? (
+              <>
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div>
+                    <p className="text-xs text-gray-500">Date</p>
+                    <p className="text-sm font-bold mt-0.5">Today</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Time</p>
+                    <p className="text-sm font-bold mt-0.5">{scheduledTime}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Boarding Point</p>
+                    <p className="text-sm font-bold mt-0.5 truncate">{userBoardingPoint}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4 mb-5">
+                  <div>
+                    <p className="text-xs text-gray-500">Seat</p>
+                    <p className="text-sm font-bold mt-0.5 text-[#40A047]">{seatDisplay}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Route</p>
+                    <p className="text-sm font-bold mt-0.5">{assignedRouteNumber}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Pass</p>
+                    <p className={`text-sm font-bold mt-0.5 ${isPaid ? 'text-green-600' : isPartial ? 'text-amber-600' : 'text-red-500'}`}>
+                      {isPaid ? 'Active' : isPartial ? 'Partially Paid' : 'Payment Due'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigate('/student/book-seat')}
+                  className="w-full py-2.5 bg-[#40A047] hover:bg-[#2d7a33] text-white text-sm font-bold rounded-xl transition-colors"
+                >
+                  View Bus & Seats
+                </button>
+              </>
+            ) : (
+              <div className="py-4 text-center">
+                <p className="text-sm text-gray-600 mb-4">
+                  You are registered in the HITAM Student Directory, but not currently enrolled in the college bus service.
                 </p>
+                <button
+                  onClick={() => navigate('/student/book-seat')}
+                  className="px-6 py-2.5 bg-[#40A047] hover:bg-[#2d7a33] text-white text-sm font-bold rounded-xl transition-colors shadow-md shadow-green-600/20"
+                >
+                  Book Seat & Choose Route
+                </button>
               </div>
-            </div>
-            <button
-              onClick={() => navigate('/student/book-seat')}
-              className="w-full py-2.5 bg-[#40A047] hover:bg-[#2d7a33] text-white text-sm font-bold rounded-xl transition-colors"
-            >
-              View Bus & Seats
-            </button>
+            )}
           </div>
 
           {/* Quick Actions */}
