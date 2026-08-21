@@ -4,108 +4,107 @@
       "id": "1",
       "name": "Route 1 - Mallapur to HITAM College",
       "startPoint": "MALLAPUR",
-      "busNumber": "TS 09 UB 1201",
-      "facultyIncharge": "SHIVARAJ - 9949649726",
-      "facultyPhone": "9949649726",
+      "reportingTime": "06:40 AM",
       "driverName": "JANIPASHA",
       "driverPhone": "9989943884",
-      "reportingTime": "06:40 AM",
+      "facultyIncharge": "SHIVARAJ - 9949649726",
+      "busNumber": "TS 09 UB 1201",
       "stops": [
         {
           "name": "MALLAPUR",
-          "stopTime": "06:40",
-          "latitude": 17.438,
-          "longitude": 78.572
+          "stopTime": "06:40 AM",
+          "latitude": 17.4385,
+          "longitude": 78.5721
         },
         {
           "name": "NOMA",
-          "stopTime": "06:40",
-          "latitude": 17.441022,
-          "longitude": 78.431537
+          "stopTime": "06:40 AM",
+          "latitude": 17.441,
+          "longitude": 78.568
         },
         {
           "name": "H.B.COLONY-2",
-          "stopTime": "06:42",
-          "latitude": 17.452043,
-          "longitude": 78.433075
+          "stopTime": "06:42 AM",
+          "latitude": 17.447,
+          "longitude": 78.56
         },
         {
           "name": "MoulaAli",
-          "stopTime": "06:45",
-          "latitude": 17.452,
-          "longitude": 78.558
+          "stopTime": "06:45 AM",
+          "latitude": 17.461,
+          "longitude": 78.552
         },
         {
           "name": "CHAKRIPURAM",
-          "stopTime": "06:48",
-          "latitude": 17.474087,
-          "longitude": 78.43615
+          "stopTime": "06:48 AM",
+          "latitude": 17.481,
+          "longitude": 78.583
         },
         {
           "name": "VIJAYA HOSPITAL",
-          "stopTime": "06:50",
-          "latitude": 17.485109,
-          "longitude": 78.437687
+          "stopTime": "06:50 AM",
+          "latitude": 17.489,
+          "longitude": 78.575
         },
         {
           "name": "Radhika X Road",
-          "stopTime": "07:15",
-          "latitude": 17.49613,
-          "longitude": 78.439225
+          "stopTime": "07:15 AM",
+          "latitude": 17.493,
+          "longitude": 78.568
         },
         {
           "name": "VAYUPURI -1",
-          "stopTime": "07:20",
-          "latitude": 17.507152,
-          "longitude": 78.440762
+          "stopTime": "07:20 AM",
+          "latitude": 17.498,
+          "longitude": 78.557
         },
         {
           "name": "YAPROL X ROAD",
-          "stopTime": "07:25",
-          "latitude": 17.518174,
-          "longitude": 78.442299
+          "stopTime": "07:25 AM",
+          "latitude": 17.505,
+          "longitude": 78.542
         },
         {
           "name": "Omshri",
-          "stopTime": "07:30",
-          "latitude": 17.529195,
-          "longitude": 78.443837
+          "stopTime": "07:30 AM",
+          "latitude": 17.512,
+          "longitude": 78.53
         },
         {
           "name": "KOWKUR X ROAD",
-          "stopTime": "07:35",
-          "latitude": 17.540217,
-          "longitude": 78.445374
+          "stopTime": "07:35 AM",
+          "latitude": 17.518,
+          "longitude": 78.521
         },
         {
           "name": "Janapriya",
-          "stopTime": "07:50",
-          "latitude": 17.551239,
-          "longitude": 78.446912
+          "stopTime": "07:50 AM",
+          "latitude": 17.525,
+          "longitude": 78.51
         },
         {
           "name": "BOLLARAM GATE",
-          "stopTime": "08:00",
-          "latitude": 17.562261,
-          "longitude": 78.448449
+          "stopTime": "08:00 AM",
+          "latitude": 17.532,
+          "longitude": 78.498
         },
         {
           "name": "Chinna Hotel",
-          "stopTime": "08:02",
-          "latitude": 17.573282,
-          "longitude": 78.449986
+          "stopTime": "08:02 AM",
+          "latitude": 17.54,
+          "longitude": 78.485
         },
         {
           "name": "Narayana School",
-          "stopTime": "08:05",
-          "latitude": 17.584304,
-          "longitude": 78.451524
+          "stopTime": "08:05 AM",
+          "latitude": 17.55,
+          "longitude": 78.472
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -113,114 +112,113 @@
       "id": "2",
       "name": "Route 2 - Kothapet to HITAM College",
       "startPoint": "KOTHAPET",
-      "busNumber": "TS 09 UB 1202",
-      "facultyIncharge": "SREESHA - 9885136272",
-      "facultyPhone": "9885136272",
+      "reportingTime": "06:50 AM",
       "driverName": "MD.AHMED",
       "driverPhone": "8247623991",
-      "reportingTime": "06:50 AM",
+      "facultyIncharge": "SREESHA - 9885136272",
+      "busNumber": "TS 09 UB 1202",
       "stops": [
         {
           "name": "KOTHAPET",
-          "stopTime": "06:50",
-          "latitude": 17.371,
-          "longitude": 78.535
+          "stopTime": "06:50 AM",
+          "latitude": 17.3713,
+          "longitude": 78.5476
         },
         {
           "name": "CHAITANYA PURI",
-          "stopTime": "06:52",
-          "latitude": 17.468458,
-          "longitude": 78.459566
+          "stopTime": "06:52 AM",
+          "latitude": 17.373,
+          "longitude": 78.538
         },
         {
           "name": "DILSUK NAGAR",
-          "stopTime": "06:55",
-          "latitude": 17.368,
-          "longitude": 78.525
+          "stopTime": "06:55 AM",
+          "latitude": 17.3688,
+          "longitude": 78.5247
         },
         {
           "name": "TV TOWER",
-          "stopTime": "06:58",
-          "latitude": 17.485374,
-          "longitude": 78.458699
+          "stopTime": "06:58 AM",
+          "latitude": 17.377,
+          "longitude": 78.512
         },
         {
           "name": "KOTI WOMENS COLLEGE",
-          "stopTime": "07:00",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "07:00 AM",
+          "latitude": 17.385,
+          "longitude": 78.4867
         },
         {
           "name": "SULTAN BAZAR",
-          "stopTime": "07:01",
-          "latitude": 17.502289,
-          "longitude": 78.457832
+          "stopTime": "07:01 AM",
+          "latitude": 17.388,
+          "longitude": 78.485
         },
         {
           "name": "ABIDS",
-          "stopTime": "07:02",
-          "latitude": 17.510747,
-          "longitude": 78.457398
+          "stopTime": "07:02 AM",
+          "latitude": 17.391,
+          "longitude": 78.478
         },
         {
           "name": "BASHEERBAGH",
-          "stopTime": "07:05",
-          "latitude": 17.519205,
-          "longitude": 78.456964
+          "stopTime": "07:05 AM",
+          "latitude": 17.401,
+          "longitude": 78.475
         },
         {
           "name": "TANKBUND",
-          "stopTime": "07:07",
-          "latitude": 17.527663,
-          "longitude": 78.456531
+          "stopTime": "07:07 AM",
+          "latitude": 17.418,
+          "longitude": 78.48
         },
         {
           "name": "PADMARAO NAGAR",
-          "stopTime": "07:10",
-          "latitude": 17.536121,
-          "longitude": 78.456097
+          "stopTime": "07:10 AM",
+          "latitude": 17.428,
+          "longitude": 78.508
         },
         {
           "name": "J B S",
-          "stopTime": "07:15",
-          "latitude": 17.544579,
-          "longitude": 78.455663
+          "stopTime": "07:15 AM",
+          "latitude": 17.446,
+          "longitude": 78.498
         },
         {
           "name": "K F C",
-          "stopTime": "07:20",
-          "latitude": 17.553036,
-          "longitude": 78.45523
+          "stopTime": "07:20 AM",
+          "latitude": 17.452,
+          "longitude": 78.49
         },
         {
           "name": "VEDVIHAR",
-          "stopTime": "07:25",
-          "latitude": 17.561494,
-          "longitude": 78.454796
+          "stopTime": "07:25 AM",
+          "latitude": 17.465,
+          "longitude": 78.48
         },
         {
           "name": "SHOBHA GARDENS",
-          "stopTime": "07:47",
-          "latitude": 17.569952,
-          "longitude": 78.454362
+          "stopTime": "07:47 AM",
+          "latitude": 17.485,
+          "longitude": 78.47
         },
         {
           "name": "DAIRY FORM",
-          "stopTime": "07:50",
-          "latitude": 17.57841,
-          "longitude": 78.453929
+          "stopTime": "07:50 AM",
+          "latitude": 17.501,
+          "longitude": 78.46
         },
         {
           "name": "CINI PLANT",
-          "stopTime": "08:05",
-          "latitude": 17.586868,
-          "longitude": 78.453495
+          "stopTime": "08:05 AM",
+          "latitude": 17.53,
+          "longitude": 78.435
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -228,168 +226,167 @@
       "id": "3",
       "name": "Route 3 - Hayath Nagar to HITAM College",
       "startPoint": "HAYATH NAGAR",
-      "busNumber": "TS 09 UB 1203",
-      "facultyIncharge": "PRASAD MATTIPALLY - 8555083169",
-      "facultyPhone": "9848012345",
+      "reportingTime": "06:40 AM",
       "driverName": "ALI",
       "driverPhone": "9550464385",
-      "reportingTime": "06:40 AM",
+      "facultyIncharge": "PRASAD MATTIPALLY - 8555083169",
+      "busNumber": "TS 09 UB 1203",
       "stops": [
         {
           "name": "HAYATH NAGAR",
-          "stopTime": "06:40",
-          "latitude": 17.325,
-          "longitude": 78.605
+          "stopTime": "06:40 AM",
+          "latitude": 17.3245,
+          "longitude": 78.6012
         },
         {
           "name": "PULLAREDDY SWEET HOUSE",
-          "stopTime": "06:42",
-          "latitude": 17.494213,
-          "longitude": 78.488522
+          "stopTime": "06:42 AM",
+          "latitude": 17.33,
+          "longitude": 78.59
         },
         {
           "name": "SUSHMA THEATER",
-          "stopTime": "06:48",
-          "latitude": 17.498426,
-          "longitude": 78.487045
+          "stopTime": "06:48 AM",
+          "latitude": 17.34,
+          "longitude": 78.58
         },
         {
           "name": "PANAMA",
-          "stopTime": "06:50",
-          "latitude": 17.502639,
-          "longitude": 78.485567
+          "stopTime": "06:50 AM",
+          "latitude": 17.345,
+          "longitude": 78.57
         },
         {
           "name": "KARACHI BAKERY",
-          "stopTime": "06:52",
-          "latitude": 17.506852,
-          "longitude": 78.48409
+          "stopTime": "06:52 AM",
+          "latitude": 17.35,
+          "longitude": 78.56
         },
         {
           "name": "CHINTAL KUNTA CHECKPOST",
-          "stopTime": "06:55",
-          "latitude": 17.511065,
-          "longitude": 78.482612
+          "stopTime": "06:55 AM",
+          "latitude": 17.355,
+          "longitude": 78.55
         },
         {
           "name": "LB NAGAR",
-          "stopTime": "07:00",
-          "latitude": 17.348,
-          "longitude": 78.552
+          "stopTime": "07:00 AM",
+          "latitude": 17.359,
+          "longitude": 78.547
         },
         {
           "name": "KAMINENI",
-          "stopTime": "07:05",
-          "latitude": 17.519491,
-          "longitude": 78.479657
+          "stopTime": "07:05 AM",
+          "latitude": 17.365,
+          "longitude": 78.55
         },
         {
           "name": "ALKAPURI",
-          "stopTime": "07:08",
-          "latitude": 17.523704,
-          "longitude": 78.47818
+          "stopTime": "07:08 AM",
+          "latitude": 17.37,
+          "longitude": 78.555
         },
         {
           "name": "BANDLAGUDA FLYOVER",
-          "stopTime": "07:10",
-          "latitude": 17.527917,
-          "longitude": 78.476702
+          "stopTime": "07:10 AM",
+          "latitude": 17.375,
+          "longitude": 78.56
         },
         {
           "name": "NAGOLE METRO",
-          "stopTime": "07:12",
-          "latitude": 17.378,
-          "longitude": 78.562
+          "stopTime": "07:12 AM",
+          "latitude": 17.379,
+          "longitude": 78.565
         },
         {
           "name": "UPPAL RING ROAD",
-          "stopTime": "07:15",
-          "latitude": 17.402,
+          "stopTime": "07:15 AM",
+          "latitude": 17.401,
           "longitude": 78.56
         },
         {
           "name": "SURVEY OF INDIA",
-          "stopTime": "07:18",
-          "latitude": 17.540556,
-          "longitude": 78.472269
+          "stopTime": "07:18 AM",
+          "latitude": 17.408,
+          "longitude": 78.55
         },
         {
           "name": "HABSIGUDA",
-          "stopTime": "07:22",
+          "stopTime": "07:22 AM",
           "latitude": 17.415,
-          "longitude": 78.542
+          "longitude": 78.54
         },
         {
           "name": "TARNAKA",
-          "stopTime": "07:25",
-          "latitude": 17.428,
-          "longitude": 78.528
+          "stopTime": "07:25 AM",
+          "latitude": 17.427,
+          "longitude": 78.53
         },
         {
           "name": "METTUGUDA X ROAD",
-          "stopTime": "07:30",
-          "latitude": 17.553195,
-          "longitude": 78.467837
+          "stopTime": "07:30 AM",
+          "latitude": 17.435,
+          "longitude": 78.515
         },
         {
           "name": "RAILWAY NILAYAM",
-          "stopTime": "07:32",
-          "latitude": 17.557408,
-          "longitude": 78.466359
+          "stopTime": "07:32 AM",
+          "latitude": 17.438,
+          "longitude": 78.505
         },
         {
           "name": "SANGEETH X ROAD",
-          "stopTime": "07:40",
-          "latitude": 17.441,
-          "longitude": 78.502
+          "stopTime": "07:40 AM",
+          "latitude": 17.442,
+          "longitude": 78.498
         },
         {
           "name": "PARADISE",
-          "stopTime": "07:40",
-          "latitude": 17.442,
-          "longitude": 78.487
-        },
-        {
-          "name": "TAD BAND",
-          "stopTime": "07:43",
-          "latitude": 17.570048,
-          "longitude": 78.461927
-        },
-        {
-          "name": "BOWENPALLY PS",
-          "stopTime": "07:47",
-          "latitude": 17.472,
+          "stopTime": "07:40 AM",
+          "latitude": 17.444,
           "longitude": 78.486
         },
         {
+          "name": "TAD BAND",
+          "stopTime": "07:43 AM",
+          "latitude": 17.458,
+          "longitude": 78.485
+        },
+        {
+          "name": "BOWENPALLY PS",
+          "stopTime": "07:47 AM",
+          "latitude": 17.472,
+          "longitude": 78.48
+        },
+        {
           "name": "MMR GARDEN",
-          "stopTime": "07:50",
-          "latitude": 17.578474,
-          "longitude": 78.458971
+          "stopTime": "07:50 AM",
+          "latitude": 17.485,
+          "longitude": 78.475
         },
         {
           "name": "SUCHITRA",
-          "stopTime": "07:56",
-          "latitude": 17.512,
-          "longitude": 78.4735
+          "stopTime": "07:56 AM",
+          "latitude": 17.502,
+          "longitude": 78.468
         },
         {
           "name": "KOMPALLY",
-          "stopTime": "08:10",
+          "stopTime": "08:10 AM",
           "latitude": 17.535,
           "longitude": 78.485
         },
         {
           "name": "GUNDLA POCHAMPALLY",
-          "stopTime": "08:20",
-          "latitude": 17.585,
-          "longitude": 78.488
+          "stopTime": "08:20 AM",
+          "latitude": 17.568,
+          "longitude": 78.475
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:40",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:40 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -397,144 +394,143 @@
       "id": "4",
       "name": "Route 4 - LIG & BHEL to HITAM College",
       "startPoint": "LIG",
-      "busNumber": "TS 09 UB 1204",
-      "facultyIncharge": "DURGA RAO - 9490317805",
-      "facultyPhone": "9490317805",
+      "reportingTime": "06:50 AM",
       "driverName": "NANDAM",
       "driverPhone": "7702278949",
-      "reportingTime": "06:50 AM",
+      "facultyIncharge": "DURGA RAO - 9490317805",
+      "busNumber": "TS 09 UB 1204",
       "stops": [
         {
           "name": "LIG",
-          "stopTime": "06:50",
-          "latitude": 17.52,
-          "longitude": 78.52
+          "stopTime": "06:50 AM",
+          "latitude": 17.491,
+          "longitude": 78.312
         },
         {
           "name": "ESI",
-          "stopTime": "07:05",
-          "latitude": 17.523587,
-          "longitude": 78.516812
+          "stopTime": "07:05 AM",
+          "latitude": 17.489,
+          "longitude": 78.32
         },
         {
           "name": "NEW MIG WATER TANK",
-          "stopTime": "07:15",
-          "latitude": 17.527174,
-          "longitude": 78.513625
+          "stopTime": "07:15 AM",
+          "latitude": 17.485,
+          "longitude": 78.325
         },
         {
           "name": "NEW MIG ROAD NO-1",
-          "stopTime": "07:17",
-          "latitude": 17.530761,
-          "longitude": 78.510437
+          "stopTime": "07:17 AM",
+          "latitude": 17.483,
+          "longitude": 78.33
         },
         {
           "name": "TELLAPUR",
-          "stopTime": "07:20",
-          "latitude": 17.534348,
-          "longitude": 78.50725
+          "stopTime": "07:20 AM",
+          "latitude": 17.475,
+          "longitude": 78.315
         },
         {
           "name": "BICHA REDDY SWEET HOUSE",
-          "stopTime": "07:22",
-          "latitude": 17.537935,
-          "longitude": 78.504062
+          "stopTime": "07:22 AM",
+          "latitude": 17.482,
+          "longitude": 78.335
         },
         {
           "name": "OLD MIG",
-          "stopTime": "07:25",
-          "latitude": 17.541522,
-          "longitude": 78.500875
-        },
-        {
-          "name": "NALLAGANDLA FLY OVER",
-          "stopTime": "07:30",
-          "latitude": 17.545109,
-          "longitude": 78.497687
-        },
-        {
-          "name": "LINGAMPALLY",
-          "stopTime": "07:35",
-          "latitude": 17.488,
-          "longitude": 78.322
-        },
-        {
-          "name": "CHANDA NAGAR",
-          "stopTime": "07:37",
-          "latitude": 17.495,
+          "stopTime": "07:25 AM",
+          "latitude": 17.485,
           "longitude": 78.338
         },
         {
+          "name": "NALLAGANDLA FLY OVER",
+          "stopTime": "07:30 AM",
+          "latitude": 17.478,
+          "longitude": 78.345
+        },
+        {
+          "name": "LINGAMPALLY",
+          "stopTime": "07:35 AM",
+          "latitude": 17.488,
+          "longitude": 78.34
+        },
+        {
+          "name": "CHANDA NAGAR",
+          "stopTime": "07:37 AM",
+          "latitude": 17.492,
+          "longitude": 78.345
+        },
+        {
           "name": "MY HOME",
-          "stopTime": "07:40",
-          "latitude": 17.555869,
-          "longitude": 78.488124
+          "stopTime": "07:40 AM",
+          "latitude": 17.495,
+          "longitude": 78.355
         },
         {
           "name": "DEEPTHI SREE NAGAR",
-          "stopTime": "07:42",
+          "stopTime": "07:42 AM",
           "latitude": 17.497,
-          "longitude": 78.356
+          "longitude": 78.362
         },
         {
           "name": "MADINAGUDA",
-          "stopTime": "07:45",
-          "latitude": 17.498,
-          "longitude": 78.349
+          "stopTime": "07:45 AM",
+          "latitude": 17.499,
+          "longitude": 78.368
         },
         {
           "name": "MIYAPUR ALWIN",
-          "stopTime": "07:50",
-          "latitude": 17.4965,
-          "longitude": 78.363
+          "stopTime": "07:50 AM",
+          "latitude": 17.502,
+          "longitude": 78.375
         },
         {
           "name": "MIYAPUR X ROAD",
-          "stopTime": "07:55",
-          "latitude": 17.4965,
-          "longitude": 78.363
+          "stopTime": "07:55 AM",
+          "latitude": 17.505,
+          "longitude": 78.382
         },
         {
           "name": "HDFC BANK",
-          "stopTime": "07:57",
-          "latitude": 17.573804,
-          "longitude": 78.472187
+          "stopTime": "07:57 AM",
+          "latitude": 17.508,
+          "longitude": 78.388
         },
         {
           "name": "COCA COLA",
-          "stopTime": "08:00",
-          "latitude": 17.577391,
-          "longitude": 78.468999
+          "stopTime": "08:00 AM",
+          "latitude": 17.512,
+          "longitude": 78.395
         },
         {
           "name": "VOLVO",
-          "stopTime": "08:02",
-          "latitude": 17.580978,
-          "longitude": 78.465812
+          "stopTime": "08:02 AM",
+          "latitude": 17.516,
+          "longitude": 78.402
         },
         {
           "name": "BOLLARAM X ROAD",
-          "stopTime": "08:05",
-          "latitude": 17.542,
-          "longitude": 78.412
+          "stopTime": "08:05 AM",
+          "latitude": 17.525,
+          "longitude": 78.41
         },
         {
           "name": "BACHUPALLI",
-          "stopTime": "08:10",
-          "latitude": 17.5348,
-          "longitude": 78.3685
+          "stopTime": "08:10 AM",
+          "latitude": 17.535,
+          "longitude": 78.385
         },
         {
           "name": "GANDIMAISAMMA",
-          "stopTime": "08:35",
-          "latitude": 17.5755,
-          "longitude": 78.432
+          "stopTime": "08:35 AM",
+          "latitude": 17.575,
+          "longitude": 78.41
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -542,132 +538,131 @@
       "id": "5",
       "name": "Route 5 - Patancheru to HITAM College",
       "startPoint": "PATANCHERU",
-      "busNumber": "TS 09 UB 1205",
-      "facultyIncharge": "9160711118",
-      "facultyPhone": "9160711118",
+      "reportingTime": "06:30 AM",
       "driverName": "MALLESH",
       "driverPhone": "9676769743",
-      "reportingTime": "06:30 AM",
+      "facultyIncharge": "9160711118",
+      "busNumber": "TS 09 UB 1205",
       "stops": [
         {
           "name": "PATANCHERU",
-          "stopTime": "06:30",
-          "latitude": 17.528,
-          "longitude": 78.265
+          "stopTime": "06:30 AM",
+          "latitude": 17.53,
+          "longitude": 78.26
         },
         {
           "name": "KOLLURU",
-          "stopTime": "06:35",
-          "latitude": 17.41028,
-          "longitude": 78.544898
+          "stopTime": "06:35 AM",
+          "latitude": 17.515,
+          "longitude": 78.285
         },
         {
           "name": "USMAN NAGAR",
-          "stopTime": "06:40",
-          "latitude": 17.420561,
-          "longitude": 78.539796
+          "stopTime": "06:40 AM",
+          "latitude": 17.502,
+          "longitude": 78.298
         },
         {
           "name": "GOPANAPALLY",
-          "stopTime": "06:45",
-          "latitude": 17.430841,
-          "longitude": 78.534694
+          "stopTime": "06:45 AM",
+          "latitude": 17.485,
+          "longitude": 78.31
         },
         {
           "name": "TELLAPUR",
-          "stopTime": "06:50",
-          "latitude": 17.441121,
-          "longitude": 78.529592
+          "stopTime": "06:50 AM",
+          "latitude": 17.475,
+          "longitude": 78.315
         },
         {
           "name": "NALLAGANDLA Fly Over",
-          "stopTime": "06:55",
-          "latitude": 17.451401,
-          "longitude": 78.52449
+          "stopTime": "06:55 AM",
+          "latitude": 17.478,
+          "longitude": 78.345
         },
         {
           "name": "GULMOHAR PARK",
-          "stopTime": "07:00",
-          "latitude": 17.461682,
-          "longitude": 78.519388
+          "stopTime": "07:00 AM",
+          "latitude": 17.475,
+          "longitude": 78.352
         },
         {
           "name": "HCU DEPOT",
-          "stopTime": "07:05",
-          "latitude": 17.471962,
-          "longitude": 78.514286
-        },
-        {
-          "name": "HCU GATE",
-          "stopTime": "07:08",
-          "latitude": 17.482242,
-          "longitude": 78.509184
-        },
-        {
-          "name": "MAJEED BANDA X ROAD",
-          "stopTime": "07:10",
-          "latitude": 17.492523,
-          "longitude": 78.504082
-        },
-        {
-          "name": "SRIRAM NAGAR",
-          "stopTime": "07:12",
-          "latitude": 17.502803,
-          "longitude": 78.49898
-        },
-        {
-          "name": "BOTANICAL GARDEN",
-          "stopTime": "07:15",
-          "latitude": 17.513083,
-          "longitude": 78.493878
-        },
-        {
-          "name": "KONDAPUR RTO",
-          "stopTime": "07:18",
-          "latitude": 17.465,
-          "longitude": 78.365
-        },
-        {
-          "name": "HAFEEZPET",
-          "stopTime": "07:20",
-          "latitude": 17.482,
+          "stopTime": "07:05 AM",
+          "latitude": 17.468,
           "longitude": 78.358
         },
         {
+          "name": "HCU GATE",
+          "stopTime": "07:08 AM",
+          "latitude": 17.462,
+          "longitude": 78.362
+        },
+        {
+          "name": "MAJEED BANDA X ROAD",
+          "stopTime": "07:10 AM",
+          "latitude": 17.468,
+          "longitude": 78.37
+        },
+        {
+          "name": "SRIRAM NAGAR",
+          "stopTime": "07:12 AM",
+          "latitude": 17.472,
+          "longitude": 78.375
+        },
+        {
+          "name": "BOTANICAL GARDEN",
+          "stopTime": "07:15 AM",
+          "latitude": 17.475,
+          "longitude": 78.38
+        },
+        {
+          "name": "KONDAPUR RTO",
+          "stopTime": "07:18 AM",
+          "latitude": 17.482,
+          "longitude": 78.385
+        },
+        {
+          "name": "HAFEEZPET",
+          "stopTime": "07:20 AM",
+          "latitude": 17.49,
+          "longitude": 78.388
+        },
+        {
           "name": "MIYAPUR ALLWYN X ROAD",
-          "stopTime": "07:30",
-          "latitude": 17.4965,
-          "longitude": 78.363
+          "stopTime": "07:30 AM",
+          "latitude": 17.502,
+          "longitude": 78.375
         },
         {
           "name": "MIYAPUR X ROAD",
-          "stopTime": "07:35",
-          "latitude": 17.4965,
-          "longitude": 78.363
+          "stopTime": "07:35 AM",
+          "latitude": 17.505,
+          "longitude": 78.382
         },
         {
           "name": "BACHUPALLY",
-          "stopTime": "08:00",
-          "latitude": 17.5348,
-          "longitude": 78.3685
+          "stopTime": "08:00 AM",
+          "latitude": 17.535,
+          "longitude": 78.385
         },
         {
           "name": "PRAGATHI NAGAR SIGNAL",
-          "stopTime": "08:10",
+          "stopTime": "08:10 AM",
           "latitude": 17.518,
-          "longitude": 78.392
+          "longitude": 78.398
         },
         {
           "name": "GANDIMISAMMA",
-          "stopTime": "08:30",
-          "latitude": 17.5755,
-          "longitude": 78.432
+          "stopTime": "08:30 AM",
+          "latitude": 17.575,
+          "longitude": 78.41
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -675,84 +670,83 @@
       "id": "6",
       "name": "Route 6 - Beeramguda to HITAM College",
       "startPoint": "BEERAMGUDA",
-      "busNumber": "TS 09 UB 1206",
-      "facultyIncharge": "8142935501",
-      "facultyPhone": "8142935501",
+      "reportingTime": "07:00 AM",
       "driverName": "RAM REDDY",
       "driverPhone": "9704147126",
-      "reportingTime": "07:00 AM",
+      "facultyIncharge": "8142935501",
+      "busNumber": "TS 09 UB 1206",
       "stops": [
         {
           "name": "BEERAMGUDA",
-          "stopTime": "07:00",
+          "stopTime": "07:00 AM",
           "latitude": 17.518,
-          "longitude": 78.292
+          "longitude": 78.305
         },
         {
           "name": "ALWYN X ROAD",
-          "stopTime": "07:25",
-          "latitude": 17.499,
-          "longitude": 78.371
+          "stopTime": "07:25 AM",
+          "latitude": 17.502,
+          "longitude": 78.375
         },
         {
           "name": "MIYAPUR METRO",
-          "stopTime": "07:25",
-          "latitude": 17.4965,
-          "longitude": 78.363
+          "stopTime": "07:25 AM",
+          "latitude": 17.504,
+          "longitude": 78.378
         },
         {
           "name": "LANDMARK HOSPITAL",
-          "stopTime": "07:32",
-          "latitude": 17.475089,
-          "longitude": 78.54538
+          "stopTime": "07:32 AM",
+          "latitude": 17.508,
+          "longitude": 78.385
         },
         {
           "name": "NIZAMPET X ROAD",
-          "stopTime": "07:35",
+          "stopTime": "07:35 AM",
           "latitude": 17.512,
-          "longitude": 78.384
+          "longitude": 78.392
         },
         {
           "name": "KONDA REDDY FUNCTION HALL",
-          "stopTime": "07:45",
-          "latitude": 17.505148,
-          "longitude": 78.522301
+          "stopTime": "07:45 AM",
+          "latitude": 17.518,
+          "longitude": 78.395
         },
         {
           "name": "NIZAMPET HANUMAN TEMPLE",
-          "stopTime": "07:50",
-          "latitude": 17.512,
-          "longitude": 78.384
+          "stopTime": "07:50 AM",
+          "latitude": 17.525,
+          "longitude": 78.392
         },
         {
           "name": "SATYAM HEIGHTS",
-          "stopTime": "07:55",
-          "latitude": 17.535207,
-          "longitude": 78.499221
+          "stopTime": "07:55 AM",
+          "latitude": 17.528,
+          "longitude": 78.39
         },
         {
           "name": "BACHUPALLY",
-          "stopTime": "08:00",
-          "latitude": 17.5348,
-          "longitude": 78.3685
+          "stopTime": "08:00 AM",
+          "latitude": 17.535,
+          "longitude": 78.385
         },
         {
           "name": "VNR COLLEGE",
-          "stopTime": "08:15",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:15 AM",
+          "latitude": 17.54,
+          "longitude": 78.382
         },
         {
           "name": "GANDIMAISAMA",
-          "stopTime": "08:30",
-          "latitude": 17.580296,
-          "longitude": 78.464601
+          "stopTime": "08:30 AM",
+          "latitude": 17.575,
+          "longitude": 78.41
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -760,72 +754,71 @@
       "id": "7",
       "name": "Route 7 - Jubilee Checkpost to HITAM College",
       "startPoint": "JUBILEE CHECKPOST",
-      "busNumber": "TS 09 UB 1207",
-      "facultyIncharge": "DIVYA - 9182807740",
-      "facultyPhone": "9182807740",
+      "reportingTime": "07:15 AM",
       "driverName": "SHAHED",
       "driverPhone": "9394373699",
-      "reportingTime": "07:15 AM",
+      "facultyIncharge": "DIVYA - 9182807740",
+      "busNumber": "TS 09 UB 1207",
       "stops": [
         {
           "name": "JUBILEE CHECKPOST",
-          "stopTime": "07:15",
-          "latitude": 17.428,
-          "longitude": 78.412
+          "stopTime": "07:15 AM",
+          "latitude": 17.43,
+          "longitude": 78.42
         },
         {
           "name": "VENKATAGIRI",
-          "stopTime": "07:18",
-          "latitude": 17.475036,
-          "longitude": 78.405896
+          "stopTime": "07:18 AM",
+          "latitude": 17.435,
+          "longitude": 78.425
         },
         {
           "name": "YOUSUF GUDA CHECKPOST",
-          "stopTime": "07:20",
-          "latitude": 17.490072,
-          "longitude": 78.411791
+          "stopTime": "07:20 AM",
+          "latitude": 17.44,
+          "longitude": 78.43
         },
         {
           "name": "YOUSUF GUDA",
-          "stopTime": "07:23",
-          "latitude": 17.505109,
-          "longitude": 78.417687
+          "stopTime": "07:23 AM",
+          "latitude": 17.443,
+          "longitude": 78.435
         },
         {
           "name": "KRISHNA KANTH PARK",
-          "stopTime": "07:25",
-          "latitude": 17.520145,
-          "longitude": 78.423583
+          "stopTime": "07:25 AM",
+          "latitude": 17.445,
+          "longitude": 78.438
         },
         {
           "name": "SR NAGAR",
-          "stopTime": "07:35",
-          "latitude": 17.442,
-          "longitude": 78.444
+          "stopTime": "07:35 AM",
+          "latitude": 17.448,
+          "longitude": 78.442
         },
         {
           "name": "PRASHANTHI NAGAR",
-          "stopTime": "07:40",
-          "latitude": 17.550217,
-          "longitude": 78.435374
+          "stopTime": "07:40 AM",
+          "latitude": 17.46,
+          "longitude": 78.435
         },
         {
           "name": "GANESH NAGAR",
-          "stopTime": "07:55",
-          "latitude": 17.565253,
-          "longitude": 78.44127
+          "stopTime": "07:55 AM",
+          "latitude": 17.475,
+          "longitude": 78.43
         },
         {
           "name": "GANDIMISAMMA",
-          "stopTime": "08:30",
-          "latitude": 17.5755,
-          "longitude": 78.432
+          "stopTime": "08:30 AM",
+          "latitude": 17.575,
+          "longitude": 78.41
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -833,126 +826,125 @@
       "id": "8",
       "name": "Route 8 - Upparpalle to HITAM College",
       "startPoint": "UPPARPALLE",
-      "busNumber": "TS 09 UB 1208",
-      "facultyIncharge": "SUSHMA - 784208483",
-      "facultyPhone": "784208483",
+      "reportingTime": "06:50 AM",
       "driverName": "JAFFAR",
       "driverPhone": "8106174586",
-      "reportingTime": "06:50 AM",
+      "facultyIncharge": "SUSHMA - 784208483",
+      "busNumber": "TS 09 UB 1208",
       "stops": [
         {
           "name": "UPPARPALLE",
-          "stopTime": "06:50",
-          "latitude": 17.368,
-          "longitude": 78.428
+          "stopTime": "06:50 AM",
+          "latitude": 17.345,
+          "longitude": 78.42
         },
         {
           "name": "ATTAPUR",
-          "stopTime": "07:05",
-          "latitude": 17.375,
-          "longitude": 78.438
+          "stopTime": "07:05 AM",
+          "latitude": 17.36,
+          "longitude": 78.425
         },
         {
           "name": "LANGAR HOUSE CHOURASTHA",
-          "stopTime": "07:10",
-          "latitude": 17.501703,
-          "longitude": 78.432562
+          "stopTime": "07:10 AM",
+          "latitude": 17.375,
+          "longitude": 78.42
         },
         {
           "name": "RETHIBOWLI",
-          "stopTime": "07:12",
-          "latitude": 17.507554,
-          "longitude": 78.433844
+          "stopTime": "07:12 AM",
+          "latitude": 17.385,
+          "longitude": 78.43
         },
         {
           "name": "MEHDIPATNAM",
-          "stopTime": "07:15",
-          "latitude": 17.391,
-          "longitude": 78.442
-        },
-        {
-          "name": "NMDC",
-          "stopTime": "07:20",
-          "latitude": 17.519257,
-          "longitude": 78.436406
-        },
-        {
-          "name": "MASABTANK",
-          "stopTime": "07:22",
-          "latitude": 17.405,
-          "longitude": 78.452
-        },
-        {
-          "name": "PENSION OFFICE",
-          "stopTime": "07:25",
-          "latitude": 17.53096,
-          "longitude": 78.438968
-        },
-        {
-          "name": "CARE HOSPITAL",
-          "stopTime": "07:27",
-          "latitude": 17.536811,
-          "longitude": 78.440249
-        },
-        {
-          "name": "CITY CENTER",
-          "stopTime": "07:30",
-          "latitude": 17.542663,
-          "longitude": 78.441531
-        },
-        {
-          "name": "GVK",
-          "stopTime": "07:32",
-          "latitude": 17.548514,
-          "longitude": 78.442812
-        },
-        {
-          "name": "PANJAGUTA",
-          "stopTime": "07:35",
-          "latitude": 17.428,
-          "longitude": 78.452
-        },
-        {
-          "name": "AMEERPET",
-          "stopTime": "07:37",
-          "latitude": 17.437,
-          "longitude": 78.448
-        },
-        {
-          "name": "MYTHRIVANAM",
-          "stopTime": "07:40",
-          "latitude": 17.566069,
-          "longitude": 78.446655
-        },
-        {
-          "name": "SR NAGAR",
-          "stopTime": "07:42",
-          "latitude": 17.442,
-          "longitude": 78.444
-        },
-        {
-          "name": "ESI",
-          "stopTime": "07:45",
-          "latitude": 17.577771,
-          "longitude": 78.449218
-        },
-        {
-          "name": "ERRAGADDA",
-          "stopTime": "07:47",
-          "latitude": 17.452,
+          "stopTime": "07:15 AM",
+          "latitude": 17.392,
           "longitude": 78.438
         },
         {
+          "name": "NMDC",
+          "stopTime": "07:20 AM",
+          "latitude": 17.398,
+          "longitude": 78.445
+        },
+        {
+          "name": "MASABTANK",
+          "stopTime": "07:22 AM",
+          "latitude": 17.405,
+          "longitude": 78.45
+        },
+        {
+          "name": "PENSION OFFICE",
+          "stopTime": "07:25 AM",
+          "latitude": 17.41,
+          "longitude": 78.452
+        },
+        {
+          "name": "CARE HOSPITAL",
+          "stopTime": "07:27 AM",
+          "latitude": 17.415,
+          "longitude": 78.455
+        },
+        {
+          "name": "CITY CENTER",
+          "stopTime": "07:30 AM",
+          "latitude": 17.42,
+          "longitude": 78.452
+        },
+        {
+          "name": "GVK",
+          "stopTime": "07:32 AM",
+          "latitude": 17.425,
+          "longitude": 78.45
+        },
+        {
+          "name": "PANJAGUTA",
+          "stopTime": "07:35 AM",
+          "latitude": 17.428,
+          "longitude": 78.448
+        },
+        {
+          "name": "AMEERPET",
+          "stopTime": "07:37 AM",
+          "latitude": 17.435,
+          "longitude": 78.445
+        },
+        {
+          "name": "MYTHRIVANAM",
+          "stopTime": "07:40 AM",
+          "latitude": 17.438,
+          "longitude": 78.442
+        },
+        {
+          "name": "SR NAGAR",
+          "stopTime": "07:42 AM",
+          "latitude": 17.442,
+          "longitude": 78.44
+        },
+        {
+          "name": "ESI",
+          "stopTime": "07:45 AM",
+          "latitude": 17.448,
+          "longitude": 78.438
+        },
+        {
+          "name": "ERRAGADDA",
+          "stopTime": "07:47 AM",
+          "latitude": 17.455,
+          "longitude": 78.435
+        },
+        {
           "name": "GANDIMISAMMA",
-          "stopTime": "08:30",
-          "latitude": 17.5755,
-          "longitude": 78.432
+          "stopTime": "08:30 AM",
+          "latitude": 17.575,
+          "longitude": 78.41
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -960,108 +952,107 @@
       "id": "9",
       "name": "Route 9 - Bandlaguda Jaagir & Gachibowli to HITAM College",
       "startPoint": "BANDLAGUDA JAAGIR -SUN CITY",
-      "busNumber": "TS 09 UB 1209",
-      "facultyIncharge": "8555083169",
-      "facultyPhone": "8555083169",
+      "reportingTime": "06:45 AM",
       "driverName": "CHARY",
       "driverPhone": "9985470211",
-      "reportingTime": "06:45 AM",
+      "facultyIncharge": "8555083169",
+      "busNumber": "TS 09 UB 1209",
       "stops": [
         {
           "name": "BANDLAGUDA JAAGIR -SUN CITY",
-          "stopTime": "06:45",
-          "latitude": 17.352,
-          "longitude": 78.418
+          "stopTime": "06:45 AM",
+          "latitude": 17.348,
+          "longitude": 78.402
         },
         {
           "name": "LANGARHOUSE",
-          "stopTime": "06:50",
-          "latitude": 17.525022,
-          "longitude": 78.459537
+          "stopTime": "06:50 AM",
+          "latitude": 17.375,
+          "longitude": 78.42
         },
         {
           "name": "Nanal Nagar",
-          "stopTime": "06:55",
-          "latitude": 17.530043,
-          "longitude": 78.459075
+          "stopTime": "06:55 AM",
+          "latitude": 17.388,
+          "longitude": 78.428
         },
         {
           "name": "Tolichowki",
-          "stopTime": "07:00",
-          "latitude": 17.535065,
-          "longitude": 78.458612
+          "stopTime": "07:00 AM",
+          "latitude": 17.401,
+          "longitude": 78.415
         },
         {
           "name": "Shaikpet",
-          "stopTime": "07:05",
-          "latitude": 17.540087,
-          "longitude": 78.45815
+          "stopTime": "07:05 AM",
+          "latitude": 17.412,
+          "longitude": 78.398
         },
         {
           "name": "Gachibowli",
-          "stopTime": "07:20",
+          "stopTime": "07:20 AM",
           "latitude": 17.44,
           "longitude": 78.348
         },
         {
           "name": "Kothaguda",
-          "stopTime": "07:23",
-          "latitude": 17.55013,
-          "longitude": 78.457225
+          "stopTime": "07:23 AM",
+          "latitude": 17.458,
+          "longitude": 78.365
         },
         {
           "name": "CYBER TOWERS",
-          "stopTime": "07:30",
+          "stopTime": "07:30 AM",
           "latitude": 17.45,
           "longitude": 78.38
         },
         {
           "name": "YASHODA HOSPITAL",
-          "stopTime": "07:32",
-          "latitude": 17.560174,
-          "longitude": 78.456299
+          "stopTime": "07:32 AM",
+          "latitude": 17.46,
+          "longitude": 78.375
         },
         {
           "name": "ANKURA HOSPITAL",
-          "stopTime": "07:35",
-          "latitude": 17.565195,
-          "longitude": 78.455837
+          "stopTime": "07:35 AM",
+          "latitude": 17.48,
+          "longitude": 78.38
         },
         {
           "name": "JNTU",
-          "stopTime": "07:40",
-          "latitude": 17.498,
-          "longitude": 78.391
+          "stopTime": "07:40 AM",
+          "latitude": 17.495,
+          "longitude": 78.39
         },
         {
           "name": "TULASI NAGAR X ROAD",
-          "stopTime": "07:47",
-          "latitude": 17.575239,
-          "longitude": 78.454912
+          "stopTime": "07:47 AM",
+          "latitude": 17.502,
+          "longitude": 78.398
         },
         {
           "name": "PRAGATHI NAGAR VIJETHA",
-          "stopTime": "07:55",
-          "latitude": 17.518,
-          "longitude": 78.392
+          "stopTime": "07:55 AM",
+          "latitude": 17.512,
+          "longitude": 78.402
         },
         {
           "name": "PRAGATHI NAGAR EXIT",
-          "stopTime": "08:10",
-          "latitude": 17.518,
-          "longitude": 78.392
+          "stopTime": "08:10 AM",
+          "latitude": 17.52,
+          "longitude": 78.408
         },
         {
           "name": "GANDIMAISAMMA",
-          "stopTime": "08:30",
-          "latitude": 17.5755,
-          "longitude": 78.432
+          "stopTime": "08:30 AM",
+          "latitude": 17.575,
+          "longitude": 78.41
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -1069,132 +1060,131 @@
       "id": "10",
       "name": "Route 10 - ZTS Moulali to HITAM College",
       "startPoint": "Z T S MOULALI",
-      "busNumber": "TS 09 UB 1210",
-      "facultyIncharge": "CHIRANJIVI - 9030653640",
-      "facultyPhone": "9030653640",
+      "reportingTime": "06:50 AM",
       "driverName": "NADEEM",
       "driverPhone": "9701546089",
-      "reportingTime": "06:50 AM",
+      "facultyIncharge": "CHIRANJIVI - 9030653640",
+      "busNumber": "TS 09 UB 1210",
       "stops": [
         {
           "name": "Z T S MOULALI",
-          "stopTime": "06:50",
-          "latitude": 17.462,
-          "longitude": 78.551
+          "stopTime": "06:50 AM",
+          "latitude": 17.472,
+          "longitude": 78.548
         },
         {
           "name": "LALAPET",
-          "stopTime": "07:00",
-          "latitude": 17.41028,
-          "longitude": 78.488056
+          "stopTime": "07:00 AM",
+          "latitude": 17.448,
+          "longitude": 78.528
         },
         {
           "name": "LALAGUDA NEW BRIDGE",
-          "stopTime": "07:05",
-          "latitude": 17.420561,
-          "longitude": 78.486112
+          "stopTime": "07:05 AM",
+          "latitude": 17.445,
+          "longitude": 78.52
         },
         {
           "name": "SANTHI NAGAR",
-          "stopTime": "07:10",
-          "latitude": 17.430841,
-          "longitude": 78.484168
+          "stopTime": "07:10 AM",
+          "latitude": 17.442,
+          "longitude": 78.515
         },
         {
           "name": "MIRJAL GUDA",
-          "stopTime": "07:15",
-          "latitude": 17.441121,
-          "longitude": 78.482223
+          "stopTime": "07:15 AM",
+          "latitude": 17.448,
+          "longitude": 78.535
         },
         {
           "name": "MALKAJGIRI",
-          "stopTime": "07:20",
-          "latitude": 17.448,
-          "longitude": 78.532
+          "stopTime": "07:20 AM",
+          "latitude": 17.452,
+          "longitude": 78.538
         },
         {
           "name": "ANUTEX",
-          "stopTime": "07:22",
-          "latitude": 17.461682,
-          "longitude": 78.478335
+          "stopTime": "07:22 AM",
+          "latitude": 17.455,
+          "longitude": 78.54
         },
         {
           "name": "ANAND BAG",
-          "stopTime": "07:25",
-          "latitude": 17.471962,
-          "longitude": 78.476391
+          "stopTime": "07:25 AM",
+          "latitude": 17.46,
+          "longitude": 78.542
         },
         {
           "name": "MINI TANK BAND",
-          "stopTime": "07:27",
-          "latitude": 17.482242,
-          "longitude": 78.474447
+          "stopTime": "07:27 AM",
+          "latitude": 17.465,
+          "longitude": 78.545
         },
         {
           "name": "KRUPA COMPLEX",
-          "stopTime": "07:30",
-          "latitude": 17.492523,
-          "longitude": 78.472503
+          "stopTime": "07:30 AM",
+          "latitude": 17.47,
+          "longitude": 78.548
         },
         {
           "name": "VINAYAKA NAGAR",
-          "stopTime": "07:32",
-          "latitude": 17.502803,
-          "longitude": 78.470559
+          "stopTime": "07:32 AM",
+          "latitude": 17.475,
+          "longitude": 78.55
         },
         {
           "name": "NEREDMET OLD PS",
-          "stopTime": "07:35",
-          "latitude": 17.513083,
-          "longitude": 78.468614
+          "stopTime": "07:35 AM",
+          "latitude": 17.482,
+          "longitude": 78.552
         },
         {
           "name": "EAST KAKATIYA NAGAR",
-          "stopTime": "07:37",
-          "latitude": 17.523364,
-          "longitude": 78.46667
+          "stopTime": "07:37 AM",
+          "latitude": 17.485,
+          "longitude": 78.555
         },
         {
           "name": "NEREDMET X ROAD",
-          "stopTime": "07:40",
-          "latitude": 17.533644,
-          "longitude": 78.464726
+          "stopTime": "07:40 AM",
+          "latitude": 17.488,
+          "longitude": 78.558
         },
         {
           "name": "R K PURAM FLYOVER",
-          "stopTime": "07:43",
-          "latitude": 17.543924,
-          "longitude": 78.462782
+          "stopTime": "07:43 AM",
+          "latitude": 17.492,
+          "longitude": 78.56
         },
         {
           "name": "LALBAZAR",
-          "stopTime": "07:50",
-          "latitude": 17.554205,
-          "longitude": 78.460838
+          "stopTime": "07:50 AM",
+          "latitude": 17.498,
+          "longitude": 78.55
         },
         {
           "name": "RETRET COLONY",
-          "stopTime": "08:05",
-          "latitude": 17.564485,
-          "longitude": 78.458894
+          "stopTime": "08:05 AM",
+          "latitude": 17.505,
+          "longitude": 78.53
         },
         {
           "name": "BHEL QUARTERS",
-          "stopTime": "08:10",
-          "latitude": 17.498,
-          "longitude": 78.318
+          "stopTime": "08:10 AM",
+          "latitude": 17.512,
+          "longitude": 78.515
         },
         {
           "name": "DULAPALLY",
-          "stopTime": "08:25",
-          "latitude": 17.552,
-          "longitude": 78.471
+          "stopTime": "08:25 AM",
+          "latitude": 17.545,
+          "longitude": 78.475
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -1202,150 +1192,149 @@
       "id": "11",
       "name": "Route 11 - Jersey Parking to HITAM College",
       "startPoint": "JERSEY PARKING",
-      "busNumber": "TS 09 UB 1211",
-      "facultyIncharge": "SHIVA - 8185941679",
-      "facultyPhone": "8185941679",
+      "reportingTime": "06:50 AM",
       "driverName": "PASHA",
       "driverPhone": "8897956589",
-      "reportingTime": "06:50 AM",
+      "facultyIncharge": "SHIVA - 8185941679",
+      "busNumber": "TS 09 UB 1211",
       "stops": [
         {
           "name": "JERSEY PARKING",
-          "stopTime": "06:50",
-          "latitude": 17.43,
+          "stopTime": "06:50 AM",
+          "latitude": 17.395,
           "longitude": 78.52
         },
         {
           "name": "HYD PUB SCHOOL RAMANATHA PUR",
-          "stopTime": "07:00",
-          "latitude": 17.437515,
-          "longitude": 78.516957
+          "stopTime": "07:00 AM",
+          "latitude": 17.398,
+          "longitude": 78.53
         },
         {
           "name": "VISHAL SUPER MARKET",
-          "stopTime": "07:05",
-          "latitude": 17.44503,
-          "longitude": 78.513915
+          "stopTime": "07:05 AM",
+          "latitude": 17.402,
+          "longitude": 78.525
         },
         {
           "name": "SRI RAMANA THEATER",
-          "stopTime": "07:10",
-          "latitude": 17.452544,
-          "longitude": 78.510872
+          "stopTime": "07:10 AM",
+          "latitude": 17.405,
+          "longitude": 78.518
         },
         {
           "name": "ALI CAFE X ROAD",
-          "stopTime": "07:13",
-          "latitude": 17.460059,
-          "longitude": 78.507829
+          "stopTime": "07:13 AM",
+          "latitude": 17.408,
+          "longitude": 78.512
         },
         {
           "name": "GOLNAKA",
-          "stopTime": "07:17",
-          "latitude": 17.467574,
-          "longitude": 78.504787
+          "stopTime": "07:17 AM",
+          "latitude": 17.412,
+          "longitude": 78.508
         },
         {
           "name": "TILAK NAGAR X ROAD",
-          "stopTime": "07:22",
-          "latitude": 17.475089,
-          "longitude": 78.501744
+          "stopTime": "07:22 AM",
+          "latitude": 17.418,
+          "longitude": 78.505
         },
         {
           "name": "SHIVAM ROAD",
-          "stopTime": "07:25",
-          "latitude": 17.482604,
-          "longitude": 78.498701
-        },
-        {
-          "name": "ADIK MET",
-          "stopTime": "07:27",
-          "latitude": 17.490118,
-          "longitude": 78.495659
-        },
-        {
-          "name": "SEETAFAL MANDI",
-          "stopTime": "07:30",
-          "latitude": 17.497633,
-          "longitude": 78.492616
-        },
-        {
-          "name": "CHILKALGUDA X ROAD",
-          "stopTime": "07:33",
-          "latitude": 17.505148,
-          "longitude": 78.489573
-        },
-        {
-          "name": "SANGEETH X ROAD",
-          "stopTime": "07:36",
-          "latitude": 17.441,
+          "stopTime": "07:25 AM",
+          "latitude": 17.422,
           "longitude": 78.502
         },
         {
+          "name": "ADIK MET",
+          "stopTime": "07:27 AM",
+          "latitude": 17.426,
+          "longitude": 78.498
+        },
+        {
+          "name": "SEETAFAL MANDI",
+          "stopTime": "07:30 AM",
+          "latitude": 17.432,
+          "longitude": 78.502
+        },
+        {
+          "name": "CHILKALGUDA X ROAD",
+          "stopTime": "07:33 AM",
+          "latitude": 17.436,
+          "longitude": 78.498
+        },
+        {
+          "name": "SANGEETH X ROAD",
+          "stopTime": "07:36 AM",
+          "latitude": 17.442,
+          "longitude": 78.498
+        },
+        {
           "name": "PARADAISE",
-          "stopTime": "07:48",
-          "latitude": 17.520178,
-          "longitude": 78.483488
+          "stopTime": "07:48 AM",
+          "latitude": 17.444,
+          "longitude": 78.486
         },
         {
           "name": "DIAMOND POINT",
-          "stopTime": "07:52",
-          "latitude": 17.527692,
-          "longitude": 78.480445
+          "stopTime": "07:52 AM",
+          "latitude": 17.455,
+          "longitude": 78.488
         },
         {
           "name": "BAPUJI NAGAR",
-          "stopTime": "07:54",
-          "latitude": 17.535207,
-          "longitude": 78.477403
+          "stopTime": "07:54 AM",
+          "latitude": 17.46,
+          "longitude": 78.486
         },
         {
           "name": "MILITARY ACADEMY",
-          "stopTime": "08:00",
-          "latitude": 17.542722,
-          "longitude": 78.47436
+          "stopTime": "08:00 AM",
+          "latitude": 17.468,
+          "longitude": 78.482
         },
         {
           "name": "SUCHITRA X ROAD",
-          "stopTime": "08:08",
-          "latitude": 17.512,
-          "longitude": 78.4735
+          "stopTime": "08:08 AM",
+          "latitude": 17.502,
+          "longitude": 78.468
         },
         {
           "name": "JEEDIMETLA VILLAGE",
-          "stopTime": "08:12",
-          "latitude": 17.512,
-          "longitude": 78.448
+          "stopTime": "08:12 AM",
+          "latitude": 17.518,
+          "longitude": 78.465
         },
         {
           "name": "KOMPALLY RTO OFFICE",
-          "stopTime": "08:15",
-          "latitude": 17.535,
-          "longitude": 78.485
+          "stopTime": "08:15 AM",
+          "latitude": 17.528,
+          "longitude": 78.472
         },
         {
           "name": "KOMPALLY BIG BAZAR",
-          "stopTime": "08:18",
+          "stopTime": "08:18 AM",
           "latitude": 17.535,
-          "longitude": 78.485
+          "longitude": 78.48
         },
         {
           "name": "KOMPALLY X ROAD",
-          "stopTime": "08:20",
-          "latitude": 17.535,
+          "stopTime": "08:20 AM",
+          "latitude": 17.54,
           "longitude": 78.485
         },
         {
           "name": "AYYODHYA SERVICE ROAD",
-          "stopTime": "08:30",
-          "latitude": 17.587811,
-          "longitude": 78.456104
+          "stopTime": "08:30 AM",
+          "latitude": 17.555,
+          "longitude": 78.475
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -1353,96 +1342,89 @@
       "id": "12",
       "name": "Route 12 - Sangareddy Old Bus Stand to HITAM College",
       "startPoint": "SANGAREDDY OLD BUSSTAND",
-      "busNumber": "TS 09 UB 1212",
-      "facultyIncharge": "RANI - 8008682410",
-      "facultyPhone": "9490717770",
+      "reportingTime": "06:40 AM",
       "driverName": "RAJU",
       "driverPhone": "9490717770",
-      "reportingTime": "06:40 AM",
+      "facultyIncharge": "RANI - 8008682410",
+      "busNumber": "TS 09 UB 1212",
       "stops": [
         {
-          "name": "Sangareddy Old Bus Stand",
-          "stopTime": "06:40",
-          "latitude": 17.46,
-          "longitude": 78.55
+          "name": "SANGAREDDY OLD BUSSTAND",
+          "stopTime": "06:40 AM",
+          "latitude": 17.619,
+          "longitude": 78.082
         },
         {
-          "name": "Sangareddy New Bus Stand",
-          "stopTime": "06:50",
-          "latitude": 17.47041,
-          "longitude": 78.542543
+          "name": "SANGAREDDY NEW BUSSTAND",
+          "stopTime": "06:50 AM",
+          "latitude": 17.615,
+          "longitude": 78.092
         },
         {
-          "name": "Gokula Hospital",
-          "stopTime": "07:00",
-          "latitude": 17.6085,
-          "longitude": 78.0838
+          "name": "GOKULA HOSPITAL",
+          "stopTime": "07:00 AM",
+          "latitude": 17.61,
+          "longitude": 78.1
         },
         {
-          "name": "More Super Market",
-          "stopTime": "07:05",
-          "latitude": 17.6052,
-          "longitude": 78.0845
+          "name": "MORE SUPER MARKET",
+          "stopTime": "07:05 AM",
+          "latitude": 17.608,
+          "longitude": 78.108
         },
         {
           "name": "ITI",
-          "stopTime": "07:10",
-          "latitude": 17.6015,
-          "longitude": 78.0855
+          "stopTime": "07:10 AM",
+          "latitude": 17.602,
+          "longitude": 78.115
         },
         {
-          "name": "Star Hospital",
-          "stopTime": "07:15",
-          "latitude": 17.6095,
-          "longitude": 78.0872
+          "name": "STAR HOSPITAL",
+          "stopTime": "07:15 AM",
+          "latitude": 17.595,
+          "longitude": 78.125
         },
         {
-          "name": "Collectorate",
-          "stopTime": "07:16",
-          "latitude": 17.522458,
-          "longitude": 78.505259
+          "name": "COLLECTRATE",
+          "stopTime": "07:16 AM",
+          "latitude": 17.59,
+          "longitude": 78.132
         },
         {
-          "name": "SBI Bank",
-          "stopTime": "07:18",
-          "latitude": 17.6168,
-          "longitude": 78.084
+          "name": "SBI BANK",
+          "stopTime": "07:18 AM",
+          "latitude": 17.585,
+          "longitude": 78.14
         },
         {
-          "name": "Sangareddy X Road",
-          "stopTime": "07:20",
-          "latitude": 17.5842,
-          "longitude": 78.1065
+          "name": "SANGAREDDY X ROAD",
+          "stopTime": "07:20 AM",
+          "latitude": 17.58,
+          "longitude": 78.15
         },
         {
-          "name": "Rudraram Bus Stop",
-          "stopTime": "07:32",
-          "latitude": 17.5585,
-          "longitude": 78.1752
+          "name": "ISNAPUR",
+          "stopTime": "07:40 AM",
+          "latitude": 17.545,
+          "longitude": 78.22
         },
         {
-          "name": "Isnapur",
-          "stopTime": "07:40",
-          "latitude": 17.5348,
-          "longitude": 78.2125
+          "name": "MUTHANGI",
+          "stopTime": "07:45 AM",
+          "latitude": 17.538,
+          "longitude": 78.245
         },
         {
-          "name": "Muthangi",
-          "stopTime": "07:45",
-          "latitude": 17.5255,
-          "longitude": 78.2385
-        },
-        {
-          "name": "Annaram",
-          "stopTime": "08:20",
-          "latitude": 17.575,
-          "longitude": 78.362
+          "name": "ANNARAM",
+          "stopTime": "08:20 AM",
+          "latitude": 17.568,
+          "longitude": 78.31
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -1450,66 +1432,65 @@
       "id": "13",
       "name": "Route 13 - Kukatpally to HITAM College",
       "startPoint": "KUKATPALLY",
-      "busNumber": "TS 09 UB 1213",
-      "facultyIncharge": "SIDDARTHA - 7702465549",
-      "facultyPhone": "7702465549",
+      "reportingTime": "07:20 AM",
       "driverName": "NARSIMHA",
       "driverPhone": "9603081034",
-      "reportingTime": "07:20 AM",
+      "facultyIncharge": "SIDDARTHA - 7702465549",
+      "busNumber": "TS 09 UB 1213",
       "stops": [
         {
           "name": "KUKATPALLY",
-          "stopTime": "07:20",
+          "stopTime": "07:20 AM",
           "latitude": 17.485,
-          "longitude": 78.408
+          "longitude": 78.41
         },
         {
           "name": "VIVEKANANDA NAGAR",
-          "stopTime": "07:25",
-          "latitude": 17.503166,
-          "longitude": 78.564133
+          "stopTime": "07:25 AM",
+          "latitude": 17.49,
+          "longitude": 78.415
         },
         {
           "name": "ALWYN COLONY",
-          "stopTime": "07:30",
-          "latitude": 17.516331,
-          "longitude": 78.548265
+          "stopTime": "07:30 AM",
+          "latitude": 17.498,
+          "longitude": 78.418
         },
         {
           "name": "JAGATHGIRIGUTTA",
-          "stopTime": "07:35",
-          "latitude": 17.529497,
-          "longitude": 78.532398
+          "stopTime": "07:35 AM",
+          "latitude": 17.508,
+          "longitude": 78.42
         },
         {
           "name": "BAPIREDDY NAGAR",
-          "stopTime": "07:40",
-          "latitude": 17.542663,
-          "longitude": 78.516531
+          "stopTime": "07:40 AM",
+          "latitude": 17.515,
+          "longitude": 78.422
         },
         {
           "name": "GANDHI NAGAR",
-          "stopTime": "07:45",
-          "latitude": 17.555829,
-          "longitude": 78.500663
+          "stopTime": "07:45 AM",
+          "latitude": 17.525,
+          "longitude": 78.425
         },
         {
           "name": "BAHADURPALLY",
-          "stopTime": "08:25",
-          "latitude": 17.568994,
-          "longitude": 78.484796
+          "stopTime": "08:25 AM",
+          "latitude": 17.56,
+          "longitude": 78.42
         },
         {
           "name": "GANDIMAISAMMA",
-          "stopTime": "08:30",
-          "latitude": 17.5755,
-          "longitude": 78.432
+          "stopTime": "08:30 AM",
+          "latitude": 17.575,
+          "longitude": 78.41
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -1517,132 +1498,131 @@
       "id": "14",
       "name": "Route 14 - Boduppal Depot to HITAM College",
       "startPoint": "BODUPPAL DEPO",
-      "busNumber": "TS 09 UB 1214",
-      "facultyIncharge": "LALITH - 9392569322",
-      "facultyPhone": "9392569322",
+      "reportingTime": "06:28 AM",
       "driverName": "RAJU",
       "driverPhone": "9542881197",
-      "reportingTime": "06:28 AM",
+      "facultyIncharge": "LALITH - 9392569322",
+      "busNumber": "TS 09 UB 1214",
       "stops": [
         {
           "name": "BODUPPAL DEPO",
-          "stopTime": "06:28",
+          "stopTime": "06:28 AM",
           "latitude": 17.412,
-          "longitude": 78.585
+          "longitude": 78.58
         },
         {
           "name": "MEDIPALLI",
-          "stopTime": "06:35",
-          "latitude": 17.523965,
-          "longitude": 78.402793
+          "stopTime": "06:35 AM",
+          "latitude": 17.418,
+          "longitude": 78.59
         },
         {
           "name": "NARAPATHI",
-          "stopTime": "06:38",
-          "latitude": 17.527929,
-          "longitude": 78.405585
+          "stopTime": "06:38 AM",
+          "latitude": 17.422,
+          "longitude": 78.598
         },
         {
           "name": "JODI METLA",
-          "stopTime": "06:40",
-          "latitude": 17.531894,
-          "longitude": 78.408378
+          "stopTime": "06:40 AM",
+          "latitude": 17.428,
+          "longitude": 78.605
         },
         {
           "name": "ANNOGI GUDA",
-          "stopTime": "06:40",
-          "latitude": 17.535858,
-          "longitude": 78.411171
+          "stopTime": "06:40 AM",
+          "latitude": 17.435,
+          "longitude": 78.61
         },
         {
           "name": "YAMMAN PET",
-          "stopTime": "06:45",
-          "latitude": 17.539823,
-          "longitude": 78.413964
+          "stopTime": "06:48 AM",
+          "latitude": 17.442,
+          "longitude": 78.615
         },
         {
           "name": "RAMPALLI X ROAD",
-          "stopTime": "06:55",
-          "latitude": 17.543787,
-          "longitude": 78.416756
+          "stopTime": "06:55 AM",
+          "latitude": 17.458,
+          "longitude": 78.61
         },
         {
           "name": "R T C COLONY",
-          "stopTime": "07:00",
-          "latitude": 17.547752,
-          "longitude": 78.419549
+          "stopTime": "07:00 AM",
+          "latitude": 17.465,
+          "longitude": 78.605
         },
         {
           "name": "NAGARAM",
-          "stopTime": "07:05",
-          "latitude": 17.551716,
-          "longitude": 78.422342
+          "stopTime": "07:05 AM",
+          "latitude": 17.472,
+          "longitude": 78.595
         },
         {
           "name": "DAMMAI GUDA X ROAD",
-          "stopTime": "07:08",
-          "latitude": 17.555681,
-          "longitude": 78.425134
+          "stopTime": "07:08 AM",
+          "latitude": 17.48,
+          "longitude": 78.585
         },
         {
           "name": "AMBEDKAR NAGAR",
-          "stopTime": "07:20",
-          "latitude": 17.559645,
-          "longitude": 78.427927
+          "stopTime": "07:20 AM",
+          "latitude": 17.49,
+          "longitude": 78.56
         },
         {
           "name": "BALAJI NAGAR",
-          "stopTime": "07:25",
-          "latitude": 17.56361,
-          "longitude": 78.43072
+          "stopTime": "07:25 AM",
+          "latitude": 17.495,
+          "longitude": 78.55
         },
         {
           "name": "YAPRAL",
-          "stopTime": "07:32",
-          "latitude": 17.567574,
-          "longitude": 78.433512
+          "stopTime": "07:32 AM",
+          "latitude": 17.505,
+          "longitude": 78.542
         },
         {
           "name": "LOTHU KUNTA",
-          "stopTime": "07:40",
-          "latitude": 17.571539,
-          "longitude": 78.436305
+          "stopTime": "07:40 AM",
+          "latitude": 17.512,
+          "longitude": 78.515
         },
         {
           "name": "SRI BAKERY",
-          "stopTime": "07:45",
-          "latitude": 17.575503,
-          "longitude": 78.439098
+          "stopTime": "07:44 AM",
+          "latitude": 17.518,
+          "longitude": 78.508
         },
         {
           "name": "IG Statue",
-          "stopTime": "07:47",
-          "latitude": 17.579468,
-          "longitude": 78.44189
+          "stopTime": "07:47 AM",
+          "latitude": 17.525,
+          "longitude": 78.502
         },
         {
           "name": "SELECT TALKIES",
-          "stopTime": "07:49",
-          "latitude": 17.583432,
-          "longitude": 78.444683
+          "stopTime": "07:49 AM",
+          "latitude": 17.53,
+          "longitude": 78.498
         },
         {
           "name": "BOLLARAM GOVT SCHOOL",
-          "stopTime": "07:50",
-          "latitude": 17.587397,
-          "longitude": 78.447476
+          "stopTime": "07:50 AM",
+          "latitude": 17.535,
+          "longitude": 78.492
         },
         {
           "name": "BOLLARAM GATE",
-          "stopTime": "08:00",
-          "latitude": 17.591361,
-          "longitude": 78.450269
+          "stopTime": "08:00 AM",
+          "latitude": 17.54,
+          "longitude": 78.485
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -1650,72 +1630,71 @@
       "id": "15",
       "name": "Route 15 - Temple Bus Stop to HITAM College",
       "startPoint": "TEMPLE BUS STOP",
-      "busNumber": "TS 09 UB 1215",
-      "facultyIncharge": "RANI - 8008682410",
-      "facultyPhone": "8008682410",
+      "reportingTime": "07:25 AM",
       "driverName": "VENKAT REDDY",
       "driverPhone": "9985975546",
-      "reportingTime": "07:25 AM",
+      "facultyIncharge": "RANI - 8008682410",
+      "busNumber": "TS 09 UB 1215",
       "stops": [
         {
           "name": "TEMPLE BUS STOP",
-          "stopTime": "07:25",
-          "latitude": 17.4,
-          "longitude": 78.43
+          "stopTime": "07:25 AM",
+          "latitude": 17.485,
+          "longitude": 78.398
         },
         {
-          "name": "REMEDY HOSPITAL",
-          "stopTime": "07:30",
-          "latitude": 17.421703,
-          "longitude": 78.432562
+          "name": "REMEDY HOSPOITAL",
+          "stopTime": "07:30 AM",
+          "latitude": 17.488,
+          "longitude": 78.402
         },
         {
           "name": "KPHB",
-          "stopTime": "07:35",
+          "stopTime": "07:35 AM",
           "latitude": 17.492,
-          "longitude": 78.397
+          "longitude": 78.405
         },
         {
           "name": "SOUTH INDIA SHOPPING MALL",
-          "stopTime": "07:38",
-          "latitude": 17.465109,
-          "longitude": 78.437687
+          "stopTime": "07:38 AM",
+          "latitude": 17.496,
+          "longitude": 78.408
         },
         {
           "name": "TULASI NAGAR",
-          "stopTime": "07:40",
-          "latitude": 17.486811,
-          "longitude": 78.440249
+          "stopTime": "07:40 AM",
+          "latitude": 17.502,
+          "longitude": 78.41
         },
         {
           "name": "YELAMMA BANDA",
-          "stopTime": "07:45",
-          "latitude": 17.508514,
-          "longitude": 78.442812
+          "stopTime": "07:45 AM",
+          "latitude": 17.508,
+          "longitude": 78.415
         },
         {
           "name": "GAJULARAMARAM",
-          "stopTime": "07:50",
-          "latitude": 17.530217,
-          "longitude": 78.445374
+          "stopTime": "07:50 AM",
+          "latitude": 17.525,
+          "longitude": 78.42
         },
         {
           "name": "RODAMESTRI NAGAR",
-          "stopTime": "07:55",
-          "latitude": 17.55192,
-          "longitude": 78.447937
+          "stopTime": "07:55 AM",
+          "latitude": 17.535,
+          "longitude": 78.425
         },
         {
           "name": "GANDIMAISAMMA",
-          "stopTime": "08:30",
-          "latitude": 17.5755,
-          "longitude": 78.432
+          "stopTime": "08:30 AM",
+          "latitude": 17.575,
+          "longitude": 78.41
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -1723,84 +1702,83 @@
       "id": "16",
       "name": "Route 16 - Shankar Palle to HITAM College",
       "startPoint": "SHANKAR PALLE",
-      "busNumber": "TS 09 UB 1216",
-      "facultyIncharge": "TRANSPORT OFFICE",
-      "facultyPhone": "961852820",
+      "reportingTime": "06:45 AM",
       "driverName": "ABBAS",
       "driverPhone": "7661900417",
-      "reportingTime": "06:45 AM",
+      "facultyIncharge": "TRANSPORT OFFICE",
+      "busNumber": "TS 09 UB 1216",
       "stops": [
         {
           "name": "SHANKAR PALLE",
-          "stopTime": "06:45",
+          "stopTime": "06:45 AM",
           "latitude": 17.452,
           "longitude": 78.132
         },
         {
           "name": "BDL",
-          "stopTime": "06:50",
-          "latitude": 17.44503,
-          "longitude": 78.459369
+          "stopTime": "06:50 AM",
+          "latitude": 17.465,
+          "longitude": 78.15
         },
         {
           "name": "BANUR",
-          "stopTime": "06:55",
-          "latitude": 17.460059,
-          "longitude": 78.458738
+          "stopTime": "06:55 AM",
+          "latitude": 17.478,
+          "longitude": 78.172
         },
         {
           "name": "NANDIGAM",
-          "stopTime": "07:00",
-          "latitude": 17.475089,
-          "longitude": 78.458108
+          "stopTime": "07:00 AM",
+          "latitude": 17.49,
+          "longitude": 78.195
         },
         {
           "name": "KARDANU",
-          "stopTime": "07:05",
-          "latitude": 17.490118,
-          "longitude": 78.457477
+          "stopTime": "07:05 AM",
+          "latitude": 17.502,
+          "longitude": 78.215
         },
         {
           "name": "PATANCHERU",
-          "stopTime": "07:10",
-          "latitude": 17.528,
-          "longitude": 78.265
+          "stopTime": "07:10 AM",
+          "latitude": 17.53,
+          "longitude": 78.26
         },
         {
           "name": "GOVT HOSPITAL",
-          "stopTime": "07:15",
-          "latitude": 17.520178,
-          "longitude": 78.456215
+          "stopTime": "07:15 AM",
+          "latitude": 17.535,
+          "longitude": 78.27
         },
         {
           "name": "EGRISI",
-          "stopTime": "07:20",
-          "latitude": 17.535207,
-          "longitude": 78.455584
+          "stopTime": "07:20 AM",
+          "latitude": 17.525,
+          "longitude": 78.285
         },
         {
           "name": "RC PURAM",
-          "stopTime": "07:25",
-          "latitude": 17.508,
-          "longitude": 78.305
+          "stopTime": "07:25 AM",
+          "latitude": 17.515,
+          "longitude": 78.3
         },
         {
           "name": "BIRAMGUDA",
-          "stopTime": "07:30",
+          "stopTime": "07:30 AM",
           "latitude": 17.518,
-          "longitude": 78.292
+          "longitude": 78.31
         },
         {
           "name": "KISTAREDDYPET",
-          "stopTime": "08:00",
-          "latitude": 17.580296,
-          "longitude": 78.453692
+          "stopTime": "08:00 AM",
+          "latitude": 17.535,
+          "longitude": 78.325
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -1808,84 +1786,83 @@
       "id": "17",
       "name": "Route 17 - Cheriyala to HITAM College",
       "startPoint": "CHERIYALA",
-      "busNumber": "TS 09 UB 1217",
-      "facultyIncharge": "APARNA - 95502971255",
-      "facultyPhone": "9676139267",
+      "reportingTime": "06:40 AM",
       "driverName": "VENKANNA",
       "driverPhone": "8125904819",
-      "reportingTime": "06:40 AM",
+      "facultyIncharge": "APARNA - 95502971255",
+      "busNumber": "TS 09 UB 1217",
       "stops": [
         {
           "name": "CHERIYALA",
-          "stopTime": "06:40",
-          "latitude": 17.542,
-          "longitude": 78.621
+          "stopTime": "06:40 AM",
+          "latitude": 17.515,
+          "longitude": 78.61
         },
         {
           "name": "BANDLAGUDA",
-          "stopTime": "06:55",
-          "latitude": 17.352,
-          "longitude": 78.418
+          "stopTime": "06:55 AM",
+          "latitude": 17.502,
+          "longitude": 78.59
         },
         {
           "name": "KUSHAIGUDA",
-          "stopTime": "07:05",
-          "latitude": 17.481,
+          "stopTime": "07:05 AM",
+          "latitude": 17.485,
           "longitude": 78.575
         },
         {
           "name": "ECIL",
-          "stopTime": "07:10",
-          "latitude": 17.471,
+          "stopTime": "07:10 AM",
+          "latitude": 17.478,
           "longitude": 78.568
         },
         {
           "name": "NEREDENETTU",
-          "stopTime": "07:20",
-          "latitude": 17.509209,
-          "longitude": 78.476568
+          "stopTime": "07:20 AM",
+          "latitude": 17.488,
+          "longitude": 78.558
         },
         {
           "name": "MILITRY AREA",
-          "stopTime": "07:25",
-          "latitude": 17.521512,
-          "longitude": 78.47321
+          "stopTime": "07:25 AM",
+          "latitude": 17.498,
+          "longitude": 78.55
         },
         {
           "name": "LALBAZAR",
-          "stopTime": "07:30",
-          "latitude": 17.533814,
-          "longitude": 78.469852
+          "stopTime": "07:30 AM",
+          "latitude": 17.502,
+          "longitude": 78.542
         },
         {
           "name": "LOTHUKUNTA",
-          "stopTime": "07:40",
-          "latitude": 17.546116,
-          "longitude": 78.466494
+          "stopTime": "07:40 AM",
+          "latitude": 17.512,
+          "longitude": 78.515
         },
         {
           "name": "THUMUKUNTA",
-          "stopTime": "07:55",
-          "latitude": 17.558419,
-          "longitude": 78.463135
+          "stopTime": "07:55 AM",
+          "latitude": 17.545,
+          "longitude": 78.525
         },
         {
           "name": "MEDCHAL",
-          "stopTime": "08:10",
-          "latitude": 17.6295,
-          "longitude": 78.4815
+          "stopTime": "08:10 AM",
+          "latitude": 17.625,
+          "longitude": 78.485
         },
         {
-          "name": "AYODYA X ROAD",
-          "stopTime": "08:30",
-          "latitude": 17.583023,
-          "longitude": 78.456419
+          "name": "AYODYA X DOAD",
+          "stopTime": "08:30 AM",
+          "latitude": 17.595,
+          "longitude": 78.445
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -1893,90 +1870,89 @@
       "id": "18",
       "name": "Route 18 - SR Nagar to HITAM College",
       "startPoint": "SR NAGR",
-      "busNumber": "TS 09 UB 1218",
-      "facultyIncharge": "RENUKA - 7730887849",
-      "facultyPhone": "7730887849",
+      "reportingTime": "07:15 AM",
       "driverName": "V. JAGAN",
       "driverPhone": "999704384344",
-      "reportingTime": "07:15 AM",
+      "facultyIncharge": "RENUKA - 7730887849",
+      "busNumber": "TS 09 UB 1218",
       "stops": [
         {
           "name": "SR NAGR",
-          "stopTime": "07:15",
+          "stopTime": "07:15 AM",
           "latitude": 17.442,
-          "longitude": 78.444
+          "longitude": 78.442
         },
         {
           "name": "MOTHI NAGAR",
-          "stopTime": "07:20",
-          "latitude": 17.498777,
-          "longitude": 78.514422
+          "stopTime": "07:20 AM",
+          "latitude": 17.448,
+          "longitude": 78.435
         },
         {
           "name": "ERRAGADDA",
-          "stopTime": "07:25",
-          "latitude": 17.452,
-          "longitude": 78.438
-        },
-        {
-          "name": "BHARATH NAGAR",
-          "stopTime": "07:30",
-          "latitude": 17.516331,
-          "longitude": 78.503265
-        },
-        {
-          "name": "MOOSAPET",
-          "stopTime": "07:35",
-          "latitude": 17.525109,
-          "longitude": 78.497687
-        },
-        {
-          "name": "KUKATPALLY",
-          "stopTime": "07:40",
-          "latitude": 17.485,
-          "longitude": 78.408
-        },
-        {
-          "name": "KUKATPALLY RAMDEV HOSPITAL",
-          "stopTime": "07:42",
-          "latitude": 17.485,
-          "longitude": 78.408
-        },
-        {
-          "name": "HOUSING BOARD",
-          "stopTime": "07:44",
-          "latitude": 17.55144,
-          "longitude": 78.480952
-        },
-        {
-          "name": "JNTU",
-          "stopTime": "07:46",
-          "latitude": 17.498,
-          "longitude": 78.391
-        },
-        {
-          "name": "TULASI NAGAR",
-          "stopTime": "07:50",
-          "latitude": 17.568994,
-          "longitude": 78.469796
-        },
-        {
-          "name": "PRAGATHI NAGAR",
-          "stopTime": "08:00",
-          "latitude": 17.518,
-          "longitude": 78.392
-        },
-        {
-          "name": "GANDIMAISAMMA",
-          "stopTime": "08:30",
-          "latitude": 17.5755,
+          "stopTime": "07:25 AM",
+          "latitude": 17.455,
           "longitude": 78.432
         },
         {
+          "name": "BHARATH NAGAR",
+          "stopTime": "07:30 AM",
+          "latitude": 17.462,
+          "longitude": 78.428
+        },
+        {
+          "name": "MOOSAPET",
+          "stopTime": "07:35 AM",
+          "latitude": 17.472,
+          "longitude": 78.422
+        },
+        {
+          "name": "KUKATPALLY",
+          "stopTime": "07:40 AM",
+          "latitude": 17.485,
+          "longitude": 78.41
+        },
+        {
+          "name": "KUKATPALLY RAMDEV HOSPITAL",
+          "stopTime": "07:42 AM",
+          "latitude": 17.49,
+          "longitude": 78.405
+        },
+        {
+          "name": "HOUSING BORD",
+          "stopTime": "07:44 AM",
+          "latitude": 17.494,
+          "longitude": 78.4
+        },
+        {
+          "name": "JNTU",
+          "stopTime": "07:46 AM",
+          "latitude": 17.498,
+          "longitude": 78.392
+        },
+        {
+          "name": "TULASI NAGAR",
+          "stopTime": "07:50 AM",
+          "latitude": 17.502,
+          "longitude": 78.398
+        },
+        {
+          "name": "PRAGATHI NAGAR",
+          "stopTime": "08:00 AM",
+          "latitude": 17.515,
+          "longitude": 78.402
+        },
+        {
+          "name": "GANDIMAISAMMA",
+          "stopTime": "08:30 AM",
+          "latitude": 17.575,
+          "longitude": 78.41
+        },
+        {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -1984,138 +1960,137 @@
       "id": "19",
       "name": "Route 19 - Chandrayanagutta to HITAM College",
       "startPoint": "CHANDRAYANAGUTTA",
-      "busNumber": "TS 09 UB 1219",
-      "facultyIncharge": "JYOTHI - 7799204888",
-      "facultyPhone": "7799204888",
+      "reportingTime": "06:30 AM",
       "driverName": "JALEEL",
       "driverPhone": "9502620285",
-      "reportingTime": "06:30 AM",
+      "facultyIncharge": "JYOTHI - 7799204888",
+      "busNumber": "TS 09 UB 1219",
       "stops": [
         {
           "name": "Chandrayanagutta",
-          "stopTime": "06:30",
+          "stopTime": "06:30 AM",
           "latitude": 17.318,
           "longitude": 78.472
         },
         {
           "name": "DRDL",
-          "stopTime": "06:35",
-          "latitude": 17.523766,
-          "longitude": 78.545153
-        },
-        {
-          "name": "Owaisi",
-          "stopTime": "06:40",
-          "latitude": 17.527533,
-          "longitude": 78.540306
-        },
-        {
-          "name": "Santosh Nagar",
-          "stopTime": "06:45",
-          "latitude": 17.531299,
-          "longitude": 78.535459
-        },
-        {
-          "name": "Nalgonda X Road",
-          "stopTime": "06:50",
-          "latitude": 17.535065,
-          "longitude": 78.530612
-        },
-        {
-          "name": "Mojamjahi Market",
-          "stopTime": "06:55",
-          "latitude": 17.538831,
-          "longitude": 78.525765
-        },
-        {
-          "name": "KACHIGUDA X ROAD",
-          "stopTime": "07:00",
-          "latitude": 17.542598,
-          "longitude": 78.520918
-        },
-        {
-          "name": "Y M C A",
-          "stopTime": "07:05",
-          "latitude": 17.546364,
-          "longitude": 78.516071
-        },
-        {
-          "name": "CHIKADPALLI",
-          "stopTime": "07:10",
-          "latitude": 17.55013,
-          "longitude": 78.511225
-        },
-        {
-          "name": "RTC X ROAD",
-          "stopTime": "07:15",
-          "latitude": 17.553897,
-          "longitude": 78.506378
-        },
-        {
-          "name": "MUSHEERABAD",
-          "stopTime": "07:20",
-          "latitude": 17.557663,
-          "longitude": 78.501531
-        },
-        {
-          "name": "MUSHEERABAD X ROAD",
-          "stopTime": "07:25",
-          "latitude": 17.561429,
-          "longitude": 78.496684
-        },
-        {
-          "name": "KAVADI GUDA",
-          "stopTime": "07:30",
-          "latitude": 17.565195,
-          "longitude": 78.491837
-        },
-        {
-          "name": "Ranigunj",
-          "stopTime": "07:35",
-          "latitude": 17.568962,
-          "longitude": 78.48699
-        },
-        {
-          "name": "Paradise",
-          "stopTime": "07:40",
-          "latitude": 17.442,
-          "longitude": 78.487
-        },
-        {
-          "name": "Bapuji Nagar",
-          "stopTime": "07:45",
-          "latitude": 17.576494,
-          "longitude": 78.477296
-        },
-        {
-          "name": "MMR Garden",
-          "stopTime": "07:50",
-          "latitude": 17.580261,
-          "longitude": 78.472449
-        },
-        {
-          "name": "Suchitra",
-          "stopTime": "08:00",
-          "latitude": 17.512,
-          "longitude": 78.4735
-        },
-        {
-          "name": "Jeedimetla",
-          "stopTime": "08:10",
-          "latitude": 17.512,
-          "longitude": 78.448
-        },
-        {
-          "name": "Kompally",
-          "stopTime": "08:20",
-          "latitude": 17.535,
+          "stopTime": "06:35 AM",
+          "latitude": 17.325,
           "longitude": 78.485
         },
         {
+          "name": "Owaisi",
+          "stopTime": "06:40 AM",
+          "latitude": 17.335,
+          "longitude": 78.495
+        },
+        {
+          "name": "Santosh Nagar",
+          "stopTime": "06:45 AM",
+          "latitude": 17.348,
+          "longitude": 78.502
+        },
+        {
+          "name": "Nalgonda X Road",
+          "stopTime": "06:50 AM",
+          "latitude": 17.362,
+          "longitude": 78.508
+        },
+        {
+          "name": "Mojamjahi Market",
+          "stopTime": "06:55 AM",
+          "latitude": 17.378,
+          "longitude": 78.478
+        },
+        {
+          "name": "KACHIGUDA X ROAD",
+          "stopTime": "07:00 AM",
+          "latitude": 17.388,
+          "longitude": 78.492
+        },
+        {
+          "name": "Y M C A",
+          "stopTime": "07:05 AM",
+          "latitude": 17.395,
+          "longitude": 78.49
+        },
+        {
+          "name": "CHIKADPALLI",
+          "stopTime": "07:10 AM",
+          "latitude": 17.405,
+          "longitude": 78.492
+        },
+        {
+          "name": "RTC X ROAD",
+          "stopTime": "07:15 AM",
+          "latitude": 17.412,
+          "longitude": 78.495
+        },
+        {
+          "name": "MUSHEERABAD",
+          "stopTime": "07:20 AM",
+          "latitude": 17.418,
+          "longitude": 78.498
+        },
+        {
+          "name": "MUSHEERABAD X ROAD",
+          "stopTime": "07:25 AM",
+          "latitude": 17.422,
+          "longitude": 78.5
+        },
+        {
+          "name": "KAVADI GUDA",
+          "stopTime": "07:30 AM",
+          "latitude": 17.425,
+          "longitude": 78.488
+        },
+        {
+          "name": "Ranigunj",
+          "stopTime": "07:35 AM",
+          "latitude": 17.432,
+          "longitude": 78.485
+        },
+        {
+          "name": "Paradise",
+          "stopTime": "07:40 AM",
+          "latitude": 17.444,
+          "longitude": 78.486
+        },
+        {
+          "name": "Bapuji Nagar",
+          "stopTime": "07:45 AM",
+          "latitude": 17.46,
+          "longitude": 78.486
+        },
+        {
+          "name": "MMR Garden",
+          "stopTime": "07:50 AM",
+          "latitude": 17.485,
+          "longitude": 78.475
+        },
+        {
+          "name": "Suchitra",
+          "stopTime": "08:00 AM",
+          "latitude": 17.502,
+          "longitude": 78.468
+        },
+        {
+          "name": "Jeedimetla",
+          "stopTime": "08:10 AM",
+          "latitude": 17.518,
+          "longitude": 78.465
+        },
+        {
+          "name": "Kompally",
+          "stopTime": "08:20 AM",
+          "latitude": 17.535,
+          "longitude": 78.48
+        },
+        {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -2123,114 +2098,113 @@
       "id": "20",
       "name": "Route 20 - Beramguda to HITAM College",
       "startPoint": "BERAMGUDA",
-      "busNumber": "TS 09 UB 1220",
-      "facultyIncharge": "APARNA - 95502971255",
-      "facultyPhone": "95502971255",
+      "reportingTime": "07:20 AM",
       "driverName": "ABED",
       "driverPhone": "9701681949",
-      "reportingTime": "07:20 AM",
+      "facultyIncharge": "APARNA - 95502971255",
+      "busNumber": "TS 09 UB 1220",
       "stops": [
         {
           "name": "BERAMGUDA",
-          "stopTime": "07:20",
+          "stopTime": "07:20 AM",
           "latitude": 17.518,
-          "longitude": 78.292
+          "longitude": 78.305
         },
         {
           "name": "ASHOK NAGAR",
-          "stopTime": "07:22",
-          "latitude": 17.412208,
-          "longitude": 78.572066
+          "stopTime": "07:22 AM",
+          "latitude": 17.512,
+          "longitude": 78.315
         },
         {
           "name": "JYOTHINAGAR",
-          "stopTime": "07:23",
-          "latitude": 17.424416,
-          "longitude": 78.564133
-        },
-        {
-          "name": "LINGAMPALLY",
-          "stopTime": "07:28",
-          "latitude": 17.488,
+          "stopTime": "07:23 AM",
+          "latitude": 17.505,
           "longitude": 78.322
         },
         {
+          "name": "LINGAMPALLY",
+          "stopTime": "07:28 AM",
+          "latitude": 17.488,
+          "longitude": 78.34
+        },
+        {
           "name": "CHANDA NAGAR",
-          "stopTime": "07:30",
-          "latitude": 17.495,
-          "longitude": 78.338
+          "stopTime": "07:30 AM",
+          "latitude": 17.492,
+          "longitude": 78.345
         },
         {
           "name": "MY HOME",
-          "stopTime": "07:35",
-          "latitude": 17.461039,
-          "longitude": 78.540332
+          "stopTime": "07:35 AM",
+          "latitude": 17.495,
+          "longitude": 78.355
         },
         {
           "name": "DEEPTHI SREE NAGAR",
-          "stopTime": "07:36",
+          "stopTime": "07:36 AM",
           "latitude": 17.497,
-          "longitude": 78.356
+          "longitude": 78.362
         },
         {
           "name": "MADINAGUDA",
-          "stopTime": "07:37",
-          "latitude": 17.498,
-          "longitude": 78.349
+          "stopTime": "07:37 AM",
+          "latitude": 17.499,
+          "longitude": 78.368
         },
         {
           "name": "MIYAPUR ALWIN",
-          "stopTime": "07:38",
-          "latitude": 17.4965,
-          "longitude": 78.363
+          "stopTime": "07:38 AM",
+          "latitude": 17.502,
+          "longitude": 78.375
         },
         {
           "name": "MIYAPUR X ROAD",
-          "stopTime": "07:40",
-          "latitude": 17.4965,
-          "longitude": 78.363
-        },
-        {
-          "name": "HDFC BANK",
-          "stopTime": "07:43",
-          "latitude": 17.522079,
-          "longitude": 78.500663
-        },
-        {
-          "name": "COCA COLA",
-          "stopTime": "07:45",
-          "latitude": 17.534286,
-          "longitude": 78.49273
-        },
-        {
-          "name": "VOLVO",
-          "stopTime": "07:48",
-          "latitude": 17.546494,
-          "longitude": 78.484796
-        },
-        {
-          "name": "BOLLARAM X ROAD",
-          "stopTime": "07:49",
-          "latitude": 17.542,
-          "longitude": 78.412
-        },
-        {
-          "name": "BACHUPALLI",
-          "stopTime": "07:50",
-          "latitude": 17.5348,
-          "longitude": 78.3685
-        },
-        {
-          "name": "MALLAMPET",
-          "stopTime": "07:55",
-          "latitude": 17.548,
+          "stopTime": "07:40 AM",
+          "latitude": 17.505,
           "longitude": 78.382
         },
         {
+          "name": "HDFC BANK",
+          "stopTime": "07:43 AM",
+          "latitude": 17.508,
+          "longitude": 78.388
+        },
+        {
+          "name": "COCA COLA",
+          "stopTime": "07:45 AM",
+          "latitude": 17.512,
+          "longitude": 78.395
+        },
+        {
+          "name": "VOLVO",
+          "stopTime": "07:48 AM",
+          "latitude": 17.516,
+          "longitude": 78.402
+        },
+        {
+          "name": "BOLLARAM X ROAD",
+          "stopTime": "07:49 AM",
+          "latitude": 17.525,
+          "longitude": 78.41
+        },
+        {
+          "name": "BACHUPALLI",
+          "stopTime": "07:50 AM",
+          "latitude": 17.535,
+          "longitude": 78.385
+        },
+        {
+          "name": "MALLAMPET",
+          "stopTime": "07:55 AM",
+          "latitude": 17.545,
+          "longitude": 78.375
+        },
+        {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -2238,84 +2212,83 @@
       "id": "21",
       "name": "Route 21 - Begumpet to HITAM College",
       "startPoint": "BEGUMPET",
-      "busNumber": "TS 09 UB 1221",
-      "facultyIncharge": "TRANSPORT OFFICE",
-      "facultyPhone": "9908682411",
+      "reportingTime": "07:25 AM",
       "driverName": "BENNA JOSEPH",
       "driverPhone": "9908682411",
-      "reportingTime": "07:25 AM",
+      "facultyIncharge": "TRANSPORT OFFICE",
+      "busNumber": "TS 09 UB 1221",
       "stops": [
         {
           "name": "Begumpet",
-          "stopTime": "07:25",
-          "latitude": 17.444,
+          "stopTime": "07:25 AM",
+          "latitude": 17.442,
           "longitude": 78.468
         },
         {
           "name": "Dharam karam road",
-          "stopTime": "07:30",
-          "latitude": 17.44503,
-          "longitude": 78.404824
+          "stopTime": "07:30 AM",
+          "latitude": 17.448,
+          "longitude": 78.455
         },
         {
           "name": "Balkampet",
-          "stopTime": "07:35",
-          "latitude": 17.460059,
-          "longitude": 78.409648
-        },
-        {
-          "name": "Fathenagar",
-          "stopTime": "07:40",
-          "latitude": 17.475089,
-          "longitude": 78.414471
-        },
-        {
-          "name": "Balanagar",
-          "stopTime": "07:45",
-          "latitude": 17.468,
-          "longitude": 78.445
-        },
-        {
-          "name": "IDPL",
-          "stopTime": "07:50",
-          "latitude": 17.505148,
-          "longitude": 78.424119
-        },
-        {
-          "name": "Ganesh nagar",
-          "stopTime": "07:55",
-          "latitude": 17.520178,
-          "longitude": 78.428943
-        },
-        {
-          "name": "Chintal",
-          "stopTime": "08:00",
-          "latitude": 17.535207,
-          "longitude": 78.433766
-        },
-        {
-          "name": "Jeedimetla",
-          "stopTime": "08:10",
-          "latitude": 17.512,
+          "stopTime": "07:35 AM",
+          "latitude": 17.452,
           "longitude": 78.448
         },
         {
-          "name": "Suraram",
-          "stopTime": "08:15",
-          "latitude": 17.532,
+          "name": "Fathenagar",
+          "stopTime": "07:40 AM",
+          "latitude": 17.458,
+          "longitude": 78.442
+        },
+        {
+          "name": "Balanagar",
+          "stopTime": "07:45 AM",
+          "latitude": 17.468,
           "longitude": 78.435
         },
         {
+          "name": "IDPL",
+          "stopTime": "07:50 AM",
+          "latitude": 17.478,
+          "longitude": 78.428
+        },
+        {
+          "name": "Ganesh nagar",
+          "stopTime": "07:55 AM",
+          "latitude": 17.488,
+          "longitude": 78.422
+        },
+        {
+          "name": "Chintal",
+          "stopTime": "08:00 AM",
+          "latitude": 17.498,
+          "longitude": 78.415
+        },
+        {
+          "name": "Jeedimetla",
+          "stopTime": "08:10 AM",
+          "latitude": 17.518,
+          "longitude": 78.465
+        },
+        {
+          "name": "Suraram",
+          "stopTime": "08:15 AM",
+          "latitude": 17.54,
+          "longitude": 78.455
+        },
+        {
           "name": "Gandi maisamma",
-          "stopTime": "08:30",
-          "latitude": 17.5755,
-          "longitude": 78.432
+          "stopTime": "08:30 AM",
+          "latitude": 17.575,
+          "longitude": 78.41
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -2323,96 +2296,95 @@
       "id": "22",
       "name": "Route 22 - Bandla Guda to HITAM College",
       "startPoint": "BANDLA GUDA",
-      "busNumber": "TS 09 UB 1222",
-      "facultyIncharge": "MALLIKA - 9550844817",
-      "facultyPhone": "9550844817",
+      "reportingTime": "06:30 AM",
       "driverName": "MD.ALI",
       "driverPhone": "9000218847",
-      "reportingTime": "06:30 AM",
+      "facultyIncharge": "MALLIKA - 9550844817",
+      "busNumber": "TS 09 UB 1222",
       "stops": [
         {
           "name": "BANDLA GUDA",
-          "stopTime": "06:30",
+          "stopTime": "06:30 AM",
           "latitude": 17.352,
-          "longitude": 78.418
+          "longitude": 78.402
         },
         {
           "name": "KALI MANDIR",
-          "stopTime": "06:35",
-          "latitude": 17.47041,
-          "longitude": 78.431774
+          "stopTime": "06:35 AM",
+          "latitude": 17.362,
+          "longitude": 78.395
         },
         {
           "name": "NARSINGH",
-          "stopTime": "06:40",
-          "latitude": 17.480819,
-          "longitude": 78.433548
+          "stopTime": "06:40 AM",
+          "latitude": 17.375,
+          "longitude": 78.388
         },
         {
           "name": "NANKARAM FUDA",
-          "stopTime": "06:48",
-          "latitude": 17.491229,
-          "longitude": 78.435322
+          "stopTime": "06:48 AM",
+          "latitude": 17.395,
+          "longitude": 78.375
         },
         {
           "name": "LANCO HILLS",
-          "stopTime": "07:00",
-          "latitude": 17.501639,
-          "longitude": 78.437096
+          "stopTime": "07:00 AM",
+          "latitude": 17.41,
+          "longitude": 78.37
         },
         {
           "name": "MANIKONDA",
-          "stopTime": "07:05",
-          "latitude": 17.512048,
-          "longitude": 78.43887
+          "stopTime": "07:05 AM",
+          "latitude": 17.418,
+          "longitude": 78.375
         },
         {
           "name": "SHAIKPETA",
-          "stopTime": "07:10",
-          "latitude": 17.522458,
-          "longitude": 78.440644
+          "stopTime": "07:10 AM",
+          "latitude": 17.412,
+          "longitude": 78.398
         },
         {
           "name": "MULKAM CHERA",
-          "stopTime": "07:12",
-          "latitude": 17.532868,
-          "longitude": 78.442418
+          "stopTime": "07:12 AM",
+          "latitude": 17.42,
+          "longitude": 78.405
         },
         {
           "name": "FORUM MALL BRIDGE",
-          "stopTime": "07:28",
-          "latitude": 17.543277,
-          "longitude": 78.444192
+          "stopTime": "07:28 AM",
+          "latitude": 17.485,
+          "longitude": 78.388
         },
         {
           "name": "GOKUL NAGAR",
-          "stopTime": "07:30",
-          "latitude": 17.553687,
-          "longitude": 78.445966
+          "stopTime": "07:30 AM",
+          "latitude": 17.492,
+          "longitude": 78.392
         },
         {
           "name": "HYDER NAGAR",
-          "stopTime": "07:38",
-          "latitude": 17.564097,
-          "longitude": 78.447739
+          "stopTime": "07:38 AM",
+          "latitude": 17.498,
+          "longitude": 78.385
         },
         {
           "name": "NIZAMPET HANUMAN TEMPLE",
-          "stopTime": "07:48",
-          "latitude": 17.512,
-          "longitude": 78.384
+          "stopTime": "07:48 AM",
+          "latitude": 17.525,
+          "longitude": 78.392
         },
         {
           "name": "GANDI MAISAMMA",
-          "stopTime": "08:25",
-          "latitude": 17.5755,
-          "longitude": 78.432
+          "stopTime": "08:25 AM",
+          "latitude": 17.575,
+          "longitude": 78.41
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:40",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:40 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     },
@@ -2420,84 +2392,83 @@
       "id": "23",
       "name": "Route 23 - ECIL & Cherlapally to HITAM College",
       "startPoint": "ECIL",
-      "busNumber": "TS 09 UB 1223",
-      "facultyIncharge": "DHAN DEEP - 7569956911",
-      "facultyPhone": "7569956911",
+      "reportingTime": "06:35 AM",
       "driverName": "RAVI KUMAR",
       "driverPhone": "9848012345",
-      "reportingTime": "06:35 AM",
+      "facultyIncharge": "DHAN DEEP - 7569956911",
+      "busNumber": "TS 09 UB 1223",
       "stops": [
         {
+          "name": "ECIL",
+          "stopTime": "06:35 AM",
+          "latitude": 17.478,
+          "longitude": 78.568
+        },
+        {
+          "name": "CHERLAPALLY",
+          "stopTime": "06:45 AM",
+          "latitude": 17.485,
+          "longitude": 78.585
+        },
+        {
           "name": "JEEDIMETLA",
-          "stopTime": "07:00",
-          "latitude": 17.512,
-          "longitude": 78.448
+          "stopTime": "07:00 AM",
+          "latitude": 17.518,
+          "longitude": 78.465
         },
         {
           "name": "CHINTHAL",
-          "stopTime": "07:10",
+          "stopTime": "07:15 AM",
           "latitude": 17.498,
-          "longitude": 78.449
+          "longitude": 78.415
         },
         {
           "name": "BALKAMPET",
-          "stopTime": "07:20",
-          "latitude": 17.50915,
-          "longitude": 78.458738
+          "stopTime": "07:20 AM",
+          "latitude": 17.452,
+          "longitude": 78.448
         },
         {
           "name": "BEGUMPET",
-          "stopTime": "07:25",
-          "latitude": 17.444,
+          "stopTime": "07:25 AM",
+          "latitude": 17.442,
           "longitude": 78.468
         },
         {
-          "name": "D.K.ROAD",
-          "stopTime": "07:30",
-          "latitude": 17.5283,
-          "longitude": 78.457477
-        },
-        {
-          "name": "DHARAM KARAM ROAD",
-          "stopTime": "07:35",
-          "latitude": 17.537875,
-          "longitude": 78.456846
-        },
-        {
-          "name": "GANESH NAGAR",
-          "stopTime": "07:40",
-          "latitude": 17.54745,
-          "longitude": 78.456215
-        },
-        {
           "name": "FATHENAGAR",
-          "stopTime": "07:45",
-          "latitude": 17.557025,
-          "longitude": 78.455584
+          "stopTime": "07:35 AM",
+          "latitude": 17.458,
+          "longitude": 78.442
         },
         {
-          "name": "IDPL",
-          "stopTime": "07:50",
-          "latitude": 17.566601,
-          "longitude": 78.454954
-        },
-        {
-          "name": "SURARAM",
-          "stopTime": "08:10",
-          "latitude": 17.532,
+          "name": "BALANAGAR",
+          "stopTime": "07:40 AM",
+          "latitude": 17.468,
           "longitude": 78.435
         },
         {
-          "name": "GANDI MAISAMMA",
-          "stopTime": "08:25",
-          "latitude": 17.5755,
-          "longitude": 78.432
+          "name": "IDPL",
+          "stopTime": "07:45 AM",
+          "latitude": 17.478,
+          "longitude": 78.428
+        },
+        {
+          "name": "GANESH NAGAR",
+          "stopTime": "07:50 AM",
+          "latitude": 17.488,
+          "longitude": 78.422
+        },
+        {
+          "name": "SURARAM",
+          "stopTime": "08:15 AM",
+          "latitude": 17.54,
+          "longitude": 78.455
         },
         {
           "name": "HITAM College",
-          "stopTime": "08:45",
-          "latitude": 17.5953257,
-          "longitude": 78.4530613
+          "stopTime": "08:45 AM",
+          "latitude": 17.6067,
+          "longitude": 78.3689
         }
       ]
     }
