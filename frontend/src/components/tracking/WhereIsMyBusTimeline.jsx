@@ -162,69 +162,64 @@ export default function WhereIsMyBusTimeline({
   }, [])
 
   return (
-    <div className="bg-[#111827] rounded-3xl border border-slate-800 shadow-2xl overflow-hidden font-sans text-white max-w-4xl mx-auto">
-      {/* 1. TOP HEADER (Exact "Where is my Train" title bar) */}
-      <div className="bg-[#1E293B] px-4 py-3.5 border-b border-slate-800">
+    <div className="bg-white rounded-3xl border border-[#C8E6C9] shadow-2xl overflow-hidden font-sans text-slate-800 max-w-4xl mx-auto">
+      {/* 1. TOP HEADER (White & Light Green / Emerald Gradient Header) */}
+      <div className="bg-gradient-to-r from-[#1B5E20] via-[#2E7D32] to-[#40A047] text-white px-4 py-4 sm:px-5">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <button
               onClick={() => window.history.back()}
-              className="p-1.5 -ml-1 text-slate-300 hover:text-white rounded-lg"
+              className="p-2 -ml-1 text-white/90 hover:text-white hover:bg-white/15 rounded-xl transition"
             >
               <ChevronLeft size={22} />
             </button>
             <div>
-              <h1 className="text-base sm:text-lg font-black tracking-wide text-white flex items-center gap-2">
-                <span>{busNumber} - {routeName.split(' - ')[0]}</span>
-                <span className="text-xs font-normal text-slate-400">({startPoint.slice(0, 3).toUpperCase()}-HITAM)</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-base sm:text-lg font-black tracking-wide text-white">
+                  {busNumber}
+                </span>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-white/20 text-emerald-100 font-bold border border-white/30 backdrop-blur-sm">
+                  Route {route?.id || '—'}
+                </span>
+              </div>
+              <h1 className="text-xs sm:text-sm font-medium text-emerald-100 line-clamp-1 mt-0.5">
+                {routeName.split(' - ')[1] || routeName}
               </h1>
             </div>
           </div>
 
-          <div className="relative">
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setShowRouteMenu(v => !v)}
-              className="p-2 text-slate-300 hover:text-white rounded-lg hover:bg-slate-800"
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              className="p-2 rounded-xl bg-white/20 hover:bg-white/30 text-white transition-all backdrop-blur-sm shadow-sm"
+              title="Refresh Live Status"
             >
-              <MoreVertical size={20} />
+              <RefreshCw size={17} className={isRefreshing ? 'animate-spin' : ''} />
             </button>
-            {showRouteMenu && (
-              <div className="absolute right-0 top-10 z-50 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl py-2 w-64">
-                <p className="px-3 py-1 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Switch Route</p>
-                <div className="max-h-60 overflow-y-auto">
-                  {fullRoutesList.map(r => (
-                    <button
-                      key={r.id}
-                      onClick={() => {
-                        onSelectRoute(r.id)
-                        setShowRouteMenu(false)
-                      }}
-                      className={`w-full text-left px-3 py-2 text-xs font-bold hover:bg-slate-700 transition ${
-                        selectedRouteId === r.id ? 'text-[#4CD964] bg-slate-700/50' : 'text-slate-200'
-                      }`}
-                    >
-                      Route {r.id}: {r.busNumber} ({r.startPoint})
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+            <button
+              onClick={onToggleMap}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-[#1B5E20] text-xs font-extrabold shadow-md hover:bg-emerald-50 transition-all"
+            >
+              <MapIcon size={14} className="text-[#2E7D32]" />
+              {isMapVisible ? 'Hide Map' : 'View in Map'}
+            </button>
           </div>
         </div>
 
         {/* Action Pills: Today, Alarm, Coach, Share */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-3 scrollbar-none text-xs">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 text-slate-200 border border-slate-700 font-bold shrink-0">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/20 text-white font-bold backdrop-blur-sm shrink-0 border border-white/20">
             <span>Today</span>
-            <ChevronDown size={14} className="text-slate-400" />
+            <ChevronDown size={14} className="text-emerald-200" />
           </div>
 
           <button
             onClick={() => setShowAlarmModal(true)}
             className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-bold shrink-0 transition-all border ${
               alarmActive
-                ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md ring-2 ring-amber-300/40'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+                ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md ring-2 ring-amber-200'
+                : 'bg-white/20 hover:bg-white/30 text-white border-white/20'
             }`}
           >
             <Bell size={13} className={alarmActive ? 'fill-slate-950' : ''} />
@@ -233,7 +228,7 @@ export default function WhereIsMyBusTimeline({
 
           <button
             onClick={() => setShowSeatModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold shrink-0 transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-bold border border-white/20 shrink-0 transition-all"
           >
             <Armchair size={13} />
             <span>Coach</span>
@@ -241,7 +236,7 @@ export default function WhereIsMyBusTimeline({
 
           <button
             onClick={handleShare}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold shrink-0 transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-bold border border-white/20 shrink-0 transition-all"
           >
             <Share2 size={13} />
             <span>Share</span>
@@ -249,23 +244,53 @@ export default function WhereIsMyBusTimeline({
         </div>
       </div>
 
-      {/* 2. SUBHEADER (Arrival | Day 1 - Sep 03, Thu | Departure) */}
-      <div className="grid grid-cols-12 items-center px-4 sm:px-6 py-2.5 bg-[#0F172A] border-b border-slate-800 text-xs font-bold text-slate-300">
-        <div className="col-span-3 text-left">
-          <span className="text-slate-200 font-extrabold">Arrival</span>
+      {/* 2. ROUTE SELECTOR & SEARCH BAR (Light Green Tone) */}
+      <div className="px-4 py-3 bg-[#F1F8E9] border-b border-[#C8E6C9] flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-black text-[#1B5E20] uppercase tracking-wider">Select Bus Route:</span>
+          <select
+            value={selectedRouteId}
+            onChange={(e) => onSelectRoute(e.target.value)}
+            className="text-xs font-bold px-3 py-1.5 bg-white border border-[#A5D6A7] rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#2E7D32] shadow-sm cursor-pointer"
+          >
+            <option value="ALL">Fleet Overview (All 23 Routes)</option>
+            {fullRoutesList.map((r) => (
+              <option key={r.id} value={r.id}>
+                Route {r.id}: {r.busNumber} • {r.startPoint}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="col-span-6 text-center font-black text-white truncate px-2">
-          <span>{todayStr}</span>
-        </div>
-        <div className="col-span-3 text-right">
-          <span className="text-slate-200 font-extrabold">Departure</span>
+
+        <div className="relative w-full sm:w-64">
+          <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search stop or landmark..."
+            value={filterQuery}
+            onChange={(e) => setFilterQuery(e.target.value)}
+            className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-[#A5D6A7] rounded-xl text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#2E7D32] shadow-sm"
+          />
         </div>
       </div>
 
-      {/* 3. VERTICAL STATION TIMELINE TRACK (Exact "Where is my Train" layout) */}
-      <div className="bg-[#111827] p-2 sm:p-4 max-h-[620px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-700">
+      {/* 3. SUBHEADER (Arrival | Day 1 - Sep 03, Thu | Departure in Light Green) */}
+      <div className="grid grid-cols-12 items-center px-4 sm:px-6 py-2.5 bg-[#E8F5E9] border-b border-[#C8E6C9] text-xs font-black text-[#1B5E20]">
+        <div className="col-span-3 text-left">
+          <span>Arrival</span>
+        </div>
+        <div className="col-span-6 text-center font-black text-[#1B5E20] truncate px-2">
+          <span>{todayStr}</span>
+        </div>
+        <div className="col-span-3 text-right">
+          <span>Departure</span>
+        </div>
+      </div>
+
+      {/* 4. STATION / STOP VERTICAL TIMELINE TRACK (White background, Green track, Zero Gaps) */}
+      <div className="bg-white p-2 sm:p-4 max-h-[620px] overflow-y-auto scrollbar-thin scrollbar-thumb-emerald-200">
         {filteredStops.length === 0 ? (
-          <div className="py-12 text-center text-slate-500 text-xs">No stops available on this route.</div>
+          <div className="py-12 text-center text-slate-400 text-xs">No stops available on this route.</div>
         ) : (
           filteredStops.map((stop, index) => {
             const isLast = index === filteredStops.length - 1
@@ -277,79 +302,78 @@ export default function WhereIsMyBusTimeline({
                 onClick={() => onSelectStop && onSelectStop(stop)}
                 className={`group relative grid grid-cols-12 items-center min-h-[64px] px-3 py-2 rounded-2xl transition-all cursor-pointer ${
                   stop.isMyStop
-                    ? 'bg-emerald-950/40 border border-[#10B981]/50 shadow-inner'
+                    ? 'bg-[#E8F5E9] border-2 border-[#2E7D32] shadow-md shadow-green-500/10'
                     : stop.isCurrent
-                    ? 'bg-slate-800/40'
-                    : 'hover:bg-slate-800/20'
+                    ? 'bg-slate-50 border border-slate-200'
+                    : 'hover:bg-emerald-50/40 border border-transparent'
                 }`}
               >
-                {/* LEFT COLUMN: SCHEDULED ARRIVAL & LIVE ESTIMATED (Green / Red) */}
+                {/* LEFT COLUMN: SCHEDULED ARRIVAL & LIVE ESTIMATED (Green) */}
                 <div className="col-span-3 text-left shrink-0">
                   <p className={`text-xs sm:text-sm font-black ${
-                    stop.isPassed ? 'text-slate-500' : 'text-slate-200'
+                    stop.isPassed ? 'text-slate-400 line-through' : 'text-slate-900'
                   }`}>
                     {stop.stopTime || '06:40 AM'}
                   </p>
                   <p className={`text-xs font-black mt-0.5 ${
                     stop.isPassed
-                      ? 'text-slate-500'
+                      ? 'text-slate-400'
                       : isOnline
-                      ? 'text-[#10B981]' // Green on-time
-                      : 'text-amber-400'
+                      ? 'text-[#2E7D32]' // Vibrant emerald on-time
+                      : 'text-amber-600'
                   }`}>
-                    {stop.isPassed ? '---' : isOnline ? (stop.stopTime || '06:40 AM') : 'Expected'}
+                    {stop.isPassed ? 'Departed' : isOnline ? (stop.stopTime || '06:40 AM') : 'Scheduled'}
                   </p>
                 </div>
 
-                {/* CENTER COLUMN: CONTINUOUS UNBROKEN VERTICAL RAIL/ROAD TRACK (0 GAPS) */}
+                {/* CENTER COLUMN: 100% UNBROKEN CONTINUOUS VERTICAL GREEN LINE & NODES */}
                 <div className="col-span-1 relative self-stretch flex items-center justify-center shrink-0">
-                  {/* Vertical Track: Top Half */}
+                  {/* Vertical Green Track: Top Half */}
                   {!isFirst && (
                     <div
-                      className={`absolute top-0 left-1/2 -translate-x-1/2 w-[7px] h-1/2 z-0 ${
-                        stop.isPassed ? 'bg-[#0284C7]/40' : 'bg-[#0284C7]'
+                      className={`absolute top-0 left-1/2 -translate-x-1/2 w-[6px] h-1/2 z-0 ${
+                        stop.isPassed ? 'bg-slate-300' : 'bg-[#40A047]'
                       }`}
                     />
                   )}
 
-                  {/* Vertical Track: Bottom Half */}
+                  {/* Vertical Green Track: Bottom Half */}
                   {!isLast && (
                     <div
-                      className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-[7px] h-1/2 z-0 ${
-                        stop.isPassed ? 'bg-[#0284C7]/40' : 'bg-[#0284C7]'
+                      className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-[6px] h-1/2 z-0 ${
+                        stop.isPassed ? 'bg-slate-300' : 'bg-[#40A047]'
                       }`}
                     />
                   )}
 
-                  {/* Circular Station Node on the Track */}
+                  {/* Circular Station Node on the Green Track */}
                   <div
-                    className={`relative z-10 w-4 h-4 rounded-full border-2 transition-all flex items-center justify-center ${
+                    className={`relative z-10 w-[18px] h-[18px] rounded-full border-[3px] transition-all flex items-center justify-center ${
                       stop.isCurrent
-                        ? 'bg-[#0284C7] border-white ring-4 ring-[#0284C7]/40 scale-125 shadow-lg'
+                        ? 'bg-[#2E7D32] border-white ring-4 ring-emerald-300 scale-125 shadow-md'
                         : stop.isMyStop
-                        ? 'bg-amber-400 border-white ring-4 ring-amber-400/40 scale-110 shadow-md'
+                        ? 'bg-amber-400 border-white ring-4 ring-amber-200 scale-110 shadow-sm'
                         : stop.isPassed
-                        ? 'bg-[#111827] border-slate-500'
-                        : 'bg-[#111827] border-[#0284C7]'
+                        ? 'bg-white border-slate-400'
+                        : 'bg-white border-[#2E7D32]'
                     }`}
                   >
                     {stop.isMyStop && <span className="w-1.5 h-1.5 bg-slate-900 rounded-full" />}
                   </div>
 
-                  {/* LIVE BUS BADGE & GREEN SPEECH BUBBLE (Exact Where is my Train Pill) */}
+                  {/* LIVE BUS BADGE & SPEECH BUBBLE PILL */}
                   {stop.isCurrent && (
-                    <div className="absolute left-6 z-30 whitespace-nowrap">
+                    <div className="absolute left-7 z-30 whitespace-nowrap">
                       <motion.div
                         initial={{ opacity: 0, x: -6 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-[#15803D] text-white text-xs font-bold rounded-xl shadow-2xl border border-emerald-400"
+                        className="flex items-center gap-2 px-3 py-1.5 bg-[#1B5E20] text-white text-xs font-bold rounded-xl shadow-xl border border-emerald-300"
                       >
-                        <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                          <Bus size={13} className="text-white" />
-                        </div>
+                        <span className="w-2 h-2 rounded-full bg-emerald-300 animate-ping" />
+                        <Bus size={13} className="text-emerald-200 shrink-0" />
                         <span>
                           {isOnline
-                            ? `Approaching ${stop.name} (Updated just now)`
+                            ? `Approaching ${stop.name} (${busSpeed} km/h)`
                             : `Bus at ${stop.name}`}
                         </span>
                       </motion.div>
@@ -362,26 +386,33 @@ export default function WhereIsMyBusTimeline({
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className={`text-xs sm:text-sm font-extrabold truncate ${
                       stop.isMyStop
-                        ? 'text-[#4CD964] font-black'
+                        ? 'text-[#1B5E20] font-black'
                         : stop.isPassed
                         ? 'text-slate-400'
-                        : 'text-white'
+                        : 'text-slate-900'
                     }`}>
                       {stop.name}
                     </h3>
                     {stop.isMyStop && (
-                      <span className="px-2 py-0.5 bg-[#15803D] text-white text-[10px] font-black rounded-full shadow-sm flex items-center gap-1">
+                      <span className="px-2 py-0.5 bg-[#2E7D32] text-white text-[10px] font-black rounded-full shadow-sm flex items-center gap-1">
                         <Sparkles size={10} />
                         Your Boarding Stop
                       </span>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2 text-xs text-slate-400 font-medium mt-1">
-                    <span>{stop.cumulativeKm} km</span>
-                    <div className="flex items-center gap-1 px-1.5 py-0.2 bg-slate-800 border border-slate-700 rounded text-[11px] text-slate-300">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold mt-1">
+                    <span className="px-1.5 py-0.2 bg-emerald-100/70 text-[#1B5E20] rounded font-bold text-[11px]">
+                      {stop.cumulativeKm} km
+                    </span>
+                    {stop.legKm > 0 && (
+                      <span className="text-[10px] text-emerald-700 font-bold">
+                        (+{stop.legKm} km from prev stop)
+                      </span>
+                    )}
+                    <div className="flex items-center gap-1 px-1.5 py-0.2 bg-slate-100 border border-slate-200 rounded text-[11px] text-slate-600 font-bold">
                       <span>Stop {stop.stopOrder || index + 1}</span>
-                      <Edit3 size={10} className="text-slate-500" />
+                      <Edit3 size={10} className="text-slate-400" />
                     </div>
                   </div>
                 </div>
@@ -389,11 +420,11 @@ export default function WhereIsMyBusTimeline({
                 {/* RIGHT COLUMN: DEPARTURE TIME */}
                 <div className="col-span-3 text-right shrink-0">
                   <p className={`text-xs sm:text-sm font-black ${
-                    stop.isPassed ? 'text-slate-500' : 'text-slate-200'
+                    stop.isPassed ? 'text-slate-400' : 'text-slate-900'
                   }`}>
                     {isLast ? 'HITAM' : (stop.stopTime || '06:45 AM')}
                   </p>
-                  <p className="text-xs text-slate-500 font-bold mt-0.5">
+                  <p className="text-xs text-slate-400 font-bold mt-0.5">
                     {isLast ? 'End' : '---'}
                   </p>
                 </div>
@@ -403,39 +434,37 @@ export default function WhereIsMyBusTimeline({
         )}
       </div>
 
-      {/* 4. FLOATING GOOGLE MAPS BUTTON & TOOLTIP (Exact Where is my Train Floating Pill) */}
-      <div className="relative bg-[#0F172A] p-4 border-t border-slate-800 flex items-center justify-between gap-3">
+      {/* 5. FLOATING GOOGLE MAPS BUTTON & FOOTER (White & Light Green Tone) */}
+      <div className="bg-[#E8F5E9] p-4 border-t border-[#C8E6C9] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-[#4CD964] shadow-md">
-            <MapPin size={20} className="text-[#4CD964]" />
+          <div className="w-10 h-10 rounded-2xl bg-[#C8E6C9] flex items-center justify-center text-[#1B5E20] shadow-sm">
+            <Navigation size={20} />
           </div>
           <div>
-            <p className="text-xs sm:text-sm font-black text-[#4CD964]">
+            <p className="text-xs sm:text-sm font-black text-[#1B5E20]">
               {isOnline ? `Approaching ${currentStop.name}` : `Route ${route?.id || 1} Corridor`}
             </p>
-            <p className="text-[11px] text-slate-400">
-              {isOnline ? `Updated 2s ago • Speed: ${busSpeed} km/h` : 'Standby mode'}
+            <p className="text-[11px] text-[#2E7D32] font-semibold">
+              {isOnline ? `Updated just now • Speed: ${busSpeed} km/h` : 'GPS telemetry in standby'}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2.5">
-          {/* View directions in Google Maps button */}
+          {/* View in Google Maps Button */}
           <button
             onClick={onToggleMap}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold shadow-lg transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#2E7D32] hover:bg-[#1B5E20] text-white text-xs font-extrabold shadow-md shadow-green-900/20 transition-all"
           >
-            <div className="w-4 h-4 rounded-full bg-red-500/20 flex items-center justify-center">
-              <span className="w-2 h-2 rounded-full bg-red-500" />
-            </div>
+            <MapPin size={15} />
             <span>{isMapVisible ? 'Close Map' : 'View in Google Maps'}</span>
           </button>
 
-          {/* Refresh Button */}
+          {/* Soft Green Refresh Button */}
           <button
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="w-10 h-10 rounded-2xl bg-[#93C5FD] text-slate-900 flex items-center justify-center shadow-lg hover:bg-blue-300 transition-all shrink-0"
+            className="w-10 h-10 rounded-2xl bg-[#C8E6C9] text-[#1B5E20] hover:bg-[#A5D6A7] flex items-center justify-center shadow-sm transition-all shrink-0"
             title="Refresh Live Telemetry"
           >
             <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
@@ -443,29 +472,29 @@ export default function WhereIsMyBusTimeline({
         </div>
       </div>
 
-      {/* 5. STOP ALARM MODAL */}
+      {/* 6. STOP ALARM MODAL */}
       <AnimatePresence>
         {showAlarmModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-slate-900 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-800 text-white"
+              exit={{ opacity: 0, scale: 1 }}
+              className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-emerald-100 text-slate-900"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-2xl bg-amber-400/20 text-amber-400 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
                     <Bell size={20} />
                   </div>
                   <div>
-                    <h3 className="text-base font-black text-white">Destination Stop Alarm</h3>
-                    <p className="text-xs text-slate-400">Get notified when bus approaches your stop</p>
+                    <h3 className="text-base font-black text-slate-900">Destination Stop Alarm</h3>
+                    <p className="text-xs text-slate-500">Get notified when bus approaches your stop</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowAlarmModal(false)}
-                  className="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400"
+                  className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400"
                 >
                   <X size={18} />
                 </button>
@@ -473,11 +502,11 @@ export default function WhereIsMyBusTimeline({
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">Select Stop</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Select Stop</label>
                   <select
                     value={alarmStopName}
                     onChange={(e) => setAlarmStopName(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs font-bold bg-slate-800 border border-slate-700 text-white rounded-xl focus:ring-2 focus:ring-[#4CD964] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 text-xs font-bold bg-slate-50 border border-slate-300 text-slate-900 rounded-xl focus:ring-2 focus:ring-[#2E7D32] focus:outline-none"
                   >
                     {stops.map((s) => (
                       <option key={s.name} value={s.name}>
@@ -488,7 +517,7 @@ export default function WhereIsMyBusTimeline({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">Alert Timing</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Alert Timing</label>
                   <div className="grid grid-cols-3 gap-2">
                     {[5, 10, 15].map((mins) => (
                       <button
@@ -496,8 +525,8 @@ export default function WhereIsMyBusTimeline({
                         onClick={() => setAlarmMinutesBefore(mins)}
                         className={`py-2.5 rounded-xl text-xs font-bold border transition-all ${
                           alarmMinutesBefore === mins
-                            ? 'bg-[#15803D] text-white border-emerald-500 shadow-md'
-                            : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-750'
+                            ? 'bg-[#2E7D32] text-white border-[#2E7D32] shadow-md'
+                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                         }`}
                       >
                         {mins} Minutes
@@ -513,7 +542,7 @@ export default function WhereIsMyBusTimeline({
                       setShowAlarmModal(false)
                       showToast(`Alarm activated for ${alarmStopName} (${alarmMinutesBefore} min before)!`)
                     }}
-                    className="flex-1 py-3 bg-[#15803D] hover:bg-[#166534] text-white text-xs font-bold rounded-xl shadow-lg shadow-green-900/40 transition-all"
+                    className="flex-1 py-3 bg-[#2E7D32] hover:bg-[#1B5E20] text-white text-xs font-bold rounded-xl shadow-lg shadow-green-900/30 transition-all"
                   >
                     Set Stop Alarm
                   </button>
@@ -524,7 +553,7 @@ export default function WhereIsMyBusTimeline({
                         setShowAlarmModal(false)
                         showToast('Alarm turned off')
                       }}
-                      className="px-4 py-3 bg-red-900/40 text-red-400 hover:bg-red-900/60 text-xs font-bold rounded-xl transition-all"
+                      className="px-4 py-3 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold rounded-xl transition-all"
                     >
                       Turn Off
                     </button>
@@ -536,38 +565,38 @@ export default function WhereIsMyBusTimeline({
         )}
       </AnimatePresence>
 
-      {/* 6. COACH / SEAT LAYOUT MODAL */}
+      {/* 7. COACH / SEAT LAYOUT MODAL */}
       <AnimatePresence>
         {showSeatModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1 }}
-              className="bg-slate-900 rounded-3xl p-6 max-w-lg w-full shadow-2xl border border-slate-800 text-white max-h-[85vh] overflow-y-auto"
+              className="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl border border-emerald-100 text-slate-900 max-h-[85vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-[#4CD964] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-[#1B5E20] flex items-center justify-center">
                     <Armchair size={20} />
                   </div>
                   <div>
-                    <h3 className="text-base font-black text-white">Bus {busNumber} Coach Layout</h3>
-                    <p className="text-xs text-slate-400">50 Seats • 2x2 Seating Plan</p>
+                    <h3 className="text-base font-black text-slate-900">Bus {busNumber} Coach Layout</h3>
+                    <p className="text-xs text-slate-500">50 Seats • 2x2 Seating Plan</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowSeatModal(false)}
-                  className="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400"
+                  className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-400"
                 >
                   <X size={18} />
                 </button>
               </div>
 
-              <div className="bg-slate-800/80 rounded-2xl p-4 border border-slate-700">
-                <div className="flex justify-between items-center mb-3 text-xs font-bold text-slate-300">
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
+                <div className="flex justify-between items-center mb-3 text-xs font-bold text-slate-600">
                   <span>Front (Driver Cabin)</span>
-                  <span className="px-2 py-0.5 bg-emerald-900/50 text-[#4CD964] rounded-full text-[10px] border border-emerald-700/50">50 Seats</span>
+                  <span className="px-2 py-0.5 bg-emerald-100 text-[#1B5E20] rounded-full text-[10px] font-bold">50 Seats</span>
                 </div>
                 <div className="grid grid-cols-5 gap-2 text-center text-xs font-bold">
                   {Array.from({ length: 50 }, (_, i) => {
@@ -578,10 +607,10 @@ export default function WhereIsMyBusTimeline({
                         key={seatNum}
                         className={`p-2 rounded-xl border flex flex-col items-center justify-center gap-0.5 transition-all ${
                           seatNum === 20 || seatNum === 29 || seatNum === 36
-                            ? 'bg-[#15803D] text-white border-emerald-400 shadow-md ring-2 ring-emerald-400/40'
+                            ? 'bg-[#2E7D32] text-white border-[#1B5E20] shadow-md ring-2 ring-emerald-300'
                             : isOccupied
-                            ? 'bg-slate-700 text-slate-400 border-slate-600'
-                            : 'bg-slate-800 text-emerald-400 border-slate-600'
+                            ? 'bg-slate-200 text-slate-600 border-slate-300'
+                            : 'bg-white text-[#2E7D32] border-[#A5D6A7]'
                         }`}
                       >
                         <Armchair size={13} />
@@ -596,14 +625,14 @@ export default function WhereIsMyBusTimeline({
         )}
       </AnimatePresence>
 
-      {/* 7. TOAST MESSAGE */}
+      {/* 8. TOAST MESSAGE */}
       <AnimatePresence>
         {toastMessage && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-6 right-6 z-50 px-4 py-3 bg-slate-800 text-white text-xs font-bold rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-2"
+            className="fixed bottom-6 right-6 z-50 px-4 py-3 bg-slate-900 text-white text-xs font-bold rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-2"
           >
             <CheckCircle2 size={16} className="text-[#4CD964]" />
             <span>{toastMessage}</span>
