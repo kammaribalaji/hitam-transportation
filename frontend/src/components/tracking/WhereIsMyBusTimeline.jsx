@@ -158,7 +158,7 @@ export default function WhereIsMyBusTimeline({
   const totalJourneyKm = enrichedStops.length > 0 ? enrichedStops[enrichedStops.length - 1].cumulativeKm : 34
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200/80 shadow-2xl overflow-hidden font-sans text-slate-800">
+    <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden font-sans text-slate-800">
       {/* 1. TOP HEADER (Where is My Train exact layout) */}
       <div className="bg-[#1E293B] text-white p-4 sm:p-5 border-b border-slate-700">
         <div className="flex items-center justify-between gap-3 mb-3">
@@ -280,8 +280,8 @@ export default function WhereIsMyBusTimeline({
         </div>
       </div>
 
-      {/* 4. STATION / STOP VERTICAL TIMELINE TRACK */}
-      <div className="p-3 sm:p-5 max-h-[580px] overflow-y-auto space-y-1 scrollbar-thin scrollbar-thumb-slate-300">
+      {/* 4. STATION / STOP UNBROKEN VERTICAL TIMELINE TRACK (ZERO GAPS) */}
+      <div className="p-3 sm:p-5 max-h-[580px] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300">
         {filteredStops.length === 0 ? (
           <div className="py-12 text-center text-slate-400 text-xs">No stops found on this route.</div>
         ) : (
@@ -293,16 +293,16 @@ export default function WhereIsMyBusTimeline({
               <div
                 key={stop.name + index}
                 onClick={() => onSelectStop && onSelectStop(stop)}
-                className={`group relative grid grid-cols-12 items-center py-3.5 px-3 rounded-2xl transition-all cursor-pointer ${
+                className={`group relative grid grid-cols-12 items-center min-h-[58px] px-3 rounded-2xl transition-all cursor-pointer ${
                   stop.isMyStop
-                    ? 'bg-emerald-50 border-2 border-[#40A047] shadow-md shadow-emerald-500/10'
+                    ? 'bg-emerald-50/90 border border-[#40A047]/60 shadow-sm'
                     : stop.isCurrent
-                    ? 'bg-slate-100/80 border border-slate-300'
-                    : 'hover:bg-slate-50/90 border border-transparent'
+                    ? 'bg-slate-100/70 border border-slate-300'
+                    : 'hover:bg-slate-50 border border-transparent'
                 }`}
               >
                 {/* LEFT: SCHEDULED & LIVE ARRIVAL TIME */}
-                <div className="col-span-3 text-left shrink-0">
+                <div className="col-span-3 text-left shrink-0 py-2">
                   <p className={`text-xs font-black ${stop.isPassed ? 'text-slate-400 line-through' : 'text-slate-900'}`}>
                     {stop.stopTime || route?.reportingTime || '07:00 AM'}
                   </p>
@@ -317,35 +317,44 @@ export default function WhereIsMyBusTimeline({
                   </p>
                 </div>
 
-                {/* CENTER: VERTICAL ROAD/TRACK LINE & NODES */}
-                <div className="col-span-1 relative flex flex-col items-center justify-center shrink-0">
-                  {/* Vertical continuous line */}
-                  {!isLast && (
+                {/* CENTER: 100% UNBROKEN CONTINUOUS VERTICAL LINE & NODES */}
+                <div className="col-span-1 relative self-stretch flex items-center justify-center shrink-0">
+                  {/* TOP HALF LINE (connects upwards to previous row) */}
+                  {!isFirst && (
                     <div
-                      className={`absolute top-5 bottom-[-28px] w-1.5 rounded-full transition-all ${
+                      className={`absolute top-0 left-1/2 -translate-x-1/2 w-[5px] h-1/2 z-0 ${
                         stop.isPassed ? 'bg-slate-300' : 'bg-[#40A047]'
                       }`}
                     />
                   )}
 
-                  {/* Station Node Indicator */}
+                  {/* BOTTOM HALF LINE (connects downwards to next row) */}
+                  {!isLast && (
+                    <div
+                      className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-[5px] h-1/2 z-0 ${
+                        stop.isPassed ? 'bg-slate-300' : 'bg-[#40A047]'
+                      }`}
+                    />
+                  )}
+
+                  {/* STATION CIRCULAR NODE (Sits cleanly on top of unbroken line) */}
                   <div
-                    className={`relative z-10 w-4 h-4 rounded-full border-2 transition-all flex items-center justify-center ${
+                    className={`relative z-10 w-[18px] h-[18px] rounded-full border-[3px] transition-all flex items-center justify-center ${
                       stop.isCurrent
-                        ? 'bg-[#40A047] border-white ring-4 ring-emerald-300 scale-125'
+                        ? 'bg-[#40A047] border-white ring-4 ring-emerald-300 scale-125 shadow-md'
                         : stop.isMyStop
-                        ? 'bg-amber-400 border-white ring-4 ring-amber-200 scale-110'
+                        ? 'bg-amber-400 border-white ring-4 ring-amber-200 scale-110 shadow-sm'
                         : stop.isPassed
-                        ? 'bg-slate-300 border-white'
+                        ? 'bg-white border-slate-400'
                         : 'bg-white border-[#40A047]'
                     }`}
                   >
                     {stop.isMyStop && <span className="w-1.5 h-1.5 bg-slate-900 rounded-full" />}
                   </div>
 
-                  {/* SPEECH BUBBLE BADGE AT LIVE BUS LOCATION (Where is my train exact badge) */}
+                  {/* SPEECH BUBBLE BADGE AT LIVE BUS LOCATION */}
                   {stop.isCurrent && (
-                    <div className="absolute left-6 z-20 whitespace-nowrap">
+                    <div className="absolute left-7 z-30 whitespace-nowrap">
                       <motion.div
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -364,7 +373,7 @@ export default function WhereIsMyBusTimeline({
                 </div>
 
                 {/* MIDDLE DETAILS: STOP NAME, DISTANCE IN KM, INTER-STOP KM */}
-                <div className="col-span-5 px-3 min-w-0">
+                <div className="col-span-5 px-3 min-w-0 py-2">
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <h3 className={`text-xs sm:text-sm font-black truncate ${
                       stop.isMyStop
@@ -399,7 +408,7 @@ export default function WhereIsMyBusTimeline({
                 </div>
 
                 {/* RIGHT: SCHEDULED REPORTING TIME */}
-                <div className="col-span-3 text-right shrink-0">
+                <div className="col-span-3 text-right shrink-0 py-2">
                   <p className={`text-xs font-black ${stop.isPassed ? 'text-slate-400' : 'text-slate-900'}`}>
                     {isLast ? 'HITAM Gate' : (stop.stopTime || '07:05 AM')}
                   </p>
@@ -448,7 +457,7 @@ export default function WhereIsMyBusTimeline({
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              exit={{ opacity: 0, scale: 1 }}
               className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-slate-200"
             >
               <div className="flex items-center justify-between mb-4">
