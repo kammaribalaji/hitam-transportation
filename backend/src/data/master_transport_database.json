@@ -18608,23 +18608,6 @@
       "stopTime": "08:10"
     },
     {
-      "sNo": "19",
-      "date": "01/07/2026",
-      "rollNumber": "25E51A05I9",
-      "name": "MOHAMMED AYAAN",
-      "year": "2nd Year",
-      "isStaff": false,
-      "boardingPoint": "Kavadiguda",
-      "routeId": "19",
-      "feeAmount": 42900.0,
-      "feePaidAmount": 42900.0,
-      "feeBalance": 0.0,
-      "seatNumber": 31,
-      "seatLabel": "31",
-      "status": "PREPARED",
-      "stopTime": "06:30 AM"
-    },
-    {
       "sNo": "20",
       "date": "04/07/2026",
       "rollNumber": "23E51A05I1",
@@ -21173,6 +21156,19 @@
       "seatLabel": "WAITLIST 5",
       "status": "PREPARED",
       "stopTime": "07:10"
+    },
+    {
+      "rollNumber": "24E51A0573",
+      "name": "GADUSU CHAITANYA KUMAR",
+      "year": "3rd Year",
+      "boardingPoint": "Chandrayanagutta",
+      "routeId": 19,
+      "feeAmount": 42900.0,
+      "feePaidAmount": 42900.0,
+      "feeBalance": 0.0,
+      "seatNumber": 29,
+      "isStaff": false,
+      "stopTime": "06:30 AM"
     }
   ],
   "master_students": [
