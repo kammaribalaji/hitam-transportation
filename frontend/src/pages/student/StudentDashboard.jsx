@@ -122,7 +122,7 @@ export default function StudentDashboard() {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
         <StatCard
           title="ASSIGNED ROUTE"
           value={assignedRouteNumber}
@@ -155,11 +155,11 @@ export default function StudentDashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 w-full">
         {/* Next Trip + Quick Actions */}
-        <div className="lg:col-span-2 space-y-5">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-5 min-w-0">
           {/* Next trip card */}
-          <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+          <div className="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm w-full overflow-hidden">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-bold text-gray-900">Next Trip</h2>
               <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${isEnrolled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
@@ -168,7 +168,7 @@ export default function StudentDashboard() {
             </div>
             {isEnrolled ? (
               <>
-                <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
                   <div>
                     <p className="text-xs text-gray-500">Date</p>
                     <p className="text-sm font-bold mt-0.5">Today</p>
@@ -177,23 +177,23 @@ export default function StudentDashboard() {
                     <p className="text-xs text-gray-500">Time</p>
                     <p className="text-sm font-bold mt-0.5">{scheduledTime}</p>
                   </div>
-                  <div>
+                  <div className="col-span-2 sm:col-span-1">
                     <p className="text-xs text-gray-500">Boarding Point</p>
                     <p className="text-sm font-bold mt-0.5 truncate">{userBoardingPoint}</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4 mb-5">
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-5">
                   <div>
                     <p className="text-xs text-gray-500">Seat</p>
-                    <p className="text-sm font-bold mt-0.5 text-[#40A047]">{seatDisplay}</p>
+                    <p className="text-sm font-bold mt-0.5 text-[#40A047] truncate">{seatDisplay}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Route</p>
-                    <p className="text-sm font-bold mt-0.5">{assignedRouteNumber}</p>
+                    <p className="text-sm font-bold mt-0.5 truncate">{assignedRouteNumber}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">Pass</p>
-                    <p className={`text-sm font-bold mt-0.5 ${isPaid ? 'text-green-600' : isPartial ? 'text-amber-600' : 'text-red-500'}`}>
+                    <p className={`text-sm font-bold mt-0.5 truncate ${isPaid ? 'text-green-600' : isPartial ? 'text-amber-600' : 'text-red-500'}`}>
                       {isPaid ? 'Active' : isPartial ? 'Partially Paid' : 'Payment Due'}
                     </p>
                   </div>
@@ -223,19 +223,19 @@ export default function StudentDashboard() {
           {/* Quick Actions */}
           <div>
             <h2 className="text-sm font-bold text-gray-900 mb-3">Quick Actions</h2>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
               {quickActions.map(({ label, icon: Icon, to, color, iconColor }) => (
                 <motion.button
                   key={to}
                   whileHover={{ scale: 1.01 }}
                   onClick={() => navigate(to)}
-                  className="flex items-center gap-3 bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all text-left"
+                  className="flex items-center gap-3 bg-white rounded-xl p-3 sm:p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all text-left w-full min-w-0"
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${color}`}>
-                    <Icon size={20} className={iconColor} />
+                  <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+                    <Icon size={18} className={iconColor} />
                   </div>
-                  <span className="text-sm font-semibold text-gray-800">{label}</span>
-                  <ChevronRight size={14} className="text-gray-400 ml-auto" />
+                  <span className="text-xs sm:text-sm font-semibold text-gray-800 truncate">{label}</span>
+                  <ChevronRight size={14} className="text-gray-400 ml-auto shrink-0" />
                 </motion.button>
               ))}
             </div>

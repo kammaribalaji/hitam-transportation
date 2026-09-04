@@ -91,13 +91,83 @@ export const deleteRoute = async (req, res, next) => {
 
 export const getRouteStops = async (req, res, next) => {
   try {
-    const route = await prisma.route.findUnique({ where: { id: String(req.params.id) } });
+    const routeId = String(req.params.id);
+    const route = await prisma.route.findUnique({ where: { id: routeId } });
     if (!route) throw new AppError('Route not found', 404);
-    const stops = await prisma.routeStop.findMany({
-      where: { routeId: route.id },
-      orderBy: { stopOrder: 'asc' },
+    
+    const today = new Date().toISOString().split('T')[0];
+    const [stops, departureLogs] = await Promise.all([
+      prisma.routeStop.findMany({
+        where: { routeId: route.id },
+        orderBy: { stopOrder: 'asc' },
+      }),
+      prisma.stopDepartureLog.findMany({
+        where: { routeId: route.id, date: today },
+      }),
+    ]);
+
+    const departureMap = new Map();
+    for (const log of departureLogs) {
+      departureMap.set(log.stopOrder, log);
+    }
+
+    const mergedStops = stops.map(s => {
+      const log = departureMap.get(s.stopOrder);
+      return {
+        ...s,
+        actualDepartureTime: log?.departedTime || s.actualDepartureTime || '',
+        departureStatus: log ? 'DEPARTED' : (s.actualDepartureTime ? 'DEPARTED' : 'SCHEDULED'),
+        departedAt: log?.departedAt || s.departedAt || null,
+      };
     });
-    res.json({ route: serialize(route), stops: serializeMany(stops) });
+
+    res.json({ route: serialize(route), stops: serializeMany(mergedStops), departures: serializeMany(departureLogs) });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const recordStopDeparture = async (req, res, next) => {
+  try {
+    const routeId = String(req.params.id);
+    const stopId = String(req.params.stopId);
+    const { departedTime } = req.body;
+
+    const stop = await prisma.routeStop.findFirst({
+      where: { id: stopId, routeId },
+    });
+
+    if (!stop) throw new AppError('Route stop not found', 404);
+
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    const timeStr = departedTime || now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+    const route = await prisma.route.findUnique({ where: { id: routeId } });
+
+    const log = await prisma.stopDepartureLog.create({
+      data: {
+        routeId,
+        stopName: stop.name,
+        stopOrder: stop.stopOrder,
+        scheduledTime: stop.stopTime || '',
+        departedTime: timeStr,
+        date: today,
+        busNumber: route?.busNumber || '',
+        status: 'DEPARTED',
+        departedAt: now,
+      },
+    });
+
+    await prisma.routeStop.update({
+      where: { id: stop.id },
+      data: {
+        actualDepartureTime: timeStr,
+        departedAt: now,
+      },
+    });
+
+    res.json({ message: 'Departure saved successfully', log: serialize(log) });
   } catch (err) {
     next(err);
   }

@@ -385,57 +385,59 @@ export default function LiveTrackingPage() {
   }, [allLiveLocations])
 
   return (
-    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 max-w-5xl mx-auto pb-8">
+    <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 sm:space-y-4 max-w-5xl mx-auto pb-8 px-2 sm:px-4 w-full overflow-hidden">
       {/* 1. TOP VIEW MODE SWITCHER TABS */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-emerald-100 shadow-sm">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-white p-2.5 sm:p-3 rounded-2xl border border-emerald-100 shadow-sm w-full">
+        <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
           <button
             onClick={() => setViewMode('TIMELINE')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all ${
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs font-black transition-all ${
               viewMode === 'TIMELINE'
                 ? 'bg-[#40A047] text-white shadow-md shadow-green-600/20 ring-2 ring-emerald-300'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            <ListOrdered size={16} />
-            <span>Station Timeline (Where Is My Train)</span>
+            <ListOrdered size={15} />
+            <span className="hidden sm:inline">Station Timeline (Where Is My Train)</span>
+            <span className="sm:hidden">Timeline</span>
           </button>
 
           <button
             onClick={() => setViewMode('MAP')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all ${
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs font-black transition-all ${
               viewMode === 'MAP'
                 ? 'bg-[#40A047] text-white shadow-md shadow-green-600/20 ring-2 ring-emerald-300'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            <Navigation size={16} />
-            <span>Interactive Live Map</span>
+            <Navigation size={15} />
+            <span className="hidden sm:inline">Interactive Live Map</span>
+            <span className="sm:hidden">Live Map</span>
           </button>
 
           <button
             onClick={() => setViewMode('SPLIT')}
-            className={`hidden lg:flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all ${
+            className={`hidden lg:flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all ${
               viewMode === 'SPLIT'
                 ? 'bg-[#40A047] text-white shadow-md shadow-green-600/20 ring-2 ring-emerald-300'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
             }`}
           >
-            <LayoutGrid size={16} />
+            <LayoutGrid size={15} />
             <span>Split View</span>
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-slate-500">Live Stream:</span>
+        <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-500">Live Stream:</span>
           <button
             onClick={() => setIsLive(v => !v)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
               isLive ? 'bg-emerald-50 text-emerald-800 border-emerald-300' : 'bg-slate-100 text-slate-600 border-slate-300'
             }`}
           >
             <span className={`w-2 h-2 rounded-full ${isLive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-            {isLive ? 'Live Tracking ON' : 'Paused'}
+            <span>{isLive ? 'Active' : 'Paused'}</span>
           </button>
         </div>
       </div>

@@ -17,10 +17,10 @@ function SeatBtn({ seat, onClick }) {
   return (
     <button
       onClick={() => (seat.status === 'AVAILABLE' || seat.status === 'SELECTED') && onClick(seat.id)}
-      className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all duration-150 text-xs font-bold shadow-sm ${style.bg} ${style.text} ${style.hover} ${style.cursor}`}
+      className={`w-8 h-8 xs:w-9 xs:h-9 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all duration-150 text-[10px] sm:text-xs font-bold shadow-sm shrink-0 ${style.bg} ${style.text} ${style.hover} ${style.cursor}`}
       title={`Seat ${seat.id}: ${seat.status}`}
     >
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="sm:w-3.5 sm:h-3.5">
         <path d="M7 3a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H7zM5 17a1 1 0 0 0 0 2h14a1 1 0 0 0 0-2H5z" />
       </svg>
       {seat.id}

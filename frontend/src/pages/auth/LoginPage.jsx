@@ -73,12 +73,12 @@ export default function LoginPage() {
       </div>
 
       {/* Right panel - form */}
-      <div className="flex-1 flex items-center justify-center p-6">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 w-full">
         <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.4 }}
-          className="w-full max-w-md">
+          className="w-full max-w-md mx-auto">
           {/* Mobile logo */}
-          <div className="flex items-center gap-3 mb-8 lg:hidden">
-            <div className="w-10 h-10 bg-[#40A047] rounded-xl flex items-center justify-center">
+          <div className="flex items-center gap-3 mb-6 sm:mb-8 lg:hidden">
+            <div className="w-10 h-10 bg-[#40A047] rounded-xl flex items-center justify-center shrink-0">
               <Bus size={22} className="text-white" />
             </div>
             <div>
@@ -87,16 +87,16 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">Welcome Back!</h2>
-          <p className="text-gray-500 text-sm mb-6">Enter your credentials to access the transport portal</p>
+          <h2 className="text-xl sm:text-2xl font-black text-gray-900 mb-1">Welcome Back!</h2>
+          <p className="text-gray-500 text-xs sm:text-sm mb-5 sm:mb-6">Enter your credentials to access the transport portal</p>
 
           {/* Role selector */}
-          <div className="flex gap-2 p-1 bg-gray-100 rounded-xl mb-5">
+          <div className="flex gap-1.5 sm:gap-2 p-1 bg-gray-100 rounded-xl mb-5 w-full">
             {ROLES.map(({ value, label, icon: Icon }) => (
               <button key={value} onClick={() => onRoleChange(value)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-sm font-semibold transition-all ${role === value ? 'bg-[#40A047] text-white shadow-md' : 'text-gray-600 hover:text-gray-900'}`}>
-                <Icon size={15} />
-                {label}
+                className={`flex-1 flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all ${role === value ? 'bg-[#40A047] text-white shadow-md' : 'text-gray-600 hover:text-gray-900'}`}>
+                <Icon size={14} className="shrink-0" />
+                <span className="truncate">{label}</span>
               </button>
             ))}
           </div>

@@ -176,18 +176,41 @@ model Route {
 
 // Route stops carry the real lat/lng + schedule used by live tracking maps.
 model RouteStop {
-  id        String  @id @default(uuid()) @db.Uuid
-  routeId   String
-  name      String
-  latitude  Float
-  longitude Float
-  stopTime  String  @default("")
-  stopOrder Int
+  id                  String   @id @default(uuid()) @db.Uuid
+  routeId             String
+  name                String
+  latitude            Float
+  longitude           Float
+  stopTime            String   @default("")
+  actualDepartureTime String   @default("")
+  actualArrivalTime   String   @default("")
+  stopOrder           Int
+  departedAt          DateTime?
 
   route Route @relation(fields: [routeId], references: [id], onDelete: Cascade)
 
   @@unique([routeId, stopOrder])
   @@index([routeId])
+}
+
+model StopDepartureLog {
+  id            String   @id @default(uuid()) @db.Uuid
+  routeId       String
+  stopName      String
+  stopOrder     Int
+  scheduledTime String   @default("")
+  departedTime  String   @default("")
+  date          String   @default("")
+  busNumber     String   @default("")
+  delayMinutes  Int      @default(0)
+  status        String   @default("DEPARTED")
+  departedAt    DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([routeId])
+  @@index([stopName])
+  @@index([date])
 }
 
 model Trip {

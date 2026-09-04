@@ -8,6 +8,7 @@ import {
   getLastKnownLocation,
   HypeGpsError,
 } from '../services/hypegpsService.js';
+import { autoRecordStopDepartures } from '../services/departureTrackingService.js';
 
 const isValidLat = (n) => Number.isFinite(n) && n >= -90 && n <= 90;
 const isValidLng = (n) => Number.isFinite(n) && n >= -180 && n <= 180;
@@ -55,6 +56,11 @@ export const getRouteHypegpsPayload = async (routeId) => {
       if (last) gps = { ...last, isStale: true };
     }
     if (!gps) throw toAppError(err);
+  }
+
+  if (gps && gps.latitude && gps.longitude) {
+    // Auto-record departed stops into database
+    autoRecordStopDepartures(routeId, gps.latitude, gps.longitude, gps.speed, route.busNumber);
   }
 
   return {

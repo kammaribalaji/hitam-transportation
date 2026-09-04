@@ -57,26 +57,26 @@ export default function DriverDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
         <StatCard title="Today's Trips" value={`${completedToday + activeTrips}/${trips.length || 1}`} subtitle={`${activeTrips} In Progress`} icon={Bus} />
         <StatCard title="Students Onboard" value={String(boardedCount)} subtitle={`${totalStudents} total`} icon={Users} iconBg="bg-blue-50" iconColor="text-blue-600" />
         <StatCard title="Route 12" value="34.5 km" subtitle="Sangareddy → HITAM" icon={Navigation} iconBg="bg-purple-50" iconColor="text-purple-600" />
         <StatCard title="Pending Issues" value={String(openIssues)} subtitle={openIssues === 0 ? 'All clear' : 'Needs attention'} icon={AlertTriangle} iconBg="bg-orange-50" iconColor="text-orange-600" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 w-full">
         {/* Today's Trip */}
-        <div className="lg:col-span-2 space-y-5">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-5 min-w-0">
           {todayTrip ? (
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-gray-100 shadow-sm w-full overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-sm font-bold text-gray-900">Today's Trip</h2>
                 <StatusBadge status={todayTrip.status} />
               </div>
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <div><p className="text-xs text-gray-500">Start Time</p><p className="text-sm font-bold mt-0.5">{todayTrip.startTime}</p></div>
-                <div><p className="text-xs text-gray-500">End Time</p><p className="text-sm font-bold mt-0.5">{todayTrip.endTime}</p></div>
-                <div><p className="text-xs text-gray-500">Students</p><p className="text-sm font-bold mt-0.5 text-[#40A047]">{todayTrip.studentCount}</p></div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
+                <div><p className="text-xs text-gray-500">Start Time</p><p className="text-sm font-bold mt-0.5 truncate">{todayTrip.startTime}</p></div>
+                <div><p className="text-xs text-gray-500">End Time</p><p className="text-sm font-bold mt-0.5 truncate">{todayTrip.endTime}</p></div>
+                <div className="col-span-2 sm:col-span-1"><p className="text-xs text-gray-500">Students</p><p className="text-sm font-bold mt-0.5 text-[#40A047]">{todayTrip.studentCount}</p></div>
               </div>
               <div className="p-3 bg-green-50 rounded-xl mb-4">
                 <p className="text-xs font-semibold text-gray-600 mb-1">Route</p>

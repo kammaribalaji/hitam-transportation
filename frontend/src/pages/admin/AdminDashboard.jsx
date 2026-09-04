@@ -16,19 +16,19 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineEleme
 function MetricCard({ title, value, sub, subValue, icon: Icon, iconBg, trend, trendVal }) {
   const up = trend === 'up'
   return (
-    <motion.div whileHover={{ y: -1 }} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-      <div className="flex items-start justify-between mb-3">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconBg}`}>
-          <Icon size={20} className="text-white" />
+    <motion.div whileHover={{ y: -1 }} className="bg-white rounded-xl p-3.5 sm:p-4 border border-gray-100 shadow-sm w-full min-w-0 overflow-hidden">
+      <div className="flex items-start justify-between mb-2 sm:mb-3">
+        <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>
+          <Icon size={18} className="text-white" />
         </div>
-        <span className={`flex items-center gap-0.5 text-xs font-semibold ${up ? 'text-green-600' : 'text-red-500'}`}>
+        <span className={`flex items-center gap-0.5 text-[11px] sm:text-xs font-semibold ${up ? 'text-green-600' : 'text-red-500'}`}>
           {up ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
           {trendVal}
         </span>
       </div>
-      <p className="text-2xl font-bold text-gray-900">{value?.toLocaleString()}</p>
-      <p className="text-xs text-gray-500 mt-0.5">{title}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}: <span className="font-semibold text-gray-600">{subValue}</span></p>}
+      <p className="text-xl sm:text-2xl font-black text-gray-900 truncate">{value?.toLocaleString()}</p>
+      <p className="text-xs text-gray-500 mt-0.5 truncate">{title}</p>
+      {sub && <p className="text-[11px] sm:text-xs text-gray-400 mt-1 truncate">{sub}: <span className="font-semibold text-gray-600">{subValue}</span></p>}
     </motion.div>
   )
 }
@@ -106,7 +106,7 @@ export default function AdminDashboard() {
       ) : (
         <>
           {/* 4 Metric Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
             <MetricCard title="Total Students" value={data.totalStudents} sub="Registered" subValue={data.totalStudents} icon={Users} iconBg="bg-[#40A047]" trend="up" trendVal="+12.5%" />
             <MetricCard title="Total Drivers" value={data.totalDrivers} sub="Active" subValue={data.totalDrivers} icon={UserCheck} iconBg="bg-blue-500" trend="up" trendVal="+5.4%" />
             <MetricCard title="Total Buses" value={data.totalBuses} sub="In fleet" subValue={data.totalBuses} icon={Bus} iconBg="bg-purple-500" trend="up" trendVal="+10.2%" />
