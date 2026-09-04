@@ -17,6 +17,7 @@ npm-debug.log*
 # Local scratch / diagnostics
 backend/.tmp-hypegps-*.mjs
 backend/backups/
+scratch/
 
 # Editors / OS
 .idea/
