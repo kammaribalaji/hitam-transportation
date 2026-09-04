@@ -1,5 +1,8 @@
 import prisma from '../lib/prisma.js';
 
+const HITAM_CAMPUS_LAT = 17.5953257;
+const HITAM_CAMPUS_LNG = 78.4530613;
+
 // Format current time into "hh:mm AM/PM"
 export const formatTimeStr = (date = new Date()) => {
   return date.toLocaleTimeString('en-US', {
@@ -14,9 +17,20 @@ export const getTodayDateStr = (date = new Date()) => {
 };
 
 /**
+ * Check if a location is within campus geofence (radius ~1.2km)
+ */
+export function isNearCampus(lat, lng) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) return false;
+  const dLat = (lat - HITAM_CAMPUS_LAT) * 111.32;
+  const dLng = (lng - HITAM_CAMPUS_LNG) * 105.7;
+  const distKm = Math.hypot(dLat, dLng);
+  return distKm <= 1.2;
+}
+
+/**
  * Automatically evaluates bus position against route stops and logs departed timestamps in DB.
  */
-export async function autoRecordStopDepartures(routeId, busLat, busLng, busSpeed = 0, busNumber = '') {
+export async function autoRecordStopDepartures(routeId, busLat, busLng, busSpeed = 0, busNumber = '', direction = 'MORNING') {
   if (!routeId || !Number.isFinite(busLat) || !Number.isFinite(busLng) || (busLat === 0 && busLng === 0)) {
     return;
   }
@@ -24,7 +38,7 @@ export async function autoRecordStopDepartures(routeId, busLat, busLng, busSpeed
   try {
     const stops = await prisma.routeStop.findMany({
       where: { routeId: String(routeId) },
-      orderBy: { stopOrder: 'asc' },
+      orderBy: { stopOrder: direction === 'RETURN' ? 'desc' : 'asc' },
     });
 
     if (!stops || stops.length === 0) return;
@@ -48,12 +62,11 @@ export async function autoRecordStopDepartures(routeId, busLat, busLng, busSpeed
       }
     }
 
-    // If bus is at or past stop index, all previous stops (and current stop if moving away) are marked departed
+    // If bus is at or past stop index, all previous stops are marked departed
     if (closestIdx >= 0) {
       const stopsToDepart = stops.slice(0, closestIdx + 1);
 
       for (const st of stopsToDepart) {
-        // Check if already logged today
         const existingLog = await prisma.stopDepartureLog.findFirst({
           where: {
             routeId: String(routeId),
@@ -63,7 +76,6 @@ export async function autoRecordStopDepartures(routeId, busLat, busLng, busSpeed
         });
 
         if (!existingLog) {
-          // Calculate departure time (either stop's scheduled time or current time)
           const depTime = st.stopOrder < stopsToDepart.length ? (st.stopTime || nowFormatted) : nowFormatted;
 
           await prisma.stopDepartureLog.create({

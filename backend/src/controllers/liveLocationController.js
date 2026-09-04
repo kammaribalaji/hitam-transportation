@@ -8,7 +8,7 @@ import {
   getLastKnownLocation,
   HypeGpsError,
 } from '../services/hypegpsService.js';
-import { autoRecordStopDepartures } from '../services/departureTrackingService.js';
+import { autoRecordStopDepartures, isNearCampus } from '../services/departureTrackingService.js';
 
 const isValidLat = (n) => Number.isFinite(n) && n >= -90 && n <= 90;
 const isValidLng = (n) => Number.isFinite(n) && n >= -180 && n <= 180;
@@ -58,9 +58,13 @@ export const getRouteHypegpsPayload = async (routeId) => {
     if (!gps) throw toAppError(err);
   }
 
+  const reachedCampus = gps ? isNearCampus(gps.latitude, gps.longitude) : false;
+  const currentHour = new Date().getHours();
+  const tripDirection = reachedCampus || currentHour >= 13 ? 'RETURN' : 'MORNING';
+
   if (gps && gps.latitude && gps.longitude) {
     // Auto-record departed stops into database
-    autoRecordStopDepartures(routeId, gps.latitude, gps.longitude, gps.speed, route.busNumber);
+    autoRecordStopDepartures(routeId, gps.latitude, gps.longitude, gps.speed, route.busNumber, tripDirection);
   }
 
   return {
@@ -69,6 +73,8 @@ export const getRouteHypegpsPayload = async (routeId) => {
     route: routeId, // alias for consumers expecting "route"
     routeId,
     busNumber: route.busNumber || '',
+    hasReachedCampus: reachedCampus,
+    tripDirection,
   };
 };
 

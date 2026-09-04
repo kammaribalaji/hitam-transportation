@@ -44,6 +44,9 @@ export default function WhereIsMyBusTimeline({
   stops = [],
   liveLocation,
   userBoardingPoint,
+  journeyDirection = 'MORNING',
+  onToggleJourneyDirection,
+  hasReachedCampus = false,
   onToggleMap,
   isMapVisible,
   onRefresh,
@@ -109,11 +112,18 @@ export default function WhereIsMyBusTimeline({
 
   const currentStop = enrichedStops[currentStopIndex] || enrichedStops[0] || { name: startPoint }
   const nextStop = enrichedStops[Math.min(currentStopIndex + 1, enrichedStops.length - 1)] || enrichedStops[enrichedStops.length - 1] || currentStop
-  const isOnline = liveLocation && (liveLocation.status === 'online' || liveLocation.status === 'LIVE' || liveLocation.status === 'ack' || liveLocation.speed > 0)
-  const busSpeed = liveLocation?.speed ? Math.round(liveLocation.speed) : (isOnline ? 36 : 0)
+  
+  const isOnline = liveLocation && (
+    (liveLocation.status === 'online' || liveLocation.status === 'LIVE' || liveLocation.status === 'moving' || liveLocation.speed > 0) &&
+    !liveLocation.isStale &&
+    liveLocation.latitude !== 0
+  )
+  const busSpeed = liveLocation?.speed ? Math.round(liveLocation.speed) : (isOnline ? 38 : 0)
 
-  // Clean matched stops list
+  // Clean matched stops list with dynamic continuous ETA calculation
   const stopsWithStatus = useMemo(() => {
+    const currentDist = enrichedStops[currentStopIndex]?.cumulativeKm || 0
+
     return enrichedStops.map((s, idx) => {
       const isPassed = idx < currentStopIndex
       const isCurrent = idx === currentStopIndex
@@ -123,14 +133,21 @@ export default function WhereIsMyBusTimeline({
         userBoardingPoint.toLowerCase().includes(s.name.toLowerCase().trim())
       )
 
+      // Dynamic ETA Calculation in Minutes
+      const distFromBusKm = Math.max(0, (s.cumulativeKm || 0) - currentDist)
+      const effectiveSpeed = busSpeed > 10 ? busSpeed : 32
+      const etaMinutes = isPassed ? 0 : isCurrent ? 1 : Math.max(2, Math.round((distFromBusKm / effectiveSpeed) * 60) + (idx - currentStopIndex))
+
       return {
         ...s,
         isPassed,
         isCurrent,
         isMyStop,
+        distFromBusKm: Math.round(distFromBusKm * 10) / 10,
+        etaMinutes,
       }
     })
-  }, [enrichedStops, currentStopIndex, userBoardingPoint])
+  }, [enrichedStops, currentStopIndex, userBoardingPoint, busSpeed])
 
   const filteredStops = useMemo(() => {
     if (!filterQuery.trim()) return stopsWithStatus
@@ -158,12 +175,12 @@ export default function WhereIsMyBusTimeline({
 
   const todayStr = useMemo(() => {
     const d = new Date()
-    return `Day 1 - ${d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', weekday: 'short' })}`
-  }, [])
+    return `${journeyDirection === 'RETURN' ? 'Evening Return Leg' : 'Morning Inward Leg'} • ${d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', weekday: 'short' })}`
+  }, [journeyDirection])
 
   return (
     <div className="bg-white rounded-2xl sm:rounded-3xl border border-[#C8E6C9] shadow-xl overflow-hidden font-sans text-slate-800 w-full max-w-4xl mx-auto">
-      {/* 1. TOP HEADER (White & Light Green Gradient, Responsive Layout) */}
+      {/* 1. TOP HEADER (Gradient with Bus Plate, Route & Speedometer) */}
       <div className="bg-gradient-to-r from-[#1B5E20] via-[#2E7D32] to-[#40A047] text-white p-3 sm:p-5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -181,6 +198,12 @@ export default function WhereIsMyBusTimeline({
                 </span>
                 <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-white/20 text-emerald-100 font-bold border border-white/30 shrink-0">
                   Route {route?.id || '—'}
+                </span>
+                <span className={`text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-black uppercase flex items-center gap-1 ${
+                  isOnline ? 'bg-amber-400 text-slate-950 shadow-sm' : 'bg-slate-900/60 text-slate-200 border border-white/20'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-slate-950 animate-ping' : 'bg-slate-400'}`} />
+                  {isOnline ? `${busSpeed} km/h` : 'Offline'}
                 </span>
               </div>
               <h1 className="text-[11px] sm:text-sm font-medium text-emerald-100 truncate mt-0.5">
@@ -209,40 +232,60 @@ export default function WhereIsMyBusTimeline({
           </div>
         </div>
 
-        {/* Action Pills: Today, Alarm, Coach, Share (Mobile Scrollable without breaking) */}
-        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-0.5 pt-2.5 scrollbar-none text-[11px] sm:text-xs w-full">
-          <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/20 text-white font-bold shrink-0 border border-white/20">
-            <span>Today</span>
-            <ChevronDown size={12} className="text-emerald-200" />
+        {/* Journey direction selector & Action Pills */}
+        <div className="flex items-center justify-between gap-1.5 sm:gap-2 overflow-x-auto pb-0.5 pt-2.5 scrollbar-none text-[11px] sm:text-xs w-full">
+          <div className="flex items-center gap-1 bg-black/20 p-0.5 rounded-full border border-white/20 shrink-0">
+            <button
+              onClick={() => onToggleJourneyDirection && onToggleJourneyDirection('MORNING')}
+              className={`px-2.5 py-1 rounded-full font-black text-[10px] sm:text-xs transition-all ${
+                journeyDirection === 'MORNING'
+                  ? 'bg-amber-400 text-slate-950 shadow-sm'
+                  : 'text-emerald-100 hover:text-white'
+              }`}
+            >
+              Morning
+            </button>
+            <button
+              onClick={() => onToggleJourneyDirection && onToggleJourneyDirection('RETURN')}
+              className={`px-2.5 py-1 rounded-full font-black text-[10px] sm:text-xs transition-all ${
+                journeyDirection === 'RETURN'
+                  ? 'bg-indigo-400 text-slate-950 shadow-sm'
+                  : 'text-emerald-100 hover:text-white'
+              }`}
+            >
+              Return Trip
+            </button>
           </div>
 
-          <button
-            onClick={() => setShowAlarmModal(true)}
-            className={`flex items-center gap-1 px-3 py-1 rounded-full font-bold shrink-0 transition-all border ${
-              alarmActive
-                ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md ring-2 ring-amber-200'
-                : 'bg-white/20 hover:bg-white/30 text-white border-white/20'
-            }`}
-          >
-            <Bell size={12} className={alarmActive ? 'fill-slate-950' : ''} />
-            <span>Alarm</span>
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => setShowAlarmModal(true)}
+              className={`flex items-center gap-1 px-3 py-1 rounded-full font-bold shrink-0 transition-all border ${
+                alarmActive
+                  ? 'bg-amber-400 text-slate-950 border-amber-300 shadow-md ring-2 ring-amber-200'
+                  : 'bg-white/20 hover:bg-white/30 text-white border-white/20'
+              }`}
+            >
+              <Bell size={12} className={alarmActive ? 'fill-slate-950' : ''} />
+              <span>Alarm</span>
+            </button>
 
-          <button
-            onClick={() => setShowSeatModal(true)}
-            className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/20 hover:bg-white/30 text-white font-bold border border-white/20 shrink-0 transition-all"
-          >
-            <Armchair size={12} />
-            <span>Coach</span>
-          </button>
+            <button
+              onClick={() => setShowSeatModal(true)}
+              className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/20 hover:bg-white/30 text-white font-bold border border-white/20 shrink-0 transition-all"
+            >
+              <Armchair size={12} />
+              <span>Coach</span>
+            </button>
 
-          <button
-            onClick={handleShare}
-            className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/20 hover:bg-white/30 text-white font-bold border border-white/20 shrink-0 transition-all"
-          >
-            <Share2 size={12} />
-            <span>Share</span>
-          </button>
+            <button
+              onClick={handleShare}
+              className="flex items-center gap-1 px-3 py-1 rounded-full bg-white/20 hover:bg-white/30 text-white font-bold border border-white/20 shrink-0 transition-all"
+            >
+              <Share2 size={12} />
+              <span>Share</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -320,6 +363,8 @@ export default function WhereIsMyBusTimeline({
                   <p className={`text-[9px] sm:text-xs font-black mt-0.5 truncate ${
                     stop.isPassed
                       ? 'text-slate-400'
+                      : stop.isCurrent
+                      ? 'text-emerald-700 animate-pulse'
                       : isOnline
                       ? 'text-[#2E7D32]'
                       : 'text-amber-600'
@@ -328,8 +373,10 @@ export default function WhereIsMyBusTimeline({
                       ? `Dep ${stop.actualDepartureTime}`
                       : stop.isPassed
                       ? 'Departed'
+                      : stop.isCurrent
+                      ? 'Arriving Now'
                       : isOnline
-                      ? (stop.stopTime || '06:40 AM')
+                      ? `in ${stop.etaMinutes || 2}m`
                       : 'Scheduled'}
                   </p>
                 </div>
@@ -397,20 +444,20 @@ export default function WhereIsMyBusTimeline({
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-ping shrink-0" />
                         <Bus size={11} className="text-emerald-200 shrink-0" />
                         <span className="truncate">
-                          {isOnline ? `Bus Approaching (${busSpeed} km/h)` : `Bus Here`}
+                          {isOnline ? `Bus Approaching (${busSpeed} km/h)` : `Bus Parked Here`}
                         </span>
                       </div>
                     </div>
                   )}
 
-                  {/* Distance details */}
+                  {/* Distance & Dynamic ETA badge */}
                   <div className="flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-xs text-slate-500 font-semibold mt-0.5 flex-wrap">
                     <span className="px-1 py-0.2 bg-emerald-100/80 text-[#1B5E20] rounded font-bold text-[9px] sm:text-[10px]">
                       {stop.cumulativeKm} km
                     </span>
-                    {stop.legKm > 0 && (
-                      <span className="text-[9px] sm:text-[10px] text-emerald-700 font-bold hidden xs:inline">
-                        (+{stop.legKm} km)
+                    {!stop.isPassed && isOnline && stop.etaMinutes > 0 && (
+                      <span className="px-1.5 py-0.2 bg-emerald-50 text-emerald-800 font-black rounded text-[9px] border border-emerald-200">
+                        ETA ~{stop.etaMinutes} mins
                       </span>
                     )}
                     <span className="text-slate-300">•</span>
@@ -423,10 +470,10 @@ export default function WhereIsMyBusTimeline({
                   <p className={`text-[11px] sm:text-sm font-black truncate ${
                     stop.isPassed ? 'text-slate-400' : 'text-slate-900'
                   }`}>
-                    {isLast ? 'HITAM' : (stop.stopTime || '06:45 AM')}
+                    {stop.actualDepartureTime ? stop.actualDepartureTime : (isLast ? (journeyDirection === 'RETURN' ? 'Terminal' : 'HITAM') : (stop.stopTime || '06:45 AM'))}
                   </p>
                   <p className="text-[9px] sm:text-xs text-slate-400 font-bold mt-0.5 truncate">
-                    {isLast ? 'Gate Hub' : 'Scheduled'}
+                    {stop.actualDepartureTime ? 'Actual Dep' : (isLast ? 'Destination' : 'Scheduled')}
                   </p>
                 </div>
               </div>
