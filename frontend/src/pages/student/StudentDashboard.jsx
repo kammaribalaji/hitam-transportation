@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { useAuth } from '../../hooks/useAuth.js'
 import { notificationService, bookingService, routeService } from '../../api/services.js'
 import StatCard from '../../components/common/StatCard.jsx'
-import { Bus, MapPin, Clock, Armchair, QrCode, Navigation, CreditCard, Bell, ChevronRight, CheckCircle, AlertCircle, Megaphone } from 'lucide-react'
+import { Bus, MapPin, Clock, Armchair, QrCode, Navigation, CreditCard, Bell, ChevronRight, CheckCircle, AlertCircle, Megaphone, Search } from 'lucide-react'
 
 export default function StudentDashboard() {
   const { user } = useAuth()

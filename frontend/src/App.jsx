@@ -59,9 +59,10 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     </div>
   )
   if (!user) return <Navigate to="/login" replace />
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    if (user.role === 'ADMIN') return <Navigate to="/admin" replace />
-    if (user.role === 'DRIVER') return <Navigate to="/driver" replace />
+  const currentRole = String(user.role || 'STUDENT').toUpperCase()
+  if (allowedRoles && !allowedRoles.map(r => r.toUpperCase()).includes(currentRole)) {
+    if (currentRole === 'ADMIN') return <Navigate to="/admin" replace />
+    if (currentRole === 'DRIVER') return <Navigate to="/driver" replace />
     return <Navigate to="/student" replace />
   }
   return children
@@ -69,12 +70,13 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
 function AppRoutes() {
   const { user } = useAuth()
+  const role = String(user?.role || 'STUDENT').toUpperCase()
   return (
     <Routes>
-      <Route path="/login" element={!user ? <LoginPage /> : <Navigate to={user.role === 'ADMIN' ? '/admin' : user.role === 'DRIVER' ? '/driver' : '/student'} replace />} />
+      <Route path="/login" element={!user ? <LoginPage /> : <Navigate to={role === 'ADMIN' ? '/admin' : role === 'DRIVER' ? '/driver' : '/student'} replace />} />
 
       {/* Student Routes */}
-      <Route path="/student" element={<ProtectedRoute allowedRoles={['STUDENT']}><StudentLayout /></ProtectedRoute>}>
+      <Route path="/student" element={<ProtectedRoute allowedRoles={['STUDENT', 'STAFF']}><StudentLayout /></ProtectedRoute>}>
         <Route index element={<StudentDashboard />} />
         <Route path="book-seat" element={<BookSeatPage />} />
         <Route path="payment" element={<PaymentPage />} />
