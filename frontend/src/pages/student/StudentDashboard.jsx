@@ -155,6 +155,31 @@ export default function StudentDashboard() {
         />
       </div>
 
+      {/* Where Is My Bus Quick Search Banner (Where Is My Train Concept) */}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 rounded-2xl sm:rounded-3xl p-4 sm:p-5 text-white shadow-xl border border-slate-700/60 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+            <h2 className="text-base sm:text-lg font-black tracking-wide text-white flex items-center gap-2">
+              <Bus size={18} className="text-emerald-400" />
+              Where is My Bus? — Route & Stop Discovery
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-300">
+            Find buses across all 23 corridors from your stop to HITAM Campus with real-time live location.
+          </p>
+        </div>
+
+        <button
+          onClick={() => navigate('/student/tracking')}
+          className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white font-black text-xs sm:text-sm shadow-lg shadow-green-700/30 flex items-center justify-center gap-2 transition-all shrink-0 active:scale-95"
+        >
+          <Search size={15} />
+          <span>Find Buses & Live Track</span>
+          <ChevronRight size={15} />
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 w-full">
         {/* Next Trip + Quick Actions */}
         <div className="lg:col-span-2 space-y-4 sm:space-y-5 min-w-0">

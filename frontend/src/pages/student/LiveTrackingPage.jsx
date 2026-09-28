@@ -34,6 +34,7 @@ import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from 'react-
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import WhereIsMyBusTimeline from '../../components/tracking/WhereIsMyBusTimeline.jsx'
+import WhereIsMyBusSearchHub from '../../components/tracking/WhereIsMyBusSearchHub.jsx'
 
 const HITAM_CAMPUS_COORD = [17.5953257, 78.4530613]
 const DEFAULT_CENTER = HITAM_CAMPUS_COORD
@@ -469,12 +470,24 @@ export default function LiveTrackingPage() {
           </div>
         </div>
 
-        {/* View Mode Tabs: Timeline vs Map vs Split */}
+        {/* View Mode Tabs: Search Hub vs Timeline vs Map vs Split */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto overflow-x-auto scrollbar-none pb-0.5">
+            <button
+              onClick={() => setViewMode('SEARCH')}
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 ${
+                viewMode === 'SEARCH'
+                  ? 'bg-slate-900 text-white shadow-md ring-2 ring-slate-700'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
+            >
+              <Search size={15} className={viewMode === 'SEARCH' ? 'text-emerald-400' : ''} />
+              <span>Find Buses (Search)</span>
+            </button>
+
             <button
               onClick={() => setViewMode('TIMELINE')}
-              className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs font-black transition-all ${
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 ${
                 viewMode === 'TIMELINE'
                   ? 'bg-[#40A047] text-white shadow-md shadow-green-600/20 ring-2 ring-emerald-300'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -487,7 +500,7 @@ export default function LiveTrackingPage() {
 
             <button
               onClick={() => setViewMode('MAP')}
-              className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs font-black transition-all ${
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 ${
                 viewMode === 'MAP'
                   ? 'bg-[#40A047] text-white shadow-md shadow-green-600/20 ring-2 ring-emerald-300'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -500,7 +513,7 @@ export default function LiveTrackingPage() {
 
             <button
               onClick={() => setViewMode('SPLIT')}
-              className={`hidden lg:flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all ${
+              className={`hidden lg:flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all shrink-0 ${
                 viewMode === 'SPLIT'
                   ? 'bg-[#40A047] text-white shadow-md shadow-green-600/20 ring-2 ring-emerald-300'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
@@ -525,30 +538,44 @@ export default function LiveTrackingPage() {
         </div>
       </div>
 
-      {/* 2. MAIN VIEW CONTENT: TIMELINE / MAP / SPLIT */}
-      <div className={`grid gap-4 ${viewMode === 'SPLIT' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
-        {/* TIMELINE COMPONENT (Where Is My Bus Style) */}
-        {(viewMode === 'TIMELINE' || viewMode === 'SPLIT') && (
-          <WhereIsMyBusTimeline
-            route={route || { id: selectedRouteId, name: `Route ${selectedRouteId}`, busNumber: `TS 09 UB ${1200 + parseInt(selectedRouteId || 1)}` }}
-            stops={activeStops}
-            liveLocation={liveLocation}
-            userBoardingPoint={user?.boardingPoint}
-            journeyDirection={journeyDirection}
-            onToggleJourneyDirection={(d) => setJourneyDirection(d)}
-            hasReachedCampus={hasReachedCampus}
-            onToggleMap={() => setViewMode(viewMode === 'TIMELINE' ? 'MAP' : 'TIMELINE')}
-            isMapVisible={viewMode === 'MAP' || viewMode === 'SPLIT'}
-            onRefresh={handleRefresh}
-            isRefreshing={isRefreshing}
-            fullRoutesList={fullRoutesList}
-            selectedRouteId={selectedRouteId}
-            onSelectRoute={(rId) => {
-              setSelectedRouteId(rId)
-              setFollowBus(false)
-            }}
-          />
-        )}
+      {/* 2. MAIN VIEW CONTENT: SEARCH HUB / TIMELINE / MAP / SPLIT */}
+      {viewMode === 'SEARCH' && (
+        <WhereIsMyBusSearchHub
+          routes={fullRoutesList}
+          allLiveLocations={allLiveLocations}
+          userBoardingPoint={user?.boardingPoint}
+          onSelectRoute={(rId, targetMode = 'TIMELINE') => {
+            setSelectedRouteId(rId)
+            setViewMode(targetMode)
+            setFollowBus(false)
+          }}
+        />
+      )}
+
+      {viewMode !== 'SEARCH' && (
+        <div className={`grid gap-4 ${viewMode === 'SPLIT' ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
+          {/* TIMELINE COMPONENT (Where Is My Bus Style) */}
+          {(viewMode === 'TIMELINE' || viewMode === 'SPLIT') && (
+            <WhereIsMyBusTimeline
+              route={route || { id: selectedRouteId, name: `Route ${selectedRouteId}`, busNumber: `TS 09 UB ${1200 + parseInt(selectedRouteId || 1)}` }}
+              stops={activeStops}
+              liveLocation={liveLocation}
+              userBoardingPoint={user?.boardingPoint}
+              journeyDirection={journeyDirection}
+              onToggleJourneyDirection={(d) => setJourneyDirection(d)}
+              hasReachedCampus={hasReachedCampus}
+              onToggleMap={() => setViewMode(viewMode === 'TIMELINE' ? 'MAP' : 'TIMELINE')}
+              isMapVisible={viewMode === 'MAP' || viewMode === 'SPLIT'}
+              onRefresh={handleRefresh}
+              isRefreshing={isRefreshing}
+              fullRoutesList={fullRoutesList}
+              selectedRouteId={selectedRouteId}
+              onSelectRoute={(rId) => {
+                setSelectedRouteId(rId)
+                setFollowBus(false)
+              }}
+            />
+          )}
 
         {/* MAP COMPONENT */}
         {(viewMode === 'MAP' || viewMode === 'SPLIT') && (
@@ -711,6 +738,7 @@ export default function LiveTrackingPage() {
           </div>
         )}
       </div>
+      )}
     </motion.div>
   )
 }

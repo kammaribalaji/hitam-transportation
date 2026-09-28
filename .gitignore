@@ -23,5 +23,6 @@ scratch/
 .idea/
 .vscode/
 *.iml
+*.zip
 .DS_Store
 Thumbs.db
