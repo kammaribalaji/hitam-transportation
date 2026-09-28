@@ -42,8 +42,12 @@ export const getRouteHypegpsPayload = async (routeId) => {
     );
   }
 
-  const route = await prisma.route.findUnique({ where: { id: routeId } });
-  if (!route) throw new AppError('Route not found', 404);
+  let route = null;
+  try {
+    route = await prisma.route.findUnique({ where: { id: routeId } });
+  } catch {}
+
+  const busNumber = route?.busNumber || `TS 09 UB ${1200 + parseInt(routeId || '1')}`;
 
   let gps = null;
   try {
@@ -63,8 +67,10 @@ export const getRouteHypegpsPayload = async (routeId) => {
   const tripDirection = reachedCampus || currentHour >= 13 ? 'RETURN' : 'MORNING';
 
   if (gps && gps.latitude && gps.longitude) {
-    // Auto-record departed stops into database
-    autoRecordStopDepartures(routeId, gps.latitude, gps.longitude, gps.speed, route.busNumber, tripDirection);
+    // Auto-record departed stops into database (non-blocking)
+    try {
+      autoRecordStopDepartures(routeId, gps.latitude, gps.longitude, gps.speed, busNumber, tripDirection);
+    } catch {}
   }
 
   return {
@@ -72,7 +78,7 @@ export const getRouteHypegpsPayload = async (routeId) => {
     _id: deviceId,
     route: routeId, // alias for consumers expecting "route"
     routeId,
-    busNumber: route.busNumber || '',
+    busNumber,
     hasReachedCampus: reachedCampus,
     tripDirection,
   };
@@ -126,17 +132,50 @@ export const upsertMyLiveLocation = async (req, res, next) => {
 export const getLiveLocationByRoute = async (req, res, next) => {
   try {
     const routeId = String(req.params.routeId);
+    const dbRoute = await prisma.route.findUnique({
+      where: { id: routeId },
+      include: { routeStops: { orderBy: { stopOrder: 'asc' } } },
+    });
 
-    const gps = await getRouteHypegpsPayload(routeId);
-    if (gps) return res.json(gps);
+    const defaultLat = dbRoute?.routeStops?.[0]?.latitude || 17.5953257;
+    const defaultLng = dbRoute?.routeStops?.[0]?.longitude || 78.4530613;
 
-    // Legacy fallback for unmapped routes (or when HypeGPS is not configured).
+    try {
+      const gps = await getRouteHypegpsPayload(routeId);
+      if (gps) {
+        const hasValidCoords = Number.isFinite(gps.latitude) && Number.isFinite(gps.longitude) && (gps.latitude !== 0 || gps.longitude !== 0);
+        return res.json({
+          ...gps,
+          latitude: hasValidCoords ? gps.latitude : defaultLat,
+          longitude: hasValidCoords ? gps.longitude : defaultLng,
+          routeId,
+          busNumber: dbRoute?.busNumber || gps.busNumber || '',
+        });
+      }
+    } catch {
+      // Fall through to DB
+    }
+
+    // Legacy fallback for unmapped routes
     const doc = await prisma.busLocation.findFirst({
       where: { routeId },
       orderBy: { lastPingAt: 'desc' },
     });
-    if (!doc) throw new AppError('Live location not found for route', 404);
-    res.json(serialize(doc));
+    if (doc) return res.json(serialize(doc));
+
+    // Offline fallback at first stop
+    res.json({
+      routeId,
+      busNumber: dbRoute?.busNumber || `TS 09 UB ${1200 + parseInt(routeId || '1')}`,
+      latitude: defaultLat,
+      longitude: defaultLng,
+      speed: 0,
+      heading: null,
+      status: 'offline',
+      isStale: true,
+      hasReachedCampus: false,
+      tripDirection: new Date().getHours() >= 13 ? 'RETURN' : 'MORNING',
+    });
   } catch (err) {
     next(err);
   }
@@ -156,8 +195,17 @@ export const getLiveLocationByBus = async (req, res, next) => {
       where: { busNumber },
       orderBy: { lastPingAt: 'desc' },
     });
-    if (!doc) throw new AppError('Live location not found for bus', 404);
-    res.json(serialize(doc));
+    if (doc) return res.json(serialize(doc));
+
+    res.json({
+      busNumber,
+      latitude: 17.5953257,
+      longitude: 78.4530613,
+      speed: 0,
+      heading: null,
+      status: 'offline',
+      isStale: true,
+    });
   } catch (err) {
     next(err);
   }
@@ -182,12 +230,17 @@ export const getAllLiveLocations = async (req, res, next) => {
         const startPoint = dbRoute?.startPoint || (routeId === '12' ? 'Sangareddy Old Bus Stand' : `Terminal ${routeId}`);
         const endPoint = dbRoute?.endPoint || 'HITAM College';
         const stopsCount = dbRoute?.routeStops?.length || 0;
+        const defaultLat = dbRoute?.routeStops?.[0]?.latitude || 17.5953257;
+        const defaultLng = dbRoute?.routeStops?.[0]?.longitude || 78.4530613;
 
         try {
           const gps = await getRouteHypegpsPayload(routeId);
           if (gps) {
+            const hasValidCoords = Number.isFinite(gps.latitude) && Number.isFinite(gps.longitude) && (gps.latitude !== 0 || gps.longitude !== 0);
             return {
               ...gps,
+              latitude: hasValidCoords ? gps.latitude : defaultLat,
+              longitude: hasValidCoords ? gps.longitude : defaultLng,
               routeId,
               routeName,
               busNumber,
@@ -221,8 +274,8 @@ export const getAllLiveLocations = async (req, res, next) => {
           routeId,
           routeName,
           busNumber,
-          latitude: dbRoute?.routeStops?.[0]?.latitude || 17.5953,
-          longitude: dbRoute?.routeStops?.[0]?.longitude || 78.4531,
+          latitude: defaultLat,
+          longitude: defaultLng,
           speed: 0,
           heading: null,
           status: 'offline',

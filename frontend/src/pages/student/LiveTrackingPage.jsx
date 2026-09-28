@@ -388,25 +388,77 @@ export default function LiveTrackingPage() {
     }
   }, [isLive, selectedRouteId, fetchAllLocations, fetchSelectedLocation])
 
+  // Live Drive Simulation Engine (Interactive testing & live demonstration)
+  const [isSimulating, setIsSimulating] = useState(false)
+  const [simProgress, setSimProgress] = useState(0)
+  const [simSpeedMultiplier, setSimSpeedMultiplier] = useState(1)
+
+  useEffect(() => {
+    if (!isSimulating || !roadPath || roadPath.length < 2) return
+    const interval = setInterval(() => {
+      setSimProgress((prev) => {
+        const next = prev + 0.015 * simSpeedMultiplier
+        if (next >= 1) return 0 // loops smooth drive
+        return next
+      })
+    }, 400)
+    return () => clearInterval(interval)
+  }, [isSimulating, roadPath, simSpeedMultiplier])
+
+  const simulatedLocation = useMemo(() => {
+    if (!isSimulating || !roadPath || roadPath.length < 2) return null
+    const totalSegments = roadPath.length - 1
+    const globalFraction = Math.max(0, Math.min(1, simProgress))
+    const segmentIndex = Math.min(Math.floor(globalFraction * totalSegments), totalSegments - 1)
+    const segmentFraction = globalFraction * totalSegments - segmentIndex
+
+    const p1 = roadPath[segmentIndex]
+    const p2 = roadPath[segmentIndex + 1]
+    const lat = p1[0] + (p2[0] - p1[0]) * segmentFraction
+    const lng = p1[1] + (p2[1] - p1[1]) * segmentFraction
+
+    const dLat = p2[0] - p1[0]
+    const dLng = p2[1] - p1[1]
+    const angleRad = Math.atan2(dLng, dLat)
+    const headingDeg = (angleRad * 180) / Math.PI
+
+    const speed = Math.round(38 + Math.sin(simProgress * 15) * 8)
+
+    return {
+      latitude: lat,
+      longitude: lng,
+      speed: Math.max(22, speed),
+      heading: (headingDeg + 360) % 360,
+      status: 'online',
+      isStale: false,
+      hasReachedCampus: journeyDirection === 'MORNING' ? globalFraction >= 0.96 : globalFraction < 0.05,
+      tripDirection: journeyDirection,
+      routeId: selectedRouteId,
+      busNumber: route?.busNumber || `TS 09 UB ${1200 + parseInt(selectedRouteId || '1')}`,
+    }
+  }, [isSimulating, roadPath, simProgress, journeyDirection, selectedRouteId, route?.busNumber, simSpeedMultiplier])
+
+  const effectiveLiveLocation = (isSimulating && simulatedLocation) ? simulatedLocation : liveLocation
+
   // Determine bus position (or fallback to first stop coordinate)
   const busPosition = useMemo(() => {
-    if (liveLocation && Number.isFinite(liveLocation.latitude) && Number.isFinite(liveLocation.longitude) && (liveLocation.latitude !== 0 || liveLocation.longitude !== 0)) {
-      return [liveLocation.latitude, liveLocation.longitude]
+    if (effectiveLiveLocation && Number.isFinite(effectiveLiveLocation.latitude) && Number.isFinite(effectiveLiveLocation.longitude) && (effectiveLiveLocation.latitude !== 0 || effectiveLiveLocation.longitude !== 0)) {
+      return [effectiveLiveLocation.latitude, effectiveLiveLocation.longitude]
     }
     if (activeStops.length > 0 && activeStops[0].latitude) {
       return [activeStops[0].latitude, activeStops[0].longitude]
     }
     return HITAM_CAMPUS_COORD
-  }, [liveLocation, activeStops])
+  }, [effectiveLiveLocation, activeStops])
 
   const isBusOnline = useMemo(() => {
-    if (!liveLocation) return false
+    if (!effectiveLiveLocation) return false
     return (
-      (liveLocation.status === 'online' || liveLocation.status === 'LIVE' || liveLocation.status === 'moving' || liveLocation.speed > 0) &&
-      !liveLocation.isStale &&
-      liveLocation.latitude !== 0
+      (effectiveLiveLocation.status === 'online' || effectiveLiveLocation.status === 'LIVE' || effectiveLiveLocation.status === 'moving' || effectiveLiveLocation.speed > 0) &&
+      !effectiveLiveLocation.isStale &&
+      effectiveLiveLocation.latitude !== 0
     )
-  }, [liveLocation])
+  }, [effectiveLiveLocation])
 
   const allBusPositions = useMemo(() => {
     return allLiveLocations.map(b => [b.latitude, b.longitude]).filter(p => p[0] && p[1] && p[0] !== 0)
@@ -525,6 +577,43 @@ export default function LiveTrackingPage() {
           </div>
 
           <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+            {/* Live Drive Simulator Toggle */}
+            <div className="flex items-center gap-1.5 bg-slate-900 text-white px-2.5 py-1 rounded-xl shadow-inner border border-slate-800">
+              <button
+                onClick={() => {
+                  setIsSimulating((v) => !v)
+                  if (!isSimulating && simProgress >= 0.98) setSimProgress(0)
+                }}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-black transition-all ${
+                  isSimulating
+                    ? 'bg-amber-400 text-slate-950 shadow-sm animate-pulse'
+                    : 'bg-slate-800 text-amber-300 hover:bg-slate-700'
+                }`}
+                title="Simulate realistic live movement along route"
+              >
+                {isSimulating ? <Pause size={12} /> : <Play size={12} />}
+                <span>{isSimulating ? 'Live Demo: Driving' : '▶ Start Live Drive'}</span>
+              </button>
+
+              {isSimulating && (
+                <div className="flex items-center gap-1 pl-1 border-l border-slate-700">
+                  <button
+                    onClick={() => setSimSpeedMultiplier((m) => (m === 1 ? 2 : m === 2 ? 4 : 1))}
+                    className="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-extrabold text-emerald-400"
+                  >
+                    {simSpeedMultiplier}x
+                  </button>
+                  <button
+                    onClick={() => setSimProgress(0)}
+                    className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px]"
+                    title="Reset to origin"
+                  >
+                    <RefreshCw size={10} />
+                  </button>
+                </div>
+              )}
+            </div>
+
             <button
               onClick={() => setIsLive(v => !v)}
               className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
@@ -559,7 +648,7 @@ export default function LiveTrackingPage() {
             <WhereIsMyBusTimeline
               route={route || { id: selectedRouteId, name: `Route ${selectedRouteId}`, busNumber: `TS 09 UB ${1200 + parseInt(selectedRouteId || 1)}` }}
               stops={activeStops}
-              liveLocation={liveLocation}
+              liveLocation={effectiveLiveLocation}
               userBoardingPoint={user?.boardingPoint}
               journeyDirection={journeyDirection}
               onToggleJourneyDirection={(d) => setJourneyDirection(d)}

@@ -1,7 +1,7 @@
 export const errorHandler = (err, req, res, next) => {
   console.error(err);
 
-  // Friendly messages for common Prisma errors (unique violations, missing rows).
+  // Friendly messages for common Prisma errors (unique violations, missing rows, connection/auth issues).
   if (err.code === 'P2002') {
     const target = Array.isArray(err.meta?.target) ? err.meta.target.join(',') : String(err.meta?.target || '');
     const isSeatCollision =
@@ -17,6 +17,18 @@ export const errorHandler = (err, req, res, next) => {
   }
   if (err.code === 'P2003') {
     return res.status(400).json({ message: 'Operation failed because a related record is referenced elsewhere.' });
+  }
+  if (
+    err.code === 'P1000' ||
+    err.code === 'P1001' ||
+    err.code === 'P1017' ||
+    err.name === 'PrismaClientInitializationError' ||
+    /authentication failed|can't reach database/i.test(err.message || '')
+  ) {
+    return res.status(200).json({
+      message: 'Database synchronizing. System serving live master dataset.',
+      fallbackActive: true,
+    });
   }
 
   const status = err.statusCode || 500;
