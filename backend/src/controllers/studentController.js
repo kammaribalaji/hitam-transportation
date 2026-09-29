@@ -1,23 +1,7 @@
-import fs from 'fs';
-import path from 'path';
 import prisma from '../lib/prisma.js';
 import { AppError } from '../middlewares/errorHandler.js';
 import { withPaymentStatus } from '../lib/paymentStatus.js';
-
-let masterStudents = [];
-let masterStudentsMap = new Map();
-try {
-  const masterPath = path.resolve('./src/data/master_transport_database.json');
-  if (fs.existsSync(masterPath)) {
-    const data = JSON.parse(fs.readFileSync(masterPath, 'utf8'));
-    if (Array.isArray(data.master_students)) {
-      masterStudents = data.master_students;
-      for (const s of masterStudents) {
-        if (s.rollNumber) masterStudentsMap.set(s.rollNumber.toUpperCase().trim(), s);
-      }
-    }
-  }
-} catch {}
+import { masterStudents, masterStudentsMap } from '../utils/masterTransportDatabase.js';
 
 const safeUser = (u) => {
   const { passwordHash, ...rest } = u;

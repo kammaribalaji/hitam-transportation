@@ -1,35 +1,9 @@
-import fs from 'fs';
-import path from 'path';
 import prisma from '../lib/prisma.js';
 import { AppError } from '../middlewares/errorHandler.js';
 import { serialize, serializeMany } from '../lib/serialize.js';
+import { masterRoutes, masterRouteMap } from '../utils/masterTransportDatabase.js';
 
 const num = (v, fallback = 0) => (v === undefined || v === null || v === '' ? fallback : Number(v));
-
-const polylinesDir = path.resolve('./src/data/polylines');
-
-// Preload master routes & stops
-let masterRoutes = [];
-let masterRouteMap = new Map();
-try {
-  const possiblePaths = [
-    path.resolve('./src/data/master_transport_database.json'),
-    path.resolve("C:/PROJECT'S/HITAM TRANSPORT/master_transport_database.json"),
-    path.resolve("C:/PROJECT'S/HITAM TRANSPORT/hitam-transport/backend/src/data/master_transport_database.json"),
-  ];
-  const found = possiblePaths.find((p) => fs.existsSync(p));
-  if (found) {
-    const data = JSON.parse(fs.readFileSync(found, 'utf8'));
-    if (Array.isArray(data.routes)) {
-      masterRoutes = data.routes;
-      for (const r of masterRoutes) {
-        masterRouteMap.set(String(r.id), r);
-      }
-    }
-  }
-} catch (e) {
-  console.warn('[routeController] Could not pre-load master routes:', e.message);
-}
 
 const ROUTE_FIELDS = {
   name: (v) => String(v),

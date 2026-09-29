@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "start": "node backend/src/server.js",
-    "build": "cd backend && npm install && npx prisma generate",
-    "vercel-build": "cd backend && npm install && npx prisma generate",
-    "postinstall": "cd backend && npm install && npx prisma generate"
+    "build": "cd backend && npm install && npx prisma generate && cd ../frontend && npm install && npm run build",
+    "vercel-build": "cd backend && npm install && npx prisma generate && cd ../frontend && npm install && npm run build",
+    "postinstall": "cd backend && npx prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.1.0",

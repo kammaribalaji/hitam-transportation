@@ -1,44 +1,8 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import prisma from '../lib/prisma.js';
 import { AppError } from '../middlewares/errorHandler.js';
 import { serialize, serializeMany } from '../lib/serialize.js';
 import { derivePaymentStatus } from '../lib/paymentStatus.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-let masterStudentsMap = new Map();
-let masterPassengers = [];
-let masterRoutes = [];
-
-try {
-  const possiblePaths = [
-    path.resolve(__dirname, '../data/master_transport_database.json'),
-    path.resolve("C:/PROJECT'S/HITAM TRANSPORT/master_transport_database.json"),
-    path.resolve("C:/PROJECT'S/HITAM TRANSPORT/hitam-transport/backend/src/data/master_transport_database.json"),
-  ];
-  let masterFile = possiblePaths.find((p) => fs.existsSync(p));
-  if (masterFile) {
-    const json = JSON.parse(fs.readFileSync(masterFile, 'utf8'));
-    if (Array.isArray(json.master_students)) {
-      for (const s of json.master_students) {
-        if (s.rollNumber) masterStudentsMap.set(s.rollNumber.toUpperCase().trim(), s);
-      }
-    }
-    if (Array.isArray(json.passengers)) {
-      masterPassengers = json.passengers;
-      for (const p of json.passengers) {
-        if (p.rollNumber) masterStudentsMap.set(p.rollNumber.toUpperCase().trim(), p);
-      }
-    }
-    if (Array.isArray(json.routes)) {
-      masterRoutes = json.routes;
-    }
-  }
-} catch (e) {
-  console.warn('Could not pre-load master transport database in bookingController:', e.message);
-}
+import { masterStudentsMap, masterPassengers } from '../utils/masterTransportDatabase.js';
 
 const generateBookingId = () => `HITAM-PASS-${Date.now().toString().slice(-6)}-${Math.floor(1000 + Math.random() * 9000)}`;
 
