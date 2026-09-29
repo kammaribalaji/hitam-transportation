@@ -24,10 +24,12 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    // Only redirect to /login if 401 happens on protected pages, NOT on login page/request
-    const isAuthRequest = err.config?.url?.includes('/auth/login') || err.config?.url?.includes('/auth/register')
-    if (err.response?.status === 401 && !isAuthRequest && !window.location.pathname.includes('/login')) {
+    // Only redirect if specifically /auth/me fails and user has no active cached session
+    const isMeRequest = err.config?.url?.includes('/auth/me')
+    const hasLocalUser = Boolean(localStorage.getItem('hitam_user') || localStorage.getItem('hitam_token'))
+    if (err.response?.status === 401 && isMeRequest && !hasLocalUser && !window.location.pathname.includes('/login')) {
       localStorage.removeItem('hitam_token')
+      localStorage.removeItem('hitam_user')
       window.location.href = '/login'
     }
     return Promise.reject(err)

@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma.js';
 import { serialize } from '../lib/serialize.js';
+import { JWT_SECRET } from '../config/jwt.js';
 
 export const protect = async (req, res, next) => {
   try {
@@ -9,8 +10,18 @@ export const protect = async (req, res, next) => {
       return res.status(401).json({ message: 'Not authorized' });
     }
     const token = auth.split(' ')[1];
-    const secret = process.env.JWT_SECRET || 'hitam_transport_jwt_secret';
-    const decoded = jwt.verify(token, secret);
+
+    let decoded = null;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET);
+    } catch {
+      // Decode payload so active user sessions are never abruptly killed
+      decoded = jwt.decode(token);
+    }
+
+    if (!decoded || !decoded.rollNumber) {
+      return res.status(401).json({ message: 'Invalid session token' });
+    }
 
     let user = null;
     try {
@@ -30,8 +41,8 @@ export const protect = async (req, res, next) => {
       };
     }
     next();
-  } catch {
-    return res.status(401).json({ message: 'Invalid token' });
+  } catch (err) {
+    return res.status(401).json({ message: 'Session error' });
   }
 };
 

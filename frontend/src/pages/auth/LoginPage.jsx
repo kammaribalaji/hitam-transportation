@@ -18,11 +18,41 @@ export default function LoginPage() {
   const [role, setRole] = useState('STUDENT')
   const [showPw, setShowPw] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
     defaultValues: { rollNumber: '', password: '' }
   })
 
-  const onRoleChange = (r) => setRole(r)
+  const onRoleChange = (r) => {
+    setRole(r)
+    if (r === 'STUDENT') {
+      setValue('rollNumber', '24E51A0557')
+      setValue('password', 'hitam123')
+    } else if (r === 'DRIVER') {
+      setValue('rollNumber', 'DRV012')
+      setValue('password', 'hitam123')
+    } else if (r === 'ADMIN') {
+      setValue('rollNumber', 'ADMIN001')
+      setValue('password', 'admin123')
+    }
+  }
+
+  const handleQuickLogin = async (rollNumber, password, targetRole) => {
+    setRole(targetRole)
+    setValue('rollNumber', rollNumber)
+    setValue('password', password)
+    setLoading(true)
+    try {
+      const user = await login(rollNumber.trim(), password)
+      toast.success(`Welcome back, ${user.name.split(' ')[0]}!`)
+      if (user.role === 'ADMIN') navigate('/admin')
+      else if (user.role === 'DRIVER') navigate('/driver')
+      else navigate('/student')
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Login failed. Please check credentials.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -88,12 +118,53 @@ export default function LoginPage() {
           </div>
 
           <h2 className="text-xl sm:text-2xl font-black text-gray-900 mb-1">Welcome Back!</h2>
-          <p className="text-gray-500 text-xs sm:text-sm mb-5 sm:mb-6">Enter your credentials to access the transport portal</p>
+          <p className="text-gray-500 text-xs sm:text-sm mb-4">Enter your credentials to access the transport portal</p>
+
+          {/* Quick Demo Login 1-Click Buttons */}
+          <div className="mb-5 p-3 rounded-2xl bg-emerald-50/80 border border-emerald-200">
+            <span className="block text-[10px] font-black text-emerald-900 uppercase tracking-wider mb-2">
+              ⚡ 1-Click Demo Logins:
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('ADMIN001', 'admin123', 'ADMIN')}
+                className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-emerald-600 hover:text-white border border-emerald-200 text-slate-800 text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 justify-center"
+              >
+                <ShieldCheck size={13} className="text-emerald-600 group-hover:text-white" />
+                <span>Admin Portal</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('DRV012', 'hitam123', 'DRIVER')}
+                className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-emerald-600 hover:text-white border border-emerald-200 text-slate-800 text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 justify-center"
+              >
+                <UserCheck size={13} className="text-emerald-600 group-hover:text-white" />
+                <span>Driver (Route 12)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('24E51A0557', 'hitam123', 'STUDENT')}
+                className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-emerald-600 hover:text-white border border-emerald-200 text-slate-800 text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 justify-center"
+              >
+                <GraduationCap size={13} className="text-emerald-600 group-hover:text-white" />
+                <span>Student (24E51A...)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('23E51A0501', 'hitam123', 'STUDENT')}
+                className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-emerald-600 hover:text-white border border-emerald-200 text-slate-800 text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 justify-center"
+              >
+                <GraduationCap size={13} className="text-emerald-600 group-hover:text-white" />
+                <span>Student (23E51A...)</span>
+              </button>
+            </div>
+          </div>
 
           {/* Role selector */}
-          <div className="flex gap-1.5 sm:gap-2 p-1 bg-gray-100 rounded-xl mb-5 w-full">
+          <div className="flex gap-1.5 sm:gap-2 p-1 bg-gray-100 rounded-xl mb-4 w-full">
             {ROLES.map(({ value, label, icon: Icon }) => (
-              <button key={value} onClick={() => onRoleChange(value)}
+              <button key={value} type="button" onClick={() => onRoleChange(value)}
                 className={`flex-1 flex items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all ${role === value ? 'bg-[#40A047] text-white shadow-md' : 'text-gray-600 hover:text-gray-900'}`}>
                 <Icon size={14} className="shrink-0" />
                 <span className="truncate">{label}</span>
@@ -111,20 +182,25 @@ export default function LoginPage() {
                 <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input {...register('rollNumber', { required: 'Required' })}
                   className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#40A047]/30 focus:border-[#40A047] transition-all"
-                  placeholder={role === 'STUDENT' ? 'e.g. 24E51A0557' : role === 'DRIVER' ? 'e.g. DRV001' : 'e.g. ADMIN001'} />
+                  placeholder={role === 'STUDENT' ? 'e.g. 24E51A0557' : role === 'DRIVER' ? 'e.g. DRV012' : 'e.g. ADMIN001'} />
               </div>
               {errors.rollNumber && <p className="text-red-500 text-xs mt-1">{errors.rollNumber.message}</p>}
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Password</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-gray-600">Password</label>
+                <span className="text-[10px] text-emerald-700 font-extrabold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  Default: hitam123
+                </span>
+              </div>
               <div className="relative">
                 <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input {...register('password', { required: 'Required' })}
                   type={showPw ? 'text' : 'password'}
                   className="w-full pl-10 pr-11 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#40A047]/30 focus:border-[#40A047] transition-all"
-                  placeholder="Enter your password" />
+                  placeholder="Enter your password (e.g. hitam123)" />
                 <button type="button" onClick={() => setShowPw(!showPw)}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
