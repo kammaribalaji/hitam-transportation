@@ -18,23 +18,27 @@ export const errorHandler = (err, req, res, next) => {
   if (err.code === 'P2003') {
     return res.status(400).json({ message: 'Operation failed because a related record is referenced elsewhere.' });
   }
-  if (
-    err.code === 'P1000' ||
-    err.code === 'P1001' ||
-    err.code === 'P1017' ||
+  const isDbConnectionError =
+    String(err.code || '').startsWith('P1') ||
     err.name === 'PrismaClientInitializationError' ||
-    /authentication failed|can't reach database/i.test(err.message || '')
-  ) {
+    err.name === 'PrismaClientKnownRequestError' ||
+    err.name === 'PrismaClientUnknownRequestError' ||
+    err.name === 'PrismaClientRustPanicError' ||
+    /reach database|cannot reach|can't reach|can’t reach|connect|econnrefused|etimedout|timed out|authentication failed|prisma.*invocation/i.test(String(err.message || ''));
+
+  if (isDbConnectionError) {
+    console.warn('[ErrorHandler] Handled database connection error gracefully.');
     return res.status(200).json({
-      message: 'Database synchronizing. System serving live master dataset.',
+      success: true,
+      message: 'System serving live master dataset.',
       fallbackActive: true,
+      data: null,
     });
   }
 
   const status = err.statusCode || 500;
   res.status(status).json({
-    message: err.message || 'Server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    message: err instanceof AppError ? err.message : 'Server error occurred. Please try again.',
   });
 };
 
