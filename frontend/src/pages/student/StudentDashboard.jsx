@@ -171,7 +171,7 @@ export default function StudentDashboard() {
         </div>
 
         <button
-          onClick={() => navigate('/student/tracking')}
+          onClick={() => navigate('/student/find-bus')}
           className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-500 hover:to-green-400 text-white font-black text-xs sm:text-sm shadow-lg shadow-green-700/30 flex items-center justify-center gap-2 transition-all shrink-0 active:scale-95"
         >
           <Search size={15} />

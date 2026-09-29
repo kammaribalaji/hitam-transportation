@@ -4,15 +4,16 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../hooks/useAuth.js'
 import {
   LayoutDashboard, Armchair, CreditCard, QrCode, MapPin, Phone,
-  Bell, User, LogOut, Menu, X, Bus, ChevronRight
+  Bell, User, LogOut, Menu, X, Bus, ChevronRight, Search
 } from 'lucide-react'
 
 const navItems = [
   { to: '/student', icon: LayoutDashboard, label: 'Dashboard', end: true },
+  { to: '/student/find-bus', icon: Search, label: 'Where Is My Bus' },
+  { to: '/student/tracking', icon: MapPin, label: 'Live Tracking' },
   { to: '/student/book-seat', icon: Armchair, label: 'Book Seat' },
   { to: '/student/payment', icon: CreditCard, label: 'Payments' },
   { to: '/student/my-pass', icon: QrCode, label: 'My Pass' },
-  { to: '/student/tracking', icon: MapPin, label: 'Live Tracking' },
   { to: '/student/contacts', icon: Phone, label: 'Contacts' },
   { to: '/student/notifications', icon: Bell, label: 'Notifications' },
   { to: '/student/profile', icon: User, label: 'Profile' },
