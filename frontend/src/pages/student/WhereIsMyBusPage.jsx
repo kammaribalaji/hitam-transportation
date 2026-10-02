@@ -72,7 +72,7 @@ export default function WhereIsMyBusPage() {
 
   useEffect(() => {
     if (debouncedFrom.length >= 1 && !fromStop) {
-      api.get(`/wimb/stops/search?q=${encodeURIComponent(debouncedFrom)}`)
+      api.get(/wimb/stops/search?q=)
         .then(res => setFromSuggestions(res.data))
         .catch(console.error);
     } else {
@@ -82,7 +82,7 @@ export default function WhereIsMyBusPage() {
 
   useEffect(() => {
     if (debouncedTo.length >= 1 && !toStop) {
-      api.get(`/wimb/stops/search?q=${encodeURIComponent(debouncedTo)}`)
+      api.get(/wimb/stops/search?q=)
         .then(res => setToSuggestions(res.data))
         .catch(console.error);
     } else {
@@ -92,7 +92,7 @@ export default function WhereIsMyBusPage() {
 
   useEffect(() => {
     if (debouncedBus.length >= 1) {
-      api.get(`/wimb/buses/search?q=${encodeURIComponent(debouncedBus)}`)
+      api.get(/wimb/buses/search?q=)
         .then(res => setBusSearchResults(res.data))
         .catch(console.error);
     } else {
@@ -118,13 +118,13 @@ export default function WhereIsMyBusPage() {
     const newHistory = [{ from: fromQuery, to: toQuery }, ...searchHistory.filter(h => h.from !== fromQuery || h.to !== toQuery)].slice(0, 5);
     setSearchHistory(newHistory);
     localStorage.setItem('hitam_bus_search_history', JSON.stringify(newHistory));
-    navigate(`/student/bus-results?from=${encodeURIComponent(fromQuery)}&to=${encodeURIComponent(toQuery)}`);
+    navigate(/student/bus-results?from=&to=);
   };
 
   const handleSelectBus = async (busId) => {
     setIsLoading(true);
     try {
-      const res = await api.get(`/wimb/buses/${busId}`);
+      const res = await api.get(/wimb/buses/);
       setSelectedBusDetails(res.data);
       setSelectedBus(res.data.bus);
     } catch (err) {
@@ -136,7 +136,7 @@ export default function WhereIsMyBusPage() {
   };
 
   const handleOpenLiveTracking = (tripId) => {
-    navigate(`/student/live-tracking?tripId=${tripId || ''}`);
+    navigate(/student/live-tracking?tripId=);
   };
 
   return (
@@ -347,7 +347,7 @@ export default function WhereIsMyBusPage() {
                 <div className="relative border-l-2 border-dashed border-green-200 ml-4 space-y-8 py-2">
                   {selectedBusDetails.route?.RouteStop?.map((stop, idx, arr) => (
                     <div key={stop.id} className="relative pl-6">
-                      <div className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm ${idx === 0 ? 'bg-green-500' : idx === arr.length - 1 ? 'bg-red-500' : 'bg-gray-300'}`}></div>
+                      <div className={bsolute -left-[9px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm }></div>
                       
                       <div className="flex flex-col -mt-1">
                         <span className="font-bold text-gray-800">{stop.name}</span>
