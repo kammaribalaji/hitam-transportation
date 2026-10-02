@@ -40,6 +40,10 @@ export default function WhereIsMyBusPage() {
   const [busSearchResults, setBusSearchResults] = useState([]);
   const [showBusDropdown, setShowBusDropdown] = useState(false);
 
+  const [stopSearchQuery, setStopSearchQuery] = useState('');
+  const [stopSearchResults, setStopSearchResults] = useState([]);
+  const [showStopSearchDropdown, setShowStopSearchDropdown] = useState(false);
+
   const [error, setError] = useState(null);
 
   const [searchHistory, setSearchHistory] = useState(() => {
@@ -48,19 +52,22 @@ export default function WhereIsMyBusPage() {
     } catch { return []; }
   });
 
-  const debouncedFrom = useDebounce(fromQuery, 300);
-  const debouncedTo = useDebounce(toQuery, 300);
-  const debouncedBus = useDebounce(busSearchQuery, 300);
+  const debouncedFrom = useDebounce(fromQuery, 150);
+  const debouncedTo = useDebounce(toQuery, 150);
+  const debouncedBus = useDebounce(busSearchQuery, 150);
+  const debouncedStopSearch = useDebounce(stopSearchQuery, 150);
 
   const fromRef = useRef(null);
   const toRef = useRef(null);
   const busSearchRef = useRef(null);
+  const stopSearchRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (fromRef.current && !fromRef.current.contains(e.target)) setShowFromDropdown(false);
       if (toRef.current && !toRef.current.contains(e.target)) setShowToDropdown(false);
       if (busSearchRef.current && !busSearchRef.current.contains(e.target)) setShowBusDropdown(false);
+      if (stopSearchRef.current && !stopSearchRef.current.contains(e.target)) setShowStopSearchDropdown(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -96,6 +103,16 @@ export default function WhereIsMyBusPage() {
     }
   }, [debouncedBus]);
 
+  useEffect(() => {
+    if (debouncedStopSearch.length >= 1) {
+      api.get(`/wimb/stops/search?q=${encodeURIComponent(debouncedStopSearch)}`)
+        .then(res => setStopSearchResults(res.data))
+        .catch(console.error);
+    } else {
+      setStopSearchResults([]);
+    }
+  }, [debouncedStopSearch]);
+
   const handleSwap = () => {
     const tempQ = fromQuery;
     const tempS = fromStop;
@@ -121,6 +138,10 @@ export default function WhereIsMyBusPage() {
     navigate(`/student/live-tracking?tripId=${busId}`); 
   };
 
+  const handleSelectStopSearch = (stopName) => {
+    navigate(`/student/bus-results?stop=${encodeURIComponent(stopName)}`); 
+  };
+
   const clearHistory = () => {
     setSearchHistory([]);
     localStorage.removeItem('hitam_bus_search_history');
@@ -138,22 +159,7 @@ export default function WhereIsMyBusPage() {
   return (
     <div className="min-h-screen bg-[#f4f7f6]">
       
-      {/* Top Header */}
-      <div className="bg-white border-b border-gray-200 px-4 md:px-6 py-3 flex items-center justify-between">
-        <div className="text-gray-500 font-medium text-sm md:text-base hidden sm:block">Student Portal</div>
-        <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3 md:gap-4">
-          <div className="bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-[10px] md:text-xs font-bold flex items-center gap-1.5 md:gap-2 whitespace-nowrap">
-            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-            Transport Fee: Paid
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="text-gray-400 hover:text-gray-600"><Bell className="w-4 h-4 md:w-5 md:h-5"/></button>
-            <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-[#1b712c] text-white flex items-center justify-center font-bold text-xs md:text-sm">
-              {user?.name?.charAt(0) || 'U'}
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
         
@@ -298,40 +304,80 @@ export default function WhereIsMyBusPage() {
               <div className="h-px bg-gray-200 flex-1"></div>
             </div>
 
-            {/* BUS NO / ROUTE NO SEARCH */}
-            <div className="relative w-full" ref={busSearchRef}>
-              <label className="text-[10px] md:text-xs font-bold text-gray-500 mb-1.5 md:mb-2 block uppercase tracking-wide">BUS NO. / ROUTE NO.</label>
-              <div className="flex items-center bg-white border border-gray-300 rounded-xl md:rounded-2xl p-2.5 md:p-3 focus-within:border-[#2f8836] focus-within:ring-1 focus-within:ring-[#2f8836] transition">
-                <Bus className="w-4 h-4 md:w-5 md:h-5 text-gray-400 mr-2 md:mr-3 shrink-0" />
-                <input 
-                  type="text"
-                  placeholder="e.g. 1215, Route 12, TS 09 UB 1212..."
-                  className="bg-transparent outline-none w-full font-medium text-gray-800 placeholder-gray-400 text-sm md:text-base"
-                  value={busSearchQuery}
-                  onChange={(e) => {
-                    setBusSearchQuery(e.target.value);
-                    setShowBusDropdown(true);
-                  }}
-                  onFocus={() => setShowBusDropdown(true)}
-                />
+            {/* QUICK SEARCH GRID */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-4">
+              
+              {/* LIVE BUS STOP SEARCH */}
+              <div className="relative w-full" ref={stopSearchRef}>
+                <label className="text-[10px] md:text-xs font-bold text-gray-500 mb-1.5 md:mb-2 block uppercase tracking-wide">LIVE BUS STOP POSITION</label>
+                <div className="flex items-center bg-white border border-gray-300 rounded-xl md:rounded-2xl p-2.5 md:p-3 focus-within:border-[#2f8836] focus-within:ring-1 focus-within:ring-[#2f8836] transition">
+                  <MapPin className="w-4 h-4 md:w-5 md:h-5 text-gray-400 mr-2 md:mr-3 shrink-0" />
+                  <input 
+                    type="text"
+                    placeholder="e.g. JNTU, KPHB..."
+                    className="bg-transparent outline-none w-full font-medium text-gray-800 placeholder-gray-400 text-sm md:text-base"
+                    value={stopSearchQuery}
+                    onChange={(e) => {
+                      setStopSearchQuery(e.target.value);
+                      setShowStopSearchDropdown(true);
+                    }}
+                    onFocus={() => setShowStopSearchDropdown(true)}
+                  />
+                </div>
+                <AnimatePresence>
+                  {showStopSearchDropdown && stopSearchResults.length > 0 && (
+                    <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                      {stopSearchResults.map(stop => (
+                        <div key={stop.id || stop.name} onClick={() => { setStopSearchQuery(''); setShowStopSearchDropdown(false); handleSelectStopSearch(stop.name); }} className="p-3 md:p-4 hover:bg-green-50 cursor-pointer border-b border-gray-50 flex items-center gap-3 md:gap-4 transition-colors">
+                          <div className="bg-green-100 p-2 rounded-lg shrink-0">
+                            <MapPin className="w-4 h-4 md:w-5 md:h-5 text-[#2f8836]" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-gray-800 text-sm md:text-base">{stop.name}</span>
+                            <span className="text-xs md:text-sm text-gray-500 font-medium">View live buses at this stop</span>
+                          </div>
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-              <AnimatePresence>
-                {showBusDropdown && busSearchResults.length > 0 && (
-                  <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
-                    {busSearchResults.map(bus => (
-                      <div key={bus.id} onClick={() => { setBusSearchQuery(''); setShowBusDropdown(false); handleSelectBus(bus.id); }} className="p-3 md:p-4 hover:bg-green-50 cursor-pointer border-b border-gray-50 flex items-center gap-3 md:gap-4 transition-colors">
-                        <div className="bg-green-100 p-2 rounded-lg shrink-0">
-                          <Bus className="w-4 h-4 md:w-5 md:h-5 text-[#2f8836]" />
+
+              {/* BUS NO / ROUTE NO SEARCH */}
+              <div className="relative w-full" ref={busSearchRef}>
+                <label className="text-[10px] md:text-xs font-bold text-gray-500 mb-1.5 md:mb-2 block uppercase tracking-wide">BUS NO. / ROUTE NO.</label>
+                <div className="flex items-center bg-white border border-gray-300 rounded-xl md:rounded-2xl p-2.5 md:p-3 focus-within:border-[#2f8836] focus-within:ring-1 focus-within:ring-[#2f8836] transition">
+                  <Bus className="w-4 h-4 md:w-5 md:h-5 text-gray-400 mr-2 md:mr-3 shrink-0" />
+                  <input 
+                    type="text"
+                    placeholder="e.g. 1215, Route 12, TS 09 UB 1212..."
+                    className="bg-transparent outline-none w-full font-medium text-gray-800 placeholder-gray-400 text-sm md:text-base"
+                    value={busSearchQuery}
+                    onChange={(e) => {
+                      setBusSearchQuery(e.target.value);
+                      setShowBusDropdown(true);
+                    }}
+                    onFocus={() => setShowBusDropdown(true)}
+                  />
+                </div>
+                <AnimatePresence>
+                  {showBusDropdown && busSearchResults.length > 0 && (
+                    <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                      {busSearchResults.map(bus => (
+                        <div key={bus.id} onClick={() => { setBusSearchQuery(''); setShowBusDropdown(false); handleSelectBus(bus.id); }} className="p-3 md:p-4 hover:bg-green-50 cursor-pointer border-b border-gray-50 flex items-center gap-3 md:gap-4 transition-colors">
+                          <div className="bg-green-100 p-2 rounded-lg shrink-0">
+                            <Bus className="w-4 h-4 md:w-5 md:h-5 text-[#2f8836]" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-gray-800 text-sm md:text-base">{bus.busNumber}</span>
+                            <span className="text-xs md:text-sm text-gray-500 font-medium">Route {bus.routeId} • {bus.routeName}</span>
+                          </div>
                         </div>
-                        <div className="flex flex-col">
-                          <span className="font-bold text-gray-800 text-sm md:text-base">{bus.busNumber}</span>
-                          <span className="text-xs md:text-sm text-gray-500 font-medium">Route {bus.routeId} • {bus.routeName}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
         </div>

@@ -15,6 +15,7 @@ export default function BusResultsPage() {
   
   const from = searchParams.get('from');
   const to = searchParams.get('to');
+  const stop = searchParams.get('stop');
   const busId = searchParams.get('busId');
 
   const [buses, setBuses] = useState([]);
@@ -31,6 +32,9 @@ export default function BusResultsPage() {
         if (from && to) {
           const res = await api.get(`/wimb/buses/between?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
           setBuses(res.data);
+        } else if (stop) {
+          const res = await api.get(`/wimb/buses/stop?name=${encodeURIComponent(stop)}`);
+          setBuses(res.data);
         } else if (busId) {
           const res = await api.get(`/wimb/buses/${busId}`);
           setBuses(res.data ? [res.data] : []);
@@ -46,7 +50,7 @@ export default function BusResultsPage() {
     };
 
     fetchBuses();
-  }, [from, to, busId]);
+  }, [from, to, stop, busId]);
 
   const handleTrackLive = (busId) => {
     navigate(`/student/live-tracking?tripId=${busId}`);
@@ -78,6 +82,9 @@ export default function BusResultsPage() {
               <div className="text-xs text-gray-500 font-medium">
                 {from} <span className="mx-1">→</span> {to}
               </div>
+            )}
+            {stop && (
+              <div className="text-xs text-gray-500 font-medium">Buses at {stop}</div>
             )}
             {busId && (
               <div className="text-xs text-gray-500 font-medium">Direct Bus View</div>
@@ -181,14 +188,14 @@ export default function BusResultsPage() {
 
               <div className="p-6 overflow-y-auto flex-1">
                 <div className="relative border-l-2 border-gray-200 ml-4 space-y-8 py-2">
-                  {selectedBusDetails.route?.RouteStop?.map((stop, idx, arr) => (
-                    <div key={stop.id} className="relative pl-6">
-                      <div className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm ${stop.name === from || stop.name === to ? 'bg-green-600' : 'bg-gray-300'}`}></div>
+                  {selectedBusDetails.route?.RouteStop?.map((s, idx, arr) => (
+                    <div key={s.id} className="relative pl-6">
+                      <div className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm ${s.name === from || s.name === to || s.name === stop ? 'bg-green-600' : 'bg-gray-300'}`}></div>
                       <div className="flex flex-col -mt-1">
-                        <span className="font-bold text-gray-800">{stop.name}</span>
-                        {stop.pickupTime && (
+                        <span className="font-bold text-gray-800">{s.name}</span>
+                        {s.pickupTime && (
                           <span className="text-xs font-medium text-gray-500 flex items-center gap-1 mt-1">
-                            <Clock className="w-3 h-3"/> {stop.pickupTime}
+                            <Clock className="w-3 h-3"/> {s.pickupTime}
                           </span>
                         )}
                       </div>
