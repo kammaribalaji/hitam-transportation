@@ -90,9 +90,7 @@ export const getMyBooking = async (req, res, next) => {
         ],
       },
     });
-  } catch (dbErr) {
-    console.warn('[getMyBooking] DB offline, serving from master dataset:', dbErr.message);
-  }
+  } catch (dbErr) { throw dbErr; }
 
   const masterInfo = masterStudentsMap.get(upper);
   const routeId = String(student?.assignedRouteId || passenger?.routeId || masterInfo?.routeId || booking?.routeId || '12');
@@ -404,3 +402,4 @@ export const cancelBooking = async (req, res, next) => {
 
 // DELETE /api/bookings/:bookingId — spec-alias for cancel.
 export const deleteBooking = cancelBooking;
+

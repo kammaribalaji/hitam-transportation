@@ -29,6 +29,7 @@ import hypegpsRoutes from './routes/hypegps.js';
 import studentRoutes from './routes/students.js';
 import passRoutes from './routes/pass.js';
 import importRoutes from './routes/import.js';
+import whereIsMyBusRoutes from './routes/where-is-my-bus.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -83,6 +84,7 @@ const registerRoutes = (prefix = '') => {
   app.use(`${prefix}/students`, studentRoutes);
   app.use(`${prefix}/pass`, passRoutes);
   app.use(`${prefix}/import`, importRoutes);
+  app.use(`${prefix}/wimb`, whereIsMyBusRoutes);
   app.get(`${prefix}/health`, (req, res) =>
     res.json({ status: 'ok', serverless: Boolean(process.env.VERCEL), timestamp: new Date().toISOString() })
   );

@@ -102,10 +102,7 @@ export const login = async (req, res, next) => {
           },
         });
       }
-    } catch (dbErr) {
-      console.warn('[Auth] Database offline or auth error — using instant master dataset fallback:', dbErr.message);
-      user = null;
-    }
+    } catch (dbErr) { throw dbErr; }
 
     // Master dataset / In-Memory Fail-Safe Fallback when DB is offline or credentials rotating
     if (!user) {
@@ -280,3 +277,4 @@ export const changePassword = async (req, res, next) => {
     next(err);
   }
 };
+
