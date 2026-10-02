@@ -32,7 +32,7 @@ export default function BusResultsPage() {
     const fetchBuses = async () => {
       try {
         setIsLoading(true);
-        const res = await api.get(/wimb/buses/between?from=&to=);
+        const res = await api.get(`/wimb/buses/between?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
         setBuses(res.data);
       } catch (err) {
         console.error(err);
@@ -46,7 +46,7 @@ export default function BusResultsPage() {
 
   const handleViewStops = async (busId) => {
     try {
-      const res = await api.get(/wimb/buses/);
+      const res = await api.get(`/wimb/buses/${busId}`);
       setSelectedBusDetails(res.data);
       setShowStopsModal(true);
     } catch (err) {
@@ -55,7 +55,7 @@ export default function BusResultsPage() {
   };
 
   const handleTrackLive = (busId) => {
-    navigate(/student/live-tracking?tripId=);
+    navigate(`/student/live-tracking?tripId=${busId}`);
   };
 
   return (
@@ -178,7 +178,7 @@ export default function BusResultsPage() {
               <div className="relative border-l-2 border-dashed border-green-200 ml-4 space-y-8 py-2">
                 {selectedBusDetails.route?.RouteStop?.map((stop, idx, arr) => (
                   <div key={stop.id} className="relative pl-6">
-                    <div className={bsolute -left-[9px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm }></div>
+                    <div className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm ${idx === 0 ? 'bg-green-500' : idx === arr.length - 1 ? 'bg-red-500' : 'bg-gray-300'}`}></div>
                     <div className="flex flex-col -mt-1">
                       <span className="font-bold text-gray-800">{stop.name}</span>
                       <span className="text-xs font-medium text-gray-500 mt-0.5">Stop {stop.stopOrder}</span>
