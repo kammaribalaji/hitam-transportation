@@ -1,0 +1,1 @@
+const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); async function main() { const stops = await prisma.routeStop.findMany({ where: { name: { startsWith: 'A', mode: 'insensitive' } }, distinct: ['name'], select: { name: true } }); console.log(stops); } main().catch(console.error).finally(() => prisma.$disconnect());

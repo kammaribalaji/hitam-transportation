@@ -7,6 +7,7 @@ import {
   ChevronRight, ChevronDown, ArrowRight, Bell, AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import BusResultsPage from './BusResultsPage';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -45,6 +46,8 @@ export default function WhereIsMyBusPage() {
   const [showStopSearchDropdown, setShowStopSearchDropdown] = useState(false);
 
   const [error, setError] = useState(null);
+
+  const [inlineResultsParams, setInlineResultsParams] = useState(null);
 
   const [searchHistory, setSearchHistory] = useState(() => {
     try {
@@ -131,7 +134,7 @@ export default function WhereIsMyBusPage() {
     const newHistory = [{ from: fromQuery, to: toQuery }, ...searchHistory.filter(h => h.from !== fromQuery || h.to !== toQuery)].slice(0, 5);
     setSearchHistory(newHistory);
     localStorage.setItem('hitam_bus_search_history', JSON.stringify(newHistory));
-    navigate(`/student/bus-results?from=${encodeURIComponent(fromQuery)}&to=${encodeURIComponent(toQuery)}`);
+    setInlineResultsParams({ from: fromQuery, to: toQuery });
   };
 
   const handleSelectBus = (busId) => {
@@ -139,7 +142,7 @@ export default function WhereIsMyBusPage() {
   };
 
   const handleSelectStopSearch = (stopName) => {
-    navigate(`/student/bus-results?stop=${encodeURIComponent(stopName)}`); 
+    setInlineResultsParams({ stop: stopName });
   };
 
   const clearHistory = () => {
@@ -381,6 +384,28 @@ export default function WhereIsMyBusPage() {
             </div>
           </div>
         </div>
+
+        {/* INLINE BUS RESULTS */}
+        {inlineResultsParams && (
+          <div className="w-full bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-6 md:mb-8 pb-4">
+            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+              <h2 className="font-bold text-gray-800 text-lg flex items-center gap-2">
+                <Bus className="w-5 h-5 text-[#2f8836]" /> Search Results
+              </h2>
+              <button onClick={() => setInlineResultsParams(null)} className="p-1 hover:bg-gray-200 rounded-full">
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <div className="max-h-[600px] overflow-y-auto w-full flex justify-center">
+              <BusResultsPage 
+                inlineFrom={inlineResultsParams.from} 
+                inlineTo={inlineResultsParams.to} 
+                inlineStop={inlineResultsParams.stop} 
+                inlineBusId={inlineResultsParams.busId} 
+              />
+            </div>
+          </div>
+        )}
 
         {/* BOTTOM CARDS ROW */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pb-8 md:pb-12">

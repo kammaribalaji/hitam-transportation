@@ -9,7 +9,7 @@ export const searchStops = async (req, res, next) => {
     // Search distinct stop names
     const stops = await prisma.routeStop.findMany({
       where: {
-        name: { startsWith: q, mode: 'insensitive' }
+        name: { contains: q, mode: 'insensitive' }
       },
       distinct: ['name'],
       select: {
@@ -45,9 +45,9 @@ export const searchBuses = async (req, res, next) => {
     const buses = await prisma.bus.findMany({
       where: {
         OR: [
-          { busNumber: { startsWith: q, mode: 'insensitive' } },
-          { routeName: { startsWith: q, mode: 'insensitive' } },
-          { routeId: { startsWith: q, mode: 'insensitive' } } // direct route match
+          { busNumber: { contains: q, mode: 'insensitive' } },
+          { routeName: { contains: q, mode: 'insensitive' } },
+          { routeId: { contains: q, mode: 'insensitive' } } // direct route match
         ]
       },
       take: 20

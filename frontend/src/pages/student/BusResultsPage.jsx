@@ -9,14 +9,14 @@ const api = axios.create({
   withCredentials: true
 });
 
-export default function BusResultsPage() {
+export default function BusResultsPage({ inlineFrom, inlineTo, inlineStop, inlineBusId }) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
-  const from = searchParams.get('from');
-  const to = searchParams.get('to');
-  const stop = searchParams.get('stop');
-  const busId = searchParams.get('busId');
+  const from = inlineFrom || searchParams.get('from');
+  const to = inlineTo || searchParams.get('to');
+  const stop = inlineStop || searchParams.get('stop');
+  const busId = inlineBusId || searchParams.get('busId');
 
   const [buses, setBuses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -70,29 +70,31 @@ export default function BusResultsPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center">
       
-      {/* Header */}
-      <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
-          <button onClick={() => navigate('/student/where-is-my-bus')} className="p-2 hover:bg-gray-100 rounded-full transition text-gray-700">
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-          <div className="text-center">
-            <h1 className="font-bold text-gray-800 text-lg">Bus Results</h1>
-            {(from && to) && (
-              <div className="text-xs text-gray-500 font-medium">
-                {from} <span className="mx-1">→</span> {to}
-              </div>
-            )}
-            {stop && (
-              <div className="text-xs text-gray-500 font-medium">Buses at {stop}</div>
-            )}
-            {busId && (
-              <div className="text-xs text-gray-500 font-medium">Direct Bus View</div>
-            )}
+      {/* Header - Only show if not inline */}
+      {!inlineFrom && !inlineStop && !inlineBusId && (
+        <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-40">
+          <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
+            <button onClick={() => navigate('/student/where-is-my-bus')} className="p-2 hover:bg-gray-100 rounded-full transition text-gray-700">
+              <ArrowLeft className="w-6 h-6" />
+            </button>
+            <div className="text-center">
+              <h1 className="font-bold text-gray-800 text-lg">Bus Results</h1>
+              {(from && to) && (
+                <div className="text-xs text-gray-500 font-medium">
+                  {from} <span className="mx-1">→</span> {to}
+                </div>
+              )}
+              {stop && (
+                <div className="text-xs text-gray-500 font-medium">Buses at {stop}</div>
+              )}
+              {busId && (
+                <div className="text-xs text-gray-500 font-medium">Direct Bus View</div>
+              )}
+            </div>
+            <div className="w-10"></div>
           </div>
-          <div className="w-10"></div> {/* Spacer for centering */}
         </div>
-      </div>
+      )}
 
       <div className="max-w-3xl w-full p-4 space-y-4">
         
