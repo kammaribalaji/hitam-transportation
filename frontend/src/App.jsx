@@ -15,6 +15,7 @@ import PaymentPage from './pages/student/PaymentPage.jsx'
 import MyPassPage from './pages/student/MyPassPage.jsx'
 import LiveTrackingPage from './pages/student/LiveTrackingPage.jsx'
 import WhereIsMyBusPage from './pages/student/WhereIsMyBusPage.jsx'
+import BusResultsPage from './pages/student/BusResultsPage.jsx'
 import ContactsPage from './pages/student/ContactsPage.jsx'
 import NotificationsPage from './pages/student/NotificationsPage.jsx'
 import StudentProfilePage from './pages/student/StudentProfilePage.jsx'
@@ -83,7 +84,7 @@ function AppRoutes() {
         <Route path="payment" element={<PaymentPage />} />
         <Route path="my-pass" element={<MyPassPage />} />
         <Route path="find-bus" element={<WhereIsMyBusPage />} />
-        <Route path="where-is-my-bus" element={<WhereIsMyBusPage />} />
+        <Route path="where-is-my-bus" element={<WhereIsMyBusPage />} />`n        <Route path="bus-results" element={<BusResultsPage />} />
         <Route path="tracking" element={<LiveTrackingPage />} />
         <Route path="contacts" element={<ContactsPage />} />
         <Route path="notifications" element={<NotificationsPage />} />
@@ -145,3 +146,4 @@ export default function App() {
     </BrowserRouter>
   )
 }
+

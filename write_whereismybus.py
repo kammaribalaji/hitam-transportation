@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+﻿import sys
+with open('frontend/src/pages/student/WhereIsMyBusPage.jsx', 'w', encoding='utf-8') as f:
+    f.write(r'''import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -369,3 +371,5 @@ export default function WhereIsMyBusPage() {
     </div>
   );
 }
+'''
+    )
