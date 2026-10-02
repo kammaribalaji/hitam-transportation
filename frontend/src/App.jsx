@@ -84,7 +84,8 @@ function AppRoutes() {
         <Route path="payment" element={<PaymentPage />} />
         <Route path="my-pass" element={<MyPassPage />} />
         <Route path="find-bus" element={<WhereIsMyBusPage />} />
-        <Route path="where-is-my-bus" element={<WhereIsMyBusPage />} />`n        <Route path="bus-results" element={<BusResultsPage />} />
+        <Route path="where-is-my-bus" element={<WhereIsMyBusPage />} />
+        <Route path="bus-results" element={<BusResultsPage />} />
         <Route path="tracking" element={<LiveTrackingPage />} />
         <Route path="contacts" element={<ContactsPage />} />
         <Route path="notifications" element={<NotificationsPage />} />
@@ -146,4 +147,5 @@ export default function App() {
     </BrowserRouter>
   )
 }
+
 
