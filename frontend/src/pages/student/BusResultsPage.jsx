@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ChevronLeft, MapPin, Users, Compass, AlertCircle, ArrowDown } from 'lucide-react';
+import { Bus, MapPin, ArrowLeft, Clock, Navigation } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const api = axios.create({
@@ -10,10 +10,12 @@ const api = axios.create({
 });
 
 export default function BusResultsPage() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  
   const from = searchParams.get('from');
   const to = searchParams.get('to');
+  const busId = searchParams.get('busId');
 
   const [buses, setBuses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,176 +25,189 @@ export default function BusResultsPage() {
   const [showStopsModal, setShowStopsModal] = useState(false);
 
   useEffect(() => {
-    if (!from || !to) {
-      setError('Invalid search parameters.');
-      setIsLoading(false);
-      return;
-    }
-
     const fetchBuses = async () => {
       try {
         setIsLoading(true);
-        const res = await api.get(/wimb/buses/between?from=&to=);
-        setBuses(res.data);
+        if (from && to) {
+          const res = await api.get(`/wimb/buses/between?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+          setBuses(res.data);
+        } else if (busId) {
+          const res = await api.get(`/wimb/buses/${busId}`);
+          setBuses(res.data ? [res.data] : []);
+        } else {
+          setError('No search parameters provided.');
+        }
       } catch (err) {
-        console.error(err);
-        setError('Unable to load buses. Please try again.');
+        console.error('Error fetching buses:', err);
+        setError('Failed to load buses. Please try again later.');
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchBuses();
-  }, [from, to]);
+  }, [from, to, busId]);
+
+  const handleTrackLive = (busId) => {
+    navigate(`/student/live-tracking?tripId=${busId}`);
+  };
 
   const handleViewStops = async (busId) => {
     try {
-      const res = await api.get(/wimb/buses/);
+      const res = await api.get(`/wimb/buses/${busId}`);
       setSelectedBusDetails(res.data);
       setShowStopsModal(true);
     } catch (err) {
-      console.error('Failed to load stops');
+      console.error(err);
+      alert("Failed to load bus details.");
     }
   };
 
-  const handleTrackLive = (busId) => {
-    navigate(/student/live-tracking?tripId=);
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
-      <div className="bg-[#40A047] text-white p-4 flex items-center sticky top-0 z-30 shadow-md">
-        <button onClick={() => navigate('/student/where-is-my-bus')} className="p-1 mr-3 hover:bg-white/10 rounded-full transition">
-          <ChevronLeft className="w-6 h-6" />
-        </button>
-        <h1 className="text-xl font-bold">Buses Between Stops</h1>
-      </div>
-
-      <div className="bg-white p-5 shadow-sm border-b border-gray-100">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-            <span className="font-bold text-gray-800">{from}</span>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center">
+      
+      {/* Header */}
+      <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
+          <button onClick={() => navigate('/student/where-is-my-bus')} className="p-2 hover:bg-gray-100 rounded-full transition text-gray-700">
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <div className="text-center">
+            <h1 className="font-bold text-gray-800 text-lg">Bus Results</h1>
+            {(from && to) && (
+              <div className="text-xs text-gray-500 font-medium">
+                {from} <span className="mx-1">→</span> {to}
+              </div>
+            )}
+            {busId && (
+              <div className="text-xs text-gray-500 font-medium">Direct Bus View</div>
+            )}
           </div>
-          <div className="ml-[5px] w-0.5 h-4 bg-gray-300"></div>
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span className="font-bold text-gray-800">{to}</span>
-          </div>
+          <div className="w-10"></div> {/* Spacer for centering */}
         </div>
       </div>
 
-      <div className="p-4">
+      <div className="max-w-3xl w-full p-4 space-y-4">
+        
         {isLoading ? (
-          <div className="space-y-4">
-            <p className="text-sm text-gray-500 font-medium animate-pulse">Finding available buses...</p>
-            {[1, 2].map(i => (
-              <div key={i} className="bg-white h-40 rounded-2xl animate-pulse shadow-sm border border-gray-100"></div>
-            ))}
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
+            <p className="mt-4 text-gray-500 font-medium animate-pulse">Finding available buses...</p>
           </div>
         ) : error ? (
-          <div className="bg-red-50 text-red-600 p-4 rounded-xl flex flex-col items-center justify-center text-center gap-3 border border-red-100 mt-10">
-            <AlertCircle className="w-8 h-8" />
-            <p className="font-medium">{error}</p>
-            <button onClick={() => window.location.reload()} className="mt-2 bg-red-100 text-red-700 px-4 py-2 rounded-lg font-bold hover:bg-red-200 transition">
-              Try Again
-            </button>
+          <div className="bg-red-50 text-red-700 p-4 rounded-xl text-center font-medium border border-red-100">
+            {error}
           </div>
         ) : buses.length === 0 ? (
-          <div className="text-center mt-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MapPin className="w-8 h-8 text-gray-400" />
+          <div className="bg-white p-8 rounded-2xl shadow-sm text-center border border-gray-100 flex flex-col items-center">
+            <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mb-4">
+              <Bus className="w-10 h-10 text-gray-300" />
             </div>
-            <h2 className="text-lg font-bold text-gray-800 mb-2">No buses available</h2>
-            <p className="text-gray-500 mb-6">There are no direct buses found between these stops.</p>
-            <button onClick={() => navigate('/student/where-is-my-bus')} className="bg-[#40A047] text-white px-6 py-2 rounded-lg font-bold shadow-md hover:bg-[#328538] transition">
-              Change Search
+            <h2 className="text-xl font-bold text-gray-800 mb-2">No Buses Found</h2>
+            <p className="text-gray-500 max-w-sm mx-auto">
+              There are currently no active buses operating on this specific route segment. 
+            </p>
+            <button onClick={() => navigate('/student/where-is-my-bus')} className="mt-6 bg-green-50 text-green-700 font-bold px-6 py-2 rounded-full hover:bg-green-100 transition">
+              Try Another Route
             </button>
           </div>
         ) : (
           <div className="space-y-4">
-            <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-2">{buses.length} Buses Available</h3>
+            <div className="text-sm font-bold text-gray-500 px-2">
+              FOUND {buses.length} {buses.length === 1 ? 'BUS' : 'BUSES'}
+            </div>
             
             {buses.map(bus => (
-              <div key={bus.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
-                <div className="p-4 border-b border-gray-50">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="bg-[#40A047] text-white text-xs font-bold px-2 py-1 rounded-md">ROUTE {bus.routeId}</span>
-                      <span className="text-sm font-bold text-gray-800">{bus.busNumber}</span>
-                    </div>
-                    <span className="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full">{bus.status}</span>
-                  </div>
-                  <p className="text-xs text-gray-500 font-medium truncate mb-3">{bus.routeName}</p>
-                  
-                  <div className="grid grid-cols-2 gap-y-3 mt-3">
-                    <div>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase">CURRENT STOP</p>
-                      <p className="text-sm font-bold text-gray-800">--</p>
+              <div key={bus.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:border-green-300 transition-colors">
+                
+                {/* Bus Header info */}
+                <div className="p-5 flex items-start justify-between">
+                  <div className="flex gap-4">
+                    <div className="bg-green-50 w-14 h-14 rounded-xl flex items-center justify-center shrink-0">
+                      <Bus className="w-7 h-7 text-green-700" />
                     </div>
                     <div>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase">NEXT STOP</p>
-                      <p className="text-sm font-bold text-gray-800">--</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase">ETA</p>
-                      <p className="text-sm font-bold text-gray-800 text-blue-600">-- min</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase">AVAILABLE SEATS</p>
-                      <div className="flex items-center gap-1">
-                        <Users className="w-3 h-3 text-orange-500" />
-                        <span className="text-sm font-bold text-gray-800">{Math.max(0, bus.capacity - (bus.bookedSeats||0))}</span>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h2 className="text-xl font-black text-gray-900">{bus.busNumber}</h2>
+                        <span className="bg-green-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                          Active
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-500 font-medium">
+                        Route {bus.routeId} • {bus.routeName}
                       </div>
                     </div>
                   </div>
+                  
+                  {bus.capacity && (
+                    <div className="text-right">
+                      <div className="text-xs font-bold text-gray-400 uppercase tracking-wide">Capacity</div>
+                      <div className="text-gray-800 font-medium text-sm">{bus.capacity} Seats</div>
+                    </div>
+                  )}
                 </div>
-                
-                <div className="flex divide-x divide-gray-100 bg-gray-50/50">
-                  <button onClick={() => handleViewStops(bus.id)} className="flex-1 py-3 text-sm font-bold text-gray-600 hover:bg-gray-100 transition flex items-center justify-center gap-2">
-                    <MapPin className="w-4 h-4" /> View Stops
+
+                <div className="px-5 pb-5 flex gap-3">
+                  <button onClick={() => handleViewStops(bus.id)} className="flex-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 border border-gray-200">
+                    <MapPin className="w-5 h-5" /> Stops
                   </button>
-                  <button onClick={() => handleTrackLive(bus.id)} className="flex-1 py-3 text-sm font-bold text-[#40A047] hover:bg-green-50 transition flex items-center justify-center gap-2">
-                    <Compass className="w-4 h-4" /> Track Live Bus
+                  <button onClick={() => handleTrackLive(bus.id)} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+                    <Navigation className="w-5 h-5" /> Track Live
                   </button>
                 </div>
               </div>
             ))}
           </div>
         )}
+
       </div>
 
+      {/* STOPS MODAL */}
       <AnimatePresence>
         {showStopsModal && selectedBusDetails && (
-          <motion.div initial={{opacity:0, y:100}} animate={{opacity:1, y:0}} exit={{opacity:0, y:100}} className="fixed inset-0 z-50 bg-white overflow-y-auto">
-            <div className="bg-[#40A047] text-white p-4 flex items-center sticky top-0 z-10 shadow-md">
-              <button onClick={() => setShowStopsModal(false)} className="p-1 mr-3 hover:bg-white/10 rounded-full transition">
-                <ArrowDown className="w-6 h-6" />
-              </button>
-              <div>
-                <h2 className="text-lg font-bold">Route {selectedBusDetails.bus.routeId} Stops</h2>
-                <p className="text-xs text-green-100">{selectedBusDetails.bus.busNumber}</p>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={() => setShowStopsModal(false)} className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"></motion.div>
+            <motion.div initial={{opacity:0, scale:0.95, y:20}} animate={{opacity:1, scale:1, y:0}} exit={{opacity:0, scale:0.95, y:20}} className="bg-white rounded-3xl w-full max-w-md max-h-[85vh] flex flex-col relative z-10 shadow-2xl overflow-hidden">
+              
+              <div className="p-6 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">{selectedBusDetails.busNumber} Stops</h3>
+                  <p className="text-sm text-gray-500 font-medium">Route {selectedBusDetails.routeId}</p>
+                </div>
+                <button onClick={() => setShowStopsModal(false)} className="bg-white text-gray-500 hover:text-gray-800 p-2 rounded-full shadow-sm">
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-            </div>
-            
-            <div className="p-6">
-              <div className="relative border-l-2 border-dashed border-green-200 ml-4 space-y-8 py-2">
-                {selectedBusDetails.route?.RouteStop?.map((stop, idx, arr) => (
-                  <div key={stop.id} className="relative pl-6">
-                    <div className={bsolute -left-[9px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm }></div>
-                    <div className="flex flex-col -mt-1">
-                      <span className="font-bold text-gray-800">{stop.name}</span>
-                      <span className="text-xs font-medium text-gray-500 mt-0.5">Stop {stop.stopOrder}</span>
+
+              <div className="p-6 overflow-y-auto flex-1">
+                <div className="relative border-l-2 border-gray-200 ml-4 space-y-8 py-2">
+                  {selectedBusDetails.route?.RouteStop?.map((stop, idx, arr) => (
+                    <div key={stop.id} className="relative pl-6">
+                      <div className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm ${stop.name === from || stop.name === to ? 'bg-green-600' : 'bg-gray-300'}`}></div>
+                      <div className="flex flex-col -mt-1">
+                        <span className="font-bold text-gray-800">{stop.name}</span>
+                        {stop.pickupTime && (
+                          <span className="text-xs font-medium text-gray-500 flex items-center gap-1 mt-1">
+                            <Clock className="w-3 h-3"/> {stop.pickupTime}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
-                {!selectedBusDetails.route?.RouteStop?.length && (
-                  <p className="text-sm text-gray-500">No stops defined for this route in the database.</p>
-                )}
+                  ))}
+                </div>
               </div>
-            </div>
-          </motion.div>
+
+              <div className="p-4 border-t border-gray-100 bg-white">
+                <button onClick={() => { setShowStopsModal(false); handleTrackLive(selectedBusDetails.id); }} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center gap-2">
+                  <Navigation className="w-5 h-5" /> Track Live Bus
+                </button>
+              </div>
+
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
+
     </div>
   );
 }

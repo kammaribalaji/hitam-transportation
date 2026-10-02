@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import sys
+with open('frontend/src/pages/student/WhereIsMyBusPage.jsx', 'w', encoding='utf-8') as f:
+    f.write(r'''import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth.js';
@@ -68,7 +70,7 @@ export default function WhereIsMyBusPage() {
 
   useEffect(() => {
     if (debouncedFrom.length >= 1 && !fromStop) {
-      api.get(`/wimb/stops/search?q=${encodeURIComponent(debouncedFrom)}`)
+      api.get(/wimb/stops/search?q=)
         .then(res => setFromSuggestions(res.data))
         .catch(console.error);
     } else {
@@ -78,7 +80,7 @@ export default function WhereIsMyBusPage() {
 
   useEffect(() => {
     if (debouncedTo.length >= 1 && !toStop) {
-      api.get(`/wimb/stops/search?q=${encodeURIComponent(debouncedTo)}`)
+      api.get(/wimb/stops/search?q=)
         .then(res => setToSuggestions(res.data))
         .catch(console.error);
     } else {
@@ -88,7 +90,7 @@ export default function WhereIsMyBusPage() {
 
   useEffect(() => {
     if (debouncedBus.length >= 1) {
-      api.get(`/wimb/buses/search?q=${encodeURIComponent(debouncedBus)}`)
+      api.get(/wimb/buses/search?q=)
         .then(res => setBusSearchResults(res.data))
         .catch(console.error);
     } else {
@@ -114,11 +116,11 @@ export default function WhereIsMyBusPage() {
     const newHistory = [{ from: fromQuery, to: toQuery }, ...searchHistory.filter(h => h.from !== fromQuery || h.to !== toQuery)].slice(0, 5);
     setSearchHistory(newHistory);
     localStorage.setItem('hitam_bus_search_history', JSON.stringify(newHistory));
-    navigate(`/student/bus-results?from=${encodeURIComponent(fromQuery)}&to=${encodeURIComponent(toQuery)}`);
+    navigate(/student/bus-results?from=&to=);
   };
 
   const handleSelectBus = (busId) => {
-    navigate(`/student/live-tracking?tripId=${busId}`); 
+    navigate(/student/live-tracking?tripId=); 
   };
 
   const clearHistory = () => {
@@ -399,3 +401,5 @@ export default function WhereIsMyBusPage() {
     </div>
   );
 }
+'''
+    )
