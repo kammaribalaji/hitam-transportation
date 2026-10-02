@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth.js';
 import {
-  Search, ArrowUpDown, Bus, MapPin, Clock, History, Navigation, X, 
-  ChevronRight, Compass, Users, User, Phone, CheckCircle2, AlertCircle
+  Search, ArrowRightLeft, Bus, MapPin, Clock, Star, X, 
+  ChevronRight, ChevronDown, ArrowRight, Bell
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -40,11 +40,7 @@ export default function WhereIsMyBusPage() {
   const [busSearchResults, setBusSearchResults] = useState([]);
   const [showBusDropdown, setShowBusDropdown] = useState(false);
 
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  
-  const [selectedBus, setSelectedBus] = useState(null);
-  const [selectedBusDetails, setSelectedBusDetails] = useState(null);
 
   const [searchHistory, setSearchHistory] = useState(() => {
     try {
@@ -121,251 +117,285 @@ export default function WhereIsMyBusPage() {
     navigate(/student/bus-results?from=&to=);
   };
 
-  const handleSelectBus = async (busId) => {
-    setIsLoading(true);
-    try {
-      const res = await api.get(/wimb/buses/);
-      setSelectedBusDetails(res.data);
-      setSelectedBus(res.data.bus);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to load bus details.');
-    } finally {
-      setIsLoading(false);
-    }
+  const handleSelectBus = (busId) => {
+    navigate(/student/live-tracking?tripId=); 
   };
 
-  const handleOpenLiveTracking = (tripId) => {
-    navigate(/student/live-tracking?tripId=);
+  const clearHistory = () => {
+    setSearchHistory([]);
+    localStorage.removeItem('hitam_bus_search_history');
   };
+
+  const popularRoutes = [
+    { from: 'Sangareddy', to: 'HITAM', route: 'R12' },
+    { from: 'Suchitra', to: 'HITAM', route: 'R15' },
+    { from: 'KPHB', to: 'HITAM', route: 'R5' },
+    { from: 'ECIL', to: 'HITAM', route: 'R18' },
+    { from: 'Miyapur', to: 'HITAM', route: 'R7' },
+    { from: 'Gachibowli', to: 'HITAM', route: 'R20' }
+  ];
 
   return (
-    <div className="max-w-md mx-auto bg-gray-50 min-h-screen pb-24 relative overflow-hidden">
-      <div className="bg-[#40A047] text-white p-4 flex items-center justify-between sticky top-0 z-30 shadow-md">
-        <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/student')} className="p-1 hover:bg-white/10 rounded-full transition">
-            <ChevronRight className="w-6 h-6 rotate-180" />
-          </button>
-          <h1 className="text-xl font-bold">Where is My Bus</h1>
+    <div className="min-h-screen bg-[#f4f7f6]">
+      
+      {/* Top Header Placeholder (to match image) */}
+      <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between hidden md:flex">
+        <div className="text-gray-500 font-medium">Student Portal</div>
+        <div className="flex items-center gap-4">
+          <div className="bg-green-50 text-green-700 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+            Transport Fee: Paid
+          </div>
+          <button className="text-gray-400 hover:text-gray-600"><Bell className="w-5 h-5"/></button>
+          <div className="w-8 h-8 rounded-full bg-[#1b712c] text-white flex items-center justify-center font-bold text-sm">
+            {user?.name?.charAt(0) || 'U'}
+          </div>
         </div>
       </div>
 
-      <div className="p-4 space-y-4 relative z-10">
+      <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
         
-        <div className="bg-white rounded-2xl shadow-sm p-4 relative border border-gray-100">
+        {/* Main Search Card */}
+        <div className="bg-white rounded-3xl shadow-sm overflow-visible">
           
-          <div className="relative mb-3" ref={fromRef}>
-            <label className="text-xs font-semibold text-gray-500 mb-1 block">FROM STOP</label>
-            <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg p-2 focus-within:border-[#40A047] focus-within:ring-1 focus-within:ring-[#40A047] transition">
-              <MapPin className="w-5 h-5 text-gray-400 mr-2" />
-              <input 
-                type="text"
-                placeholder="Search stop..."
-                className="bg-transparent outline-none w-full text-gray-800 font-medium"
-                value={fromQuery}
-                onChange={(e) => {
-                  setFromQuery(e.target.value);
-                  setFromStop(null);
-                  setShowFromDropdown(true);
-                }}
-                onFocus={() => setShowFromDropdown(true)}
-              />
-              {fromQuery && (
-                <button onClick={() => { setFromQuery(''); setFromStop(null); }}><X className="w-4 h-4 text-gray-400"/></button>
-              )}
+          {/* Hero Banner Area */}
+          <div className="bg-gradient-to-r from-[#eafaf0] to-[#d6f5e1] rounded-t-3xl p-8 md:p-12 relative overflow-hidden flex items-center">
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-2">
+                <Bus className="w-12 h-12 text-[#2f8836]" />
+                <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">Where is My Bus</h1>
+              </div>
+              <p className="text-gray-600 font-medium text-lg ml-[4.5rem]">Find your bus between college stops</p>
             </div>
-            <AnimatePresence>
-              {showFromDropdown && fromSuggestions.length > 0 && (
-                <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-100 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto">
-                  {fromSuggestions.map(stop => (
-                    <div key={stop.name} onClick={() => { setFromStop(stop); setFromQuery(stop.name); setShowFromDropdown(false); }} className="p-3 hover:bg-green-50 cursor-pointer border-b border-gray-50 flex flex-col">
-                      <span className="font-medium text-gray-800">{stop.name}</span>
-                      <span className="text-xs text-gray-500">Serves {stop.routes?.length || 1} route(s)</span>
-                    </div>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          <div className="absolute right-6 top-[88px] -translate-y-1/2 z-20">
-            <button onClick={handleSwap} className="bg-white border border-gray-200 shadow-sm p-2 rounded-full hover:bg-gray-50 active:scale-95 transition">
-              <ArrowUpDown className="w-4 h-4 text-[#40A047]" />
-            </button>
-          </div>
-
-          <div className="relative mb-4 mt-2" ref={toRef}>
-            <label className="text-xs font-semibold text-gray-500 mb-1 block">TO STOP</label>
-            <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg p-2 focus-within:border-[#40A047] focus-within:ring-1 focus-within:ring-[#40A047] transition">
-              <Navigation className="w-5 h-5 text-gray-400 mr-2" />
-              <input 
-                type="text"
-                placeholder="Search destination..."
-                className="bg-transparent outline-none w-full text-gray-800 font-medium"
-                value={toQuery}
-                onChange={(e) => {
-                  setToQuery(e.target.value);
-                  setToStop(null);
-                  setShowToDropdown(true);
-                }}
-                onFocus={() => setShowToDropdown(true)}
-              />
-              {toQuery && (
-                <button onClick={() => { setToQuery(''); setToStop(null); }}><X className="w-4 h-4 text-gray-400"/></button>
-              )}
+            {/* Background illustrations representation */}
+            <div className="absolute right-0 bottom-0 opacity-20 pointer-events-none hidden md:block">
+               <svg width="400" height="150" viewBox="0 0 400 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M50 150L150 50L250 150Z" fill="#40A047"/>
+                  <rect x="250" y="50" width="150" height="100" fill="#40A047"/>
+               </svg>
             </div>
-            <AnimatePresence>
-              {showToDropdown && toSuggestions.length > 0 && (
-                <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-100 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto">
-                  {toSuggestions.map(stop => (
-                    <div key={stop.name} onClick={() => { setToStop(stop); setToQuery(stop.name); setShowToDropdown(false); }} className="p-3 hover:bg-green-50 cursor-pointer border-b border-gray-50 flex flex-col">
-                      <span className="font-medium text-gray-800">{stop.name}</span>
-                      <span className="text-xs text-gray-500">Serves {stop.routes?.length || 1} route(s)</span>
-                    </div>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
 
-          <button onClick={handleFindBuses} disabled={isLoading} className="w-full bg-[#40A047] hover:bg-[#328538] text-white font-bold py-3 rounded-lg shadow-md transition active:scale-[0.98] disabled:opacity-70 flex items-center justify-center mt-6">
-            FIND BUSES
-          </button>
-        </div>
-
-        <div className="flex items-center gap-3 my-2 opacity-50">
-          <div className="h-px bg-gray-400 flex-1"></div>
-          <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">OR</span>
-          <div className="h-px bg-gray-400 flex-1"></div>
-        </div>
-
-        <div className="relative" ref={busSearchRef}>
-          <div className="flex items-center bg-white border border-gray-200 rounded-xl p-3 shadow-sm focus-within:border-[#40A047] focus-within:ring-1 focus-within:ring-[#40A047] transition">
-            <Search className="w-5 h-5 text-[#40A047] mr-3" />
-            <input 
-              type="text"
-              placeholder="Search Bus No. or Route No."
-              className="bg-transparent outline-none w-full font-medium text-gray-800 placeholder-gray-400"
-              value={busSearchQuery}
-              onChange={(e) => {
-                setBusSearchQuery(e.target.value);
-                setShowBusDropdown(true);
-              }}
-              onFocus={() => setShowBusDropdown(true)}
-            />
-          </div>
-          <AnimatePresence>
-            {showBusDropdown && busSearchResults.length > 0 && (
-              <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
-                {busSearchResults.map(bus => (
-                  <div key={bus.id} onClick={() => { setBusSearchQuery(''); setShowBusDropdown(false); handleSelectBus(bus.id); }} className="p-4 hover:bg-green-50 cursor-pointer border-b border-gray-50 flex items-center gap-4">
-                    <div className="bg-green-100 p-2 rounded-lg">
-                      <Bus className="w-5 h-5 text-[#40A047]" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-bold text-gray-800">{bus.busNumber}</span>
-                      <span className="text-sm text-gray-500 font-medium">Route {bus.routeId} • {bus.routeName}</span>
-                    </div>
+          <div className="p-6 md:p-8">
+            {/* FROM and TO Search row */}
+            <div className="flex flex-col md:flex-row items-center gap-4 relative">
+              
+              {/* FROM STOP */}
+              <div className="flex-1 w-full" ref={fromRef}>
+                <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wide">FROM STOP</label>
+                <div className="relative flex items-center bg-white border border-gray-300 rounded-xl p-3 focus-within:border-[#2f8836] focus-within:ring-1 focus-within:ring-[#2f8836] transition">
+                  <MapPin className="w-5 h-5 text-gray-400 mr-3 shrink-0" />
+                  <input 
+                    type="text"
+                    placeholder="Search start stop"
+                    className="bg-transparent outline-none w-full text-gray-800 font-medium text-base"
+                    value={fromQuery}
+                    onChange={(e) => {
+                      setFromQuery(e.target.value);
+                      setFromStop(null);
+                      setShowFromDropdown(true);
+                    }}
+                    onFocus={() => setShowFromDropdown(true)}
+                  />
+                  <div className="flex items-center gap-2 shrink-0">
+                    {fromQuery && (
+                      <button onClick={() => { setFromQuery(''); setFromStop(null); }} className="p-1 hover:bg-gray-100 rounded-full text-gray-400">
+                        <X className="w-4 h-4"/>
+                      </button>
+                    )}
+                    <div className="w-px h-5 bg-gray-200"></div>
+                    <ChevronDown className="w-4 h-4 text-gray-400" />
                   </div>
-                ))}
-              </motion.div>
+                </div>
+                
+                {/* FROM Suggestions */}
+                <AnimatePresence>
+                  {showFromDropdown && fromSuggestions.length > 0 && (
+                    <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full left-0 right-0 md:right-auto md:w-1/2 mt-1 bg-white border border-gray-100 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                      {fromSuggestions.map(stop => (
+                        <div key={stop.name} onClick={() => { setFromStop(stop); setFromQuery(stop.name); setShowFromDropdown(false); }} className="p-3 hover:bg-green-50 cursor-pointer border-b border-gray-50 flex flex-col">
+                          <span className="font-medium text-gray-800">{stop.name}</span>
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* SWAP BUTTON */}
+              <div className="shrink-0 flex items-center justify-center mt-6 md:mt-0 relative z-10 bg-[#f4f7f6] md:bg-white rounded-full p-1 md:p-0 border md:border-none border-gray-200">
+                <button onClick={handleSwap} className="bg-[#f0f9f3] border border-green-100 shadow-sm p-3 rounded-full hover:bg-green-100 active:scale-95 transition text-[#2f8836]">
+                  <ArrowRightLeft className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* TO STOP */}
+              <div className="flex-1 w-full" ref={toRef}>
+                <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wide">TO STOP</label>
+                <div className="relative flex items-center bg-white border border-gray-300 rounded-xl p-3 focus-within:border-[#2f8836] focus-within:ring-1 focus-within:ring-[#2f8836] transition">
+                  <MapPin className="w-5 h-5 text-gray-400 mr-3 shrink-0" />
+                  <input 
+                    type="text"
+                    placeholder="Search destination"
+                    className="bg-transparent outline-none w-full text-gray-800 font-medium text-base"
+                    value={toQuery}
+                    onChange={(e) => {
+                      setToQuery(e.target.value);
+                      setToStop(null);
+                      setShowToDropdown(true);
+                    }}
+                    onFocus={() => setShowToDropdown(true)}
+                  />
+                  <div className="flex items-center gap-2 shrink-0">
+                    {toQuery && (
+                      <button onClick={() => { setToQuery(''); setToStop(null); }} className="p-1 hover:bg-gray-100 rounded-full text-gray-400">
+                        <X className="w-4 h-4"/>
+                      </button>
+                    )}
+                    <div className="w-px h-5 bg-gray-200"></div>
+                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                  </div>
+                </div>
+                
+                {/* TO Suggestions */}
+                <AnimatePresence>
+                  {showToDropdown && toSuggestions.length > 0 && (
+                    <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full right-0 left-0 md:left-auto md:w-1/2 mt-1 bg-white border border-gray-100 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                      {toSuggestions.map(stop => (
+                        <div key={stop.name} onClick={() => { setToStop(stop); setToQuery(stop.name); setShowToDropdown(false); }} className="p-3 hover:bg-green-50 cursor-pointer border-b border-gray-50 flex flex-col">
+                          <span className="font-medium text-gray-800">{stop.name}</span>
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+            </div>
+
+            {error && (
+              <div className="text-red-500 text-sm mt-3 font-medium flex items-center gap-2">
+                <AlertCircle className="w-4 h-4"/> {error}
+              </div>
             )}
-          </AnimatePresence>
+
+            {/* FIND BUSES BUTTON */}
+            <button onClick={handleFindBuses} className="w-full bg-[#2f8836] hover:bg-[#256f2a] text-white font-bold py-4 rounded-xl shadow-md transition active:scale-[0.99] flex items-center justify-center gap-2 mt-6 text-lg">
+              <Search className="w-5 h-5" />
+              FIND BUSES
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </button>
+
+            {/* OR DIVIDER */}
+            <div className="flex items-center gap-4 my-8">
+              <div className="h-px bg-gray-200 flex-1"></div>
+              <span className="text-sm font-bold text-gray-400 uppercase tracking-wider">OR</span>
+              <div className="h-px bg-gray-200 flex-1"></div>
+            </div>
+
+            {/* BUS NO / ROUTE NO SEARCH */}
+            <div className="relative w-full" ref={busSearchRef}>
+              <label className="text-xs font-bold text-gray-500 mb-2 block uppercase tracking-wide">BUS NO. / ROUTE NO.</label>
+              <div className="flex items-center bg-white border border-gray-300 rounded-xl p-3 focus-within:border-[#2f8836] focus-within:ring-1 focus-within:ring-[#2f8836] transition">
+                <Bus className="w-5 h-5 text-gray-400 mr-3" />
+                <input 
+                  type="text"
+                  placeholder="e.g. 1215, Route 12, TS 09 UB 1212..."
+                  className="bg-transparent outline-none w-full font-medium text-gray-800 placeholder-gray-400 text-base"
+                  value={busSearchQuery}
+                  onChange={(e) => {
+                    setBusSearchQuery(e.target.value);
+                    setShowBusDropdown(true);
+                  }}
+                  onFocus={() => setShowBusDropdown(true)}
+                />
+              </div>
+              <AnimatePresence>
+                {showBusDropdown && busSearchResults.length > 0 && (
+                  <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                    {busSearchResults.map(bus => (
+                      <div key={bus.id} onClick={() => { setBusSearchQuery(''); setShowBusDropdown(false); handleSelectBus(bus.id); }} className="p-4 hover:bg-green-50 cursor-pointer border-b border-gray-50 flex items-center gap-4">
+                        <div className="bg-green-100 p-2 rounded-lg">
+                          <Bus className="w-5 h-5 text-[#2f8836]" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-gray-800">{bus.busNumber}</span>
+                          <span className="text-sm text-gray-500 font-medium">Route {bus.routeId} • {bus.routeName}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
 
-        {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium border border-red-100 flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
-            {error}
-          </div>
-        )}
-
-        {!selectedBus && searchHistory.length > 0 && (
-          <div className="mt-8">
-            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 px-1 flex items-center gap-2">
-              <History className="w-4 h-4" /> Recent Searches
-            </h3>
-            <div className="space-y-2">
-              {searchHistory.map((h, i) => (
-                <div key={i} onClick={() => { setFromQuery(h.from); setToQuery(h.to); }} className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between cursor-pointer hover:border-green-300 transition">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-gray-100 p-2 rounded-full"><Clock className="w-4 h-4 text-gray-500" /></div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold text-gray-800">{h.from} <span className="text-gray-400 mx-1">→</span> {h.to}</span>
+        {/* BOTTOM CARDS ROW */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
+          
+          {/* RECENT SEARCHES */}
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <div className="bg-green-700 text-white rounded-full p-1.5">
+                  <Clock className="w-4 h-4" />
+                </div>
+                <h2 className="font-bold text-gray-900 text-lg">Recent Searches</h2>
+              </div>
+              {searchHistory.length > 0 && (
+                <button onClick={clearHistory} className="text-green-700 font-bold text-sm hover:underline">Clear All</button>
+              )}
+            </div>
+            
+            <div className="space-y-1">
+              {searchHistory.length === 0 ? (
+                <div className="text-gray-400 text-sm py-4">No recent searches.</div>
+              ) : (
+                searchHistory.map((h, i) => (
+                  <div key={i} onClick={() => { setFromQuery(h.from); setToQuery(h.to); }} className="group flex items-center justify-between py-4 border-b border-gray-50 cursor-pointer hover:bg-gray-50 px-2 rounded-lg transition">
+                    <div className="flex items-center gap-3">
+                      <Clock className="w-5 h-5 text-gray-400" />
+                      <span className="text-sm font-medium text-gray-700">{h.from} <span className="text-gray-300 mx-1">→</span> {h.to}</span>
                     </div>
+                    <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-green-600 transition" />
                   </div>
-                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* POPULAR ROUTES */}
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <div className="text-yellow-500">
+                  <Star className="w-7 h-7 fill-current" />
+                </div>
+                <h2 className="font-bold text-gray-900 text-lg">Popular Routes</h2>
+              </div>
+              <button className="text-green-700 font-bold text-sm hover:underline">View All</button>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {popularRoutes.map((route, i) => (
+                <div key={i} onClick={() => { setFromQuery(route.from); setToQuery(route.to); }} className="border border-gray-100 rounded-xl p-4 flex items-center justify-between cursor-pointer hover:border-green-300 hover:shadow-sm transition group">
+                  <div className="flex items-center gap-2 text-xs font-bold text-gray-700">
+                    <span className="group-hover:text-green-700 transition">{route.from}</span>
+                    <span className="text-gray-300">→</span>
+                    <span className="group-hover:text-green-700 transition">{route.to}</span>
+                  </div>
+                  <div className="bg-[#e6f5ea] text-[#2f8836] text-[10px] font-black px-2 py-1 rounded-md">
+                    {route.route}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        )}
+
+        </div>
 
       </div>
-
-      <AnimatePresence>
-        {selectedBus && selectedBusDetails && (
-          <motion.div initial={{opacity:0, y:100}} animate={{opacity:1, y:0}} exit={{opacity:0, y:100}} className="fixed inset-0 z-50 bg-gray-50 overflow-y-auto pb-24">
-            <div className="bg-[#40A047] text-white p-4 flex items-center gap-3 sticky top-0 z-10 shadow-md">
-              <button onClick={() => setSelectedBus(null)} className="p-1 hover:bg-white/10 rounded-full transition">
-                <ChevronRight className="w-6 h-6 rotate-180" />
-              </button>
-              <div>
-                <h2 className="text-lg font-bold leading-tight">{selectedBus.busNumber}</h2>
-                <p className="text-sm text-green-100">Route {selectedBus.routeId} • {selectedBus.routeName}</p>
-              </div>
-            </div>
-
-            <div className="p-4 space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
-                  <div className="bg-blue-50 p-2 rounded-xl"><User className="w-5 h-5 text-blue-600"/></div>
-                  <div>
-                    <p className="text-xs text-gray-500 font-medium uppercase">DRIVER</p>
-                    <p className="text-sm font-bold text-gray-800">{selectedBus.driverName || 'Unassigned'}</p>
-                  </div>
-                </div>
-                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
-                  <div className="bg-orange-50 p-2 rounded-xl"><Users className="w-5 h-5 text-orange-600"/></div>
-                  <div>
-                    <p className="text-xs text-gray-500 font-medium uppercase">SEATS</p>
-                    <p className="text-sm font-bold text-gray-800">{selectedBus.capacity} Total</p>
-                  </div>
-                </div>
-              </div>
-
-              <button onClick={() => handleOpenLiveTracking(selectedBus.id)} className="w-full bg-black text-white font-bold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2 hover:bg-gray-800 transition active:scale-[0.98]">
-                <Compass className="w-5 h-5" />
-                OPEN LIVE TRACKING
-              </button>
-
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mt-4">
-                <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-5 flex items-center gap-2">
-                  <Navigation className="w-4 h-4 text-[#40A047]"/> COMPLETE ROUTE
-                </h3>
-                
-                <div className="relative border-l-2 border-dashed border-green-200 ml-4 space-y-8 py-2">
-                  {selectedBusDetails.route?.RouteStop?.map((stop, idx, arr) => (
-                    <div key={stop.id} className="relative pl-6">
-                      <div className={bsolute -left-[9px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm }></div>
-                      
-                      <div className="flex flex-col -mt-1">
-                        <span className="font-bold text-gray-800">{stop.name}</span>
-                        <span className="text-xs font-medium text-gray-500 mt-0.5">Stop {stop.stopOrder}</span>
-                      </div>
-                    </div>
-                  ))}
-                  {!selectedBusDetails.route?.RouteStop?.length && (
-                    <p className="text-sm text-gray-500 pl-4">No stops defined for this route in the database.</p>
-                  )}
-                </div>
-              </div>
-
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
     </div>
   );
 }
