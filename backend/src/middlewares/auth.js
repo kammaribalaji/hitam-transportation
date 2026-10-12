@@ -82,3 +82,56 @@ export const authorize = (...roles) => (req, res, next) => {
   }
   next();
 };
+
+/**
+ * Backend Authorization Guard: Requires student to have completed and verified transport fee payment.
+ * Admins, Drivers, and Staff pass through. Unpaid students receive 403 Forbidden.
+ */
+export const requirePaidStudent = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+
+    if (req.user.role !== 'STUDENT') {
+      return next();
+    }
+
+    const roll = String(req.user.rollNumber || '').trim().toUpperCase();
+    const user = await prisma.user.findFirst({
+      where: { rollNumber: { equals: roll, mode: 'insensitive' } },
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: 'User account not found' });
+    }
+
+    const isPaid = Boolean(
+      (user.transportFeePaid && (user.feeBalance == null || user.feeBalance <= 0)) ||
+      (user.feePaidAmount > 0 && user.feeBalance <= 0)
+    );
+
+    if (!isPaid) {
+      const confirmedPayment = await prisma.payment.findFirst({
+        where: {
+          studentRollNumber: { equals: roll, mode: 'insensitive' },
+          status: 'PAID',
+        },
+      });
+
+      if (!confirmedPayment) {
+        return res.status(403).json({
+          message: 'Access denied. Transport fee payment required to access this feature.',
+          code: 'PAYMENT_REQUIRED',
+          accessLevel: 'RESTRICTED_FIRST_BOOKING',
+          transportFeePaid: false,
+        });
+      }
+    }
+
+    next();
+  } catch (err) {
+    return res.status(500).json({ message: 'Internal authorization error' });
+  }
+};
+

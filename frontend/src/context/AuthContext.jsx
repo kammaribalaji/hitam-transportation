@@ -70,8 +70,15 @@ export function AuthProvider({ children }) {
     })
   }
 
+  const refreshUser = async () => {
+    const currentToken = token || localStorage.getItem('hitam_token')
+    if (currentToken) {
+      await fetchMe(currentToken)
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, token, loading, login, logout, updateUser, refreshUser }}>
       {children}
     </AuthContext.Provider>
   )

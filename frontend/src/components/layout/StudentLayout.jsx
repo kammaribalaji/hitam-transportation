@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { Outlet, NavLink, useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../hooks/useAuth.js'
 import {
   LayoutDashboard, Armchair, CreditCard, QrCode, MapPin, Phone,
-  Bell, User, LogOut, Menu, X, Bus, ChevronRight, Search
+  Bell, User, LogOut, Menu, X, Bus, ChevronRight, Search, AlertCircle
 } from 'lucide-react'
 
 const navItems = [
@@ -22,9 +22,74 @@ const navItems = [
 export default function StudentLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const handleLogout = () => { logout(); navigate('/login') }
+
+  const isPaid = Boolean(user?.transportFeePaid || user?.isPaidStudent)
+
+  // RESTRICTED FIRST-BOOKING ENFORCEMENT FOR APPROVED, UNPAID STUDENTS
+  if (!isPaid) {
+    const allowedPrefixes = [
+      '/student/find-bus',
+      '/student/where-is-my-bus',
+      '/student/bus-results',
+      '/student/payment',
+      '/student/book-seat',
+    ]
+    const isAllowed = allowedPrefixes.some(p => location.pathname.startsWith(p))
+    if (!isAllowed) {
+      return <Navigate to="/student/find-bus" replace />
+    }
+
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
+        {/* Focused Header for Restricted Experience */}
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 shadow-sm sticky top-0 z-50">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#40A047] rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+              <Bus size={22} className="text-white" />
+            </div>
+            <div>
+              <p className="font-black text-gray-900 text-sm leading-tight tracking-tight">HITAM TRANSPORT</p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                  First-Time Booking · Payment Required
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:block text-right">
+              <p className="text-xs font-bold text-gray-800">{user?.name}</p>
+              <p className="text-[11px] font-mono text-gray-500">{user?.rollNumber}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-red-600 hover:bg-red-50 border border-red-200 transition-all cursor-pointer"
+            >
+              <LogOut size={14} />
+              <span>Logout</span>
+            </button>
+          </div>
+        </header>
+
+        {/* Notice Banner */}
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2.5 text-center">
+          <p className="text-xs font-medium text-amber-800 max-w-4xl mx-auto">
+            👋 Welcome, <b>{user?.name}</b>! Your transport application has been approved. Find your bus route below and complete your transport fee payment to unlock your digital bus pass, real-time live tracking, and complete dashboard.
+          </p>
+        </div>
+
+        {/* Outlet Content */}
+        <main className="flex-1 overflow-y-auto">
+          <Outlet />
+        </main>
+      </div>
+    )
+  }
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">

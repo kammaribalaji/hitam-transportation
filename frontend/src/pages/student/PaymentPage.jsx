@@ -15,7 +15,7 @@ const PAYMENT_METHODS = [
 ]
 
 export default function PaymentPage() {
-  const { user } = useAuth()
+  const { user, refreshUser, updateUser } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const stateData = location.state || {}
@@ -95,11 +95,18 @@ export default function PaymentPage() {
         bookingId = bookingRes.data?.bookingId
       }
 
-      // 2) Record the payment — this generates the digital pass
+      // 2) Record and verify the payment with server
       await paymentService.create({ bookingId, method: selectedMethod, amount: selectedRoute.feeAmount })
 
+      // 3) Re-fetch verified database state from backend to unlock full student access
+      if (refreshUser) {
+        await refreshUser()
+      } else if (updateUser) {
+        updateUser({ transportFeePaid: true, isPaidStudent: true, accessLevel: 'FULL_STUDENT_DASHBOARD' })
+      }
+
       setSuccess(true)
-      toast.success('Annual pass confirmed!')
+      toast.success('Annual pass confirmed! Transport access is now fully active.')
     } catch (err) {
       toast.error(err.response?.data?.message || 'Payment failed. Please try again.')
     } finally {

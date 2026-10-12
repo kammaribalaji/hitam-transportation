@@ -46,9 +46,10 @@ export default function LoginPage() {
       toast.success(`Welcome back, ${user.name.split(' ')[0]}!`)
       if (user.role === 'ADMIN') navigate('/admin')
       else if (user.role === 'DRIVER') navigate('/driver')
+      else if (!user.transportFeePaid) navigate('/student/find-bus')
       else navigate('/student')
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed. Please check credentials.')
+      toast.error(err.response?.data?.message || 'Invalid credentials.')
     } finally {
       setLoading(false)
     }
@@ -61,9 +62,10 @@ export default function LoginPage() {
       toast.success(`Welcome back, ${user.name.split(' ')[0]}!`)
       if (user.role === 'ADMIN') navigate('/admin')
       else if (user.role === 'DRIVER') navigate('/driver')
+      else if (!user.transportFeePaid) navigate('/student/find-bus')
       else navigate('/student')
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Invalid credentials. Check roll number or password.')
+      toast.error(err.response?.data?.message || 'Invalid credentials.')
     } finally {
       setLoading(false)
     }

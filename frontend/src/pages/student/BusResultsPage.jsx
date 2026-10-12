@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Bus, MapPin, ArrowLeft, Clock, Navigation, X } from 'lucide-react';
+import { Bus, MapPin, ArrowLeft, Clock, Navigation, X, CreditCard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../api/axios.js';
+import { useAuth } from '../../hooks/useAuth.js';
+
 export default function BusResultsPage({ inlineFromId, inlineToId, inlineFromName, inlineToName, inlineStopId, inlineStopName, inlineBusId }) {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
@@ -181,13 +184,21 @@ export default function BusResultsPage({ inlineFromId, inlineToId, inlineFromNam
                   </div>
                 </div>
 
-                <div className="px-5 py-4 flex gap-3">
-                  <button onClick={() => handleViewStops(bus.id)} className="flex-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 border border-gray-200">
-                    <MapPin className="w-5 h-5" /> Stops
+                <div className="px-5 py-4 flex flex-wrap gap-2.5 sm:gap-3">
+                  <button onClick={() => handleViewStops(bus.id)} className="flex-1 min-w-[100px] bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold py-2.5 sm:py-3 rounded-xl transition flex items-center justify-center gap-1.5 text-xs sm:text-sm border border-gray-200">
+                    <MapPin className="w-4 h-4" /> Stops
                   </button>
-                  <button onClick={() => handleTrackLive(bus.id)} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
-                    <Navigation className="w-5 h-5" /> Track Live
+                  <button onClick={() => handleTrackLive(bus.id)} className="flex-1 min-w-[110px] bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 sm:py-3 rounded-xl transition flex items-center justify-center gap-1.5 text-xs sm:text-sm shadow-sm">
+                    <Navigation className="w-4 h-4" /> Track Live
                   </button>
+                  {!user?.transportFeePaid && (
+                    <button
+                      onClick={() => navigate('/student/payment', { state: { selectedRouteId: bus.routeId, busNumber: bus.busNumber } })}
+                      className="w-full sm:flex-1 min-w-[140px] bg-[#40A047] hover:bg-[#2d7a33] text-white font-bold py-2.5 sm:py-3 rounded-xl transition flex items-center justify-center gap-1.5 text-xs sm:text-sm shadow-sm"
+                    >
+                      <CreditCard className="w-4 h-4" /> Pay Transport Fee
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

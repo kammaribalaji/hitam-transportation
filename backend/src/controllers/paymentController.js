@@ -80,6 +80,23 @@ export const verifyPayment = async (req, res, next) => {
       throw new AppError('Access denied: Payment record does not belong to you', 403);
     }
 
+    // Check for explicit failed, cancelled, or unverified statuses from gateway
+    const incomingStatus = String(req.body.status || 'PAID').toUpperCase();
+    if (incomingStatus === 'FAILED' || incomingStatus === 'CANCELLED') {
+      const updatedPayment = await prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: incomingStatus === 'CANCELLED' ? 'REFUNDED' : 'PENDING',
+          transactionRef: transactionRef ? String(transactionRef) : payment.transactionRef,
+        },
+      });
+      return res.status(400).json({
+        success: false,
+        message: `Payment verification failed: Gateway reported status ${incomingStatus}. Access remains restricted.`,
+        payment: serialize(updatedPayment),
+      });
+    }
+
     // Idempotency: Prevent duplicate processing of already verified payments
     if (payment.status === 'PAID') {
       return res.json({
@@ -107,6 +124,14 @@ export const verifyPayment = async (req, res, next) => {
     const validTillDate = new Date(now);
     validTillDate.setFullYear(validTillDate.getFullYear() + 1);
 
+    const student = await prisma.user.findFirst({
+      where: { rollNumber: payment.studentRollNumber },
+    });
+    const totalFee = student?.feeAmount > 0 ? student.feeAmount : payment.amount;
+    const newPaid = (student?.feePaidAmount || 0) + payment.amount;
+    const newBalance = Math.max(0, totalFee - newPaid);
+    const isFullyPaid = newBalance <= 0;
+
     const result = await prisma.$transaction(async (tx) => {
       // 1. Mark payment as PAID
       const updatedPayment = await tx.payment.update({
@@ -121,15 +146,6 @@ export const verifyPayment = async (req, res, next) => {
       });
 
       // 2. Update Student fee amounts in PostgreSQL
-      const student = await tx.user.findFirst({
-        where: { rollNumber: payment.studentRollNumber },
-      });
-
-      const totalFee = student?.feeAmount > 0 ? student.feeAmount : payment.amount;
-      const newPaid = (student?.feePaidAmount || 0) + payment.amount;
-      const newBalance = Math.max(0, totalFee - newPaid);
-      const isFullyPaid = newBalance <= 0;
-
       await tx.user.updateMany({
         where: { rollNumber: payment.studentRollNumber },
         data: {
@@ -180,7 +196,7 @@ export const verifyPayment = async (req, res, next) => {
       });
 
       return { payment: updatedPayment, booking: updatedBooking };
-    });
+    }, { maxWait: 25000, timeout: 35000 });
 
     res.json({
       success: true,

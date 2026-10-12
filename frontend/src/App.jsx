@@ -77,7 +77,7 @@ function AppRoutes() {
   const role = String(user?.role || 'STUDENT').toUpperCase()
   return (
     <Routes>
-      <Route path="/login" element={!user ? <LoginPage /> : <Navigate to={role === 'ADMIN' ? '/admin' : role === 'DRIVER' ? '/driver' : '/student'} replace />} />
+      <Route path="/login" element={!user ? <LoginPage /> : <Navigate to={role === 'ADMIN' ? '/admin' : role === 'DRIVER' ? '/driver' : user?.transportFeePaid ? '/student' : '/student/find-bus'} replace />} />
       <Route path="/transport-application" element={<TransportApplicationPage />} />
       <Route path="/apply" element={<Navigate to="/transport-application" replace />} />
 

@@ -28,17 +28,60 @@ export const login = async (req, res, next) => {
       },
     });
 
-    // 2. Unregistered students must NOT be able to log in
+    // 2. Look up related TransportApplication in PostgreSQL
+    const application = await prisma.transportApplication.findFirst({
+      where: {
+        OR: [
+          { rollNumber: cleanRoll },
+          { rollNumber: { equals: cleanRoll, mode: 'insensitive' } },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // 3. Database Decision Rule: Handle applicants without an active User account
     if (!user) {
-      throw new AppError('Invalid credentials. Please check your roll number and password.', 401);
+      if (!application) {
+        // Rule: No registered student/account -> Invalid credentials.
+        throw new AppError('Invalid credentials.', 401);
+      }
+
+      // Check application database state
+      if (application.status === 'PENDING' || application.status === 'UNDER_REVIEW') {
+        throw new AppError('Your transport application is pending admin approval. You will receive login access once approved.', 403);
+      }
+      if (application.status === 'REJECTED') {
+        throw new AppError('Your transport application was rejected. Please contact the Transport Office.', 403);
+      }
+      if (application.status === 'APPROVED' && !application.accountActivated) {
+        throw new AppError('Your transport application has been approved, but your account is not yet activated. Please contact the Transport Office.', 403);
+      }
+      if (application.status === 'MORE_INFO_REQUIRED') {
+        throw new AppError('Your transport application requires additional information. Please contact the Transport Office.', 403);
+      }
+
+      throw new AppError('Account activation pending. Please contact the Transport Office.', 403);
     }
 
-    // 3. Verify account is active
+    // 4. If student account exists, verify related application state
+    if (user.role === 'STUDENT' && application) {
+      if (application.status === 'PENDING' || application.status === 'UNDER_REVIEW') {
+        throw new AppError('Your transport application is pending admin approval. You will receive login access once approved.', 403);
+      }
+      if (application.status === 'REJECTED') {
+        throw new AppError('Your transport application was rejected. Please contact the Transport Office.', 403);
+      }
+      if (application.status === 'APPROVED' && (!application.accountActivated || user.status?.toUpperCase() !== 'ACTIVE')) {
+        throw new AppError('Your transport application has been approved, but your account is not yet activated. Please contact the Transport Office.', 403);
+      }
+    }
+
+    // 5. Verify account is active in PostgreSQL
     if (user.status && user.status.toUpperCase() !== 'ACTIVE') {
       throw new AppError('Your account is not active. Please contact the Transport Office.', 403);
     }
 
-    // 4. Verify password securely using bcrypt
+    // 6. Verify password securely using bcrypt
     let isMatch = await bcrypt.compare(cleanPw, user.passwordHash);
     if (!isMatch) {
       // Support standard project demo credentials for seeded accounts
@@ -50,13 +93,41 @@ export const login = async (req, res, next) => {
     }
 
     if (!isMatch) {
-      throw new AppError('Invalid credentials. Please check your roll number and password.', 401);
+      throw new AppError('Invalid credentials.', 401);
     }
 
-    // 5. Issue secure JWT token
+    // 7. Verify actual database payment state for student access classification
+    let isPaid = Boolean(
+      (user.transportFeePaid && (user.feeBalance == null || user.feeBalance <= 0)) ||
+      (user.feePaidAmount > 0 && user.feeBalance <= 0)
+    );
+
+    if (!isPaid && user.role === 'STUDENT') {
+      const confirmedPayment = await prisma.payment.findFirst({
+        where: {
+          studentRollNumber: { equals: cleanRoll, mode: 'insensitive' },
+          status: 'PAID',
+        },
+      });
+      if (confirmedPayment) {
+        isPaid = true;
+        await prisma.user.updateMany({
+          where: { rollNumber: user.rollNumber },
+          data: { transportFeePaid: true },
+        });
+      }
+    }
+
+    const accessLevel = user.role !== 'STUDENT'
+      ? 'STAFF_ADMIN'
+      : isPaid
+        ? 'FULL_STUDENT_DASHBOARD'
+        : 'RESTRICTED_FIRST_BOOKING';
+
+    // 8. Issue secure JWT token
     const token = signToken({ rollNumber: user.rollNumber, role: user.role, id: user.id });
 
-    // 6. Return genuine user record with verified payment status
+    // 9. Return genuine user record with verified payment status
     const safe = withPaymentStatus(user);
     const { passwordHash: _ph, ...userObj } = safe;
 
@@ -77,8 +148,10 @@ export const login = async (req, res, next) => {
         feeAmount: userObj.feeAmount,
         feePaidAmount: userObj.feePaidAmount,
         feeBalance: userObj.feeBalance,
-        paymentStatus: userObj.paymentStatus,
-        transportFeePaid: userObj.transportFeePaid,
+        paymentStatus: isPaid ? 'PAID' : userObj.paymentStatus,
+        transportFeePaid: isPaid,
+        isPaidStudent: isPaid,
+        accessLevel,
         assignedBusNumber: userObj.assignedBusNumber,
         licenseNo: userObj.licenseNo,
         address: userObj.address,
@@ -110,6 +183,48 @@ export const getMe = async (req, res, next) => {
       throw new AppError('Your account is not active. Please contact the Transport Office.', 403);
     }
 
+    // Verify application status if student
+    if (user.role === 'STUDENT') {
+      const application = await prisma.transportApplication.findFirst({
+        where: { rollNumber: { equals: roll, mode: 'insensitive' } },
+        orderBy: { createdAt: 'desc' },
+      });
+      if (application) {
+        if (application.status === 'REJECTED') {
+          throw new AppError('Your transport application was rejected. Please contact the Transport Office.', 403);
+        }
+        if (application.status === 'PENDING' || application.status === 'UNDER_REVIEW') {
+          throw new AppError('Your transport application is pending admin approval.', 403);
+        }
+        if (application.status === 'APPROVED' && !application.accountActivated) {
+          throw new AppError('Your transport application has been approved, but your account is not yet activated.', 403);
+        }
+      }
+    }
+
+    let isPaid = Boolean(
+      (user.transportFeePaid && (user.feeBalance == null || user.feeBalance <= 0)) ||
+      (user.feePaidAmount > 0 && user.feeBalance <= 0)
+    );
+
+    if (!isPaid && user.role === 'STUDENT') {
+      const confirmedPayment = await prisma.payment.findFirst({
+        where: {
+          studentRollNumber: { equals: roll, mode: 'insensitive' },
+          status: 'PAID',
+        },
+      });
+      if (confirmedPayment) {
+        isPaid = true;
+      }
+    }
+
+    const accessLevel = user.role !== 'STUDENT'
+      ? 'STAFF_ADMIN'
+      : isPaid
+        ? 'FULL_STUDENT_DASHBOARD'
+        : 'RESTRICTED_FIRST_BOOKING';
+
     const safe = withPaymentStatus(user);
     const { passwordHash: _ph, ...userObj } = safe;
 
@@ -129,8 +244,10 @@ export const getMe = async (req, res, next) => {
         feeAmount: userObj.feeAmount,
         feePaidAmount: userObj.feePaidAmount,
         feeBalance: userObj.feeBalance,
-        paymentStatus: userObj.paymentStatus,
-        transportFeePaid: userObj.transportFeePaid,
+        paymentStatus: isPaid ? 'PAID' : userObj.paymentStatus,
+        transportFeePaid: isPaid,
+        isPaidStudent: isPaid,
+        accessLevel,
         assignedBusNumber: userObj.assignedBusNumber,
         licenseNo: userObj.licenseNo,
         address: userObj.address,
