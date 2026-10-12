@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Bus, MapPin, ArrowLeft, Clock, Navigation } from 'lucide-react';
+import { Bus, MapPin, ArrowLeft, Clock, Navigation, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
-  withCredentials: true
-});
-
-export default function BusResultsPage({ inlineFrom, inlineTo, inlineStop, inlineBusId }) {
+import api from '../../api/axios.js';
+export default function BusResultsPage({ inlineFromId, inlineToId, inlineFromName, inlineToName, inlineStopId, inlineStopName, inlineBusId }) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
-  const from = inlineFrom || searchParams.get('from');
-  const to = inlineTo || searchParams.get('to');
-  const stop = inlineStop || searchParams.get('stop');
+  const fromStopId = inlineFromId || searchParams.get('fromStopId');
+  const toStopId = inlineToId || searchParams.get('toStopId');
+  const fromName = inlineFromName || searchParams.get('fromName') || searchParams.get('from');
+  const toName = inlineToName || searchParams.get('toName') || searchParams.get('to');
+  const stopId = inlineStopId || searchParams.get('stopId');
+  const stopName = inlineStopName || searchParams.get('stopName') || searchParams.get('stop');
   const busId = inlineBusId || searchParams.get('busId');
 
   const [buses, setBuses] = useState([]);
@@ -29,13 +27,18 @@ export default function BusResultsPage({ inlineFrom, inlineTo, inlineStop, inlin
     const fetchBuses = async () => {
       try {
         setIsLoading(true);
-        if (from && to) {
-          const res = await api.get(`/wimb/buses/between?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`);
+        if (fromStopId && fromStopId !== 'null' && toStopId && toStopId !== 'null') {
+          const res = await api.get(`/wimb/buses/search-between?fromStopId=${fromStopId}&toStopId=${toStopId}`);
           setBuses(res.data);
-        } else if (stop) {
-          const res = await api.get(`/wimb/buses/stop?name=${encodeURIComponent(stop)}`);
+        } else if (fromName && toName && fromName !== 'null' && toName !== 'null') {
+          const res = await api.get(`/wimb/buses/between?from=${encodeURIComponent(fromName)}&to=${encodeURIComponent(toName)}`);
           setBuses(res.data);
-        } else if (busId) {
+        } else if (stopId && stopId !== 'null' || stopName && stopName !== 'null') {
+          const query = stopId && stopId !== 'null' ? `?id=${stopId}` : `?name=${encodeURIComponent(stopName)}`;
+          // Note: Backend /buses/stop still uses name, but could use ID if we update it. Keeping as name for now.
+          const res = await api.get(`/wimb/buses/stop${query}`);
+          setBuses(res.data);
+        } else if (busId && busId !== 'null') {
           const res = await api.get(`/wimb/buses/${busId}`);
           setBuses(res.data ? [res.data] : []);
         } else {
@@ -43,14 +46,14 @@ export default function BusResultsPage({ inlineFrom, inlineTo, inlineStop, inlin
         }
       } catch (err) {
         console.error('Error fetching buses:', err);
-        setError('Failed to load buses. Please try again later.');
+        setError(err.response?.data?.message || err.message || 'Failed to load buses. Please try again later.');
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchBuses();
-  }, [from, to, stop, busId]);
+  }, [fromStopId, toStopId, fromName, toName, stopId, stopName, busId]);
 
   const handleTrackLive = (busId) => {
     navigate(`/student/live-tracking?tripId=${busId}`);
@@ -70,8 +73,7 @@ export default function BusResultsPage({ inlineFrom, inlineTo, inlineStop, inlin
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center">
       
-      {/* Header - Only show if not inline */}
-      {!inlineFrom && !inlineStop && !inlineBusId && (
+      {/* Header */}
         <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-40">
           <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
             <button onClick={() => navigate('/student/where-is-my-bus')} className="p-2 hover:bg-gray-100 rounded-full transition text-gray-700">
@@ -79,13 +81,13 @@ export default function BusResultsPage({ inlineFrom, inlineTo, inlineStop, inlin
             </button>
             <div className="text-center">
               <h1 className="font-bold text-gray-800 text-lg">Bus Results</h1>
-              {(from && to) && (
+              {(fromName && toName) && (
                 <div className="text-xs text-gray-500 font-medium">
-                  {from} <span className="mx-1">→</span> {to}
+                  {fromName} <span className="mx-1">→</span> {toName}
                 </div>
               )}
-              {stop && (
-                <div className="text-xs text-gray-500 font-medium">Buses at {stop}</div>
+              {stopName && (
+                <div className="text-xs text-gray-500 font-medium">Buses at {stopName}</div>
               )}
               {busId && (
                 <div className="text-xs text-gray-500 font-medium">Direct Bus View</div>
@@ -94,7 +96,6 @@ export default function BusResultsPage({ inlineFrom, inlineTo, inlineStop, inlin
             <div className="w-10"></div>
           </div>
         </div>
-      )}
 
       <div className="max-w-3xl w-full p-4 space-y-4">
         
@@ -156,7 +157,31 @@ export default function BusResultsPage({ inlineFrom, inlineTo, inlineStop, inlin
                   )}
                 </div>
 
-                <div className="px-5 pb-5 flex gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-5 py-4 bg-gray-50/50 border-y border-gray-100">
+                  <div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Status</div>
+                    <div className="text-sm font-semibold text-green-700 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                      {bus.status || 'Active'}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Stops</div>
+                    <div className="text-sm font-medium text-gray-800">{bus.routeDetails?.routeStops?.length || 0} Stops</div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Available Seats</div>
+                    <div className="text-sm font-medium text-gray-800">
+                      {bus.capacity ? bus.capacity - (bus.routeDetails?.bookedSeats || 0) : '?'}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Live Tracking</div>
+                    <div className="text-sm font-medium text-gray-500">Available via Track Live</div>
+                  </div>
+                </div>
+
+                <div className="px-5 py-4 flex gap-3">
                   <button onClick={() => handleViewStops(bus.id)} className="flex-1 bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 border border-gray-200">
                     <MapPin className="w-5 h-5" /> Stops
                   </button>
@@ -190,9 +215,9 @@ export default function BusResultsPage({ inlineFrom, inlineTo, inlineStop, inlin
 
               <div className="p-6 overflow-y-auto flex-1">
                 <div className="relative border-l-2 border-gray-200 ml-4 space-y-8 py-2">
-                  {selectedBusDetails.route?.RouteStop?.map((s, idx, arr) => (
+                  {selectedBusDetails.routeDetails?.routeStops?.map((s, idx, arr) => (
                     <div key={s.id} className="relative pl-6">
-                      <div className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm ${s.name === from || s.name === to || s.name === stop ? 'bg-green-600' : 'bg-gray-300'}`}></div>
+                      <div className={`absolute -left-[9px] top-1 w-4 h-4 rounded-full border-4 border-white shadow-sm ${s.name === fromName || s.name === toName || s.name === stopName ? 'bg-green-600' : 'bg-gray-300'}`}></div>
                       <div className="flex flex-col -mt-1">
                         <span className="font-bold text-gray-800">{s.name}</span>
                         {s.pickupTime && (

@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma.js';
 import { serialize } from '../lib/serialize.js';
-import { JWT_SECRET } from '../config/jwt.js';
+import { JWT_SECRET, verifyToken } from '../config/jwt.js';
 
 export const protect = async (req, res, next) => {
   try {
@@ -13,10 +13,10 @@ export const protect = async (req, res, next) => {
 
     let decoded = null;
     try {
-      decoded = jwt.verify(token, JWT_SECRET);
+      decoded = verifyToken(token);
     } catch {
-      // Decode payload so active user sessions are never abruptly killed
-      decoded = jwt.decode(token);
+      // Token expired or invalid - do not silently fall back
+      return res.status(401).json({ message: 'Session expired or invalid token' });
     }
 
     if (!decoded || !decoded.rollNumber) {
@@ -28,18 +28,48 @@ export const protect = async (req, res, next) => {
       user = await prisma.user.findFirst({ where: { rollNumber: decoded.rollNumber } });
     } catch {}
 
-    if (user) {
-      const { passwordHash, ...safeUser } = user;
-      req.user = serialize(safeUser);
-    } else {
-      req.user = {
-        id: decoded.id || decoded.rollNumber,
-        rollNumber: decoded.rollNumber,
-        role: decoded.role || 'STUDENT',
-        name: decoded.name || (decoded.role === 'ADMIN' ? 'Transport Admin' : decoded.role === 'DRIVER' ? 'Driver Raju' : `Student ${decoded.rollNumber}`),
-        assignedRouteId: decoded.assignedRouteId || '12',
-      };
+    if (!user) {
+      return res.status(401).json({ message: 'User account not found or deactivated' });
     }
+
+    if (user.status && user.status.toUpperCase() !== 'ACTIVE') {
+      return res.status(403).json({ message: 'Your account is not active. Please contact the Transport Office.' });
+    }
+
+    const { passwordHash, ...safeUser } = user;
+    req.user = serialize(safeUser);
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: 'Session error' });
+  }
+};
+
+export const protectFast = (req, res, next) => {
+  try {
+    const auth = req.headers.authorization;
+    if (!auth?.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Not authorized' });
+    }
+    const token = auth.split(' ')[1];
+
+    let decoded = null;
+    try {
+      decoded = verifyToken(token);
+    } catch {
+      return res.status(401).json({ message: 'Session expired or invalid token' });
+    }
+
+    if (!decoded || !decoded.rollNumber) {
+      return res.status(401).json({ message: 'Invalid session token' });
+    }
+
+    req.user = {
+      id: decoded.id || decoded.rollNumber,
+      rollNumber: decoded.rollNumber,
+      role: decoded.role || 'STUDENT',
+      name: decoded.name || (decoded.role === 'ADMIN' ? 'Transport Admin' : decoded.role === 'DRIVER' ? 'Driver Raju' : `Student ${decoded.rollNumber}`),
+      assignedRouteId: decoded.assignedRouteId || '12',
+    };
     next();
   } catch (err) {
     return res.status(401).json({ message: 'Session error' });

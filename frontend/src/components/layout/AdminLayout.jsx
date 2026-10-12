@@ -6,11 +6,12 @@ import {
   LayoutDashboard, Users, UserCheck, Route, Bus, BookOpen,
   CreditCard, MessageSquare, BarChart2, TrendingUp,
   Settings, Bell, LogOut, Menu, Megaphone, Search, X,
-  ChevronDown, UploadCloud, Satellite
+  ChevronDown, UploadCloud, Satellite, ClipboardList
 } from 'lucide-react'
 
 const navItems = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
+  { to: '/admin/applications', icon: ClipboardList, label: 'Applications' },
   { to: '/admin/students', icon: Users, label: 'Students' },
   { to: '/admin/drivers', icon: UserCheck, label: 'Drivers' },
   { to: '/admin/buses', icon: Bus, label: 'Buses' },
@@ -28,6 +29,7 @@ const navItems = [
 
 const PAGE_TITLES = {
   '/admin': 'Dashboard',
+  '/admin/applications': 'Transport Applications',
   '/admin/students': 'Students',
   '/admin/drivers': 'Drivers',
   '/admin/buses': 'Buses',

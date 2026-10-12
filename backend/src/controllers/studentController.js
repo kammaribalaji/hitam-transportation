@@ -1,15 +1,21 @@
 import prisma from '../lib/prisma.js';
 import { AppError } from '../middlewares/errorHandler.js';
 import { withPaymentStatus } from '../lib/paymentStatus.js';
-import { masterStudents, masterStudentsMap } from '../utils/masterTransportDatabase.js';
 
 const safeUser = (u) => {
   const { passwordHash, ...rest } = u;
   return withPaymentStatus(rest);
 };
 
+/**
+ * Staff/Admin only: List students
+ */
 export const getAllStudents = async (req, res, next) => {
   try {
+    if (req.user?.role === 'STUDENT') {
+      throw new AppError('Access denied. Only transport staff and administrators can view all students.', 403);
+    }
+
     const { search, page = 1, limit = 50 } = req.query;
     const where = { role: { in: ['STUDENT', 'STAFF'] } };
     if (search) {
@@ -24,122 +30,60 @@ export const getAllStudents = async (req, res, next) => {
       prisma.user.findMany({ where, skip, take: parseInt(limit), orderBy: { rollNumber: 'asc' } }),
       prisma.user.count({ where }),
     ]);
-    if (students && students.length > 0) {
-      return res.json({
-        students: students.map(safeUser),
-        total,
-        page: parseInt(page),
-        pages: Math.ceil(total / parseInt(limit)),
-      });
-    }
-  } catch (err) {
-    console.warn('[getAllStudents] DB offline or auth error, serving master students:', err.message);
-  }
 
-  const { search, page = 1, limit = 50 } = req.query;
-  let filtered = masterStudents;
-  if (search) {
-    const s = String(search).toLowerCase();
-    filtered = filtered.filter(st => 
-      st.name?.toLowerCase().includes(s) || 
-      st.rollNumber?.toLowerCase().includes(s) || 
-      st.boardingPoint?.toLowerCase().includes(s)
-    );
-  }
-  const skip = (parseInt(page) - 1) * parseInt(limit);
-  const paginated = filtered.slice(skip, skip + parseInt(limit));
-
-  res.json({
-    students: paginated.map(st => ({
-      id: st.rollNumber,
-      rollNumber: st.rollNumber,
-      name: st.name,
-      department: st.department || 'CSE',
-      year: st.year || '2nd Year',
-      assignedRouteId: String(st.routeId || '12'),
-      boardingPoint: st.boardingPoint || 'Campus Gate',
-      feeAmount: st.feeAmount || 42900,
-      feePaidAmount: st.feePaidAmount || 42900,
-      feeBalance: st.feeBalance || 0,
-      paymentStatus: 'PAID',
-      transportFeePaid: true,
-      role: 'STUDENT',
-    })),
-    total: filtered.length,
-    page: parseInt(page),
-    pages: Math.ceil(filtered.length / parseInt(limit)),
-  });
-};
-
-export const getStudentByRoll = async (req, res, next) => {
-  const roll = String(req.params.rollNo).trim().toUpperCase();
-  try {
-    const student = await prisma.user.findFirst({ where: { rollNumber: roll, role: { in: ['STUDENT', 'STAFF'] } } });
-    if (student) return res.json(safeUser(student));
-  } catch (err) {
-    console.warn(`[getStudentByRoll] DB offline for roll ${roll}, serving master:`, err.message);
-  }
-
-  const master = masterStudentsMap.get(roll);
-  if (master) {
     return res.json({
-      id: roll,
-      rollNumber: roll,
-      name: master.name,
-      department: master.department || 'CSE',
-      year: master.year || '2nd Year',
-      assignedRouteId: String(master.routeId || '12'),
-      boardingPoint: master.boardingPoint || 'Campus Gate',
-      feeAmount: master.feeAmount || 42900,
-      feePaidAmount: master.feePaidAmount || 42900,
-      feeBalance: master.feeBalance || 0,
-      paymentStatus: 'PAID',
-      transportFeePaid: true,
-      role: 'STUDENT',
+      students: students.map(safeUser),
+      total,
+      page: parseInt(page),
+      pages: Math.ceil(total / parseInt(limit)) || 1,
     });
-  }
-
-  res.json({
-    id: roll,
-    rollNumber: roll,
-    name: `Student ${roll}`,
-    department: 'CSE',
-    year: '2nd Year',
-    assignedRouteId: '12',
-    boardingPoint: 'Campus Gate',
-    feeAmount: 42900,
-    feePaidAmount: 42900,
-    feeBalance: 0,
-    paymentStatus: 'PAID',
-    transportFeePaid: true,
-    role: 'STUDENT',
-  });
-};
-
-export const getStudentMe = async (req, res, next) => {
-  const roll = String(req.user?.rollNumber || 'STUDENT').toUpperCase();
-  try {
-    const student = await prisma.user.findFirst({ where: { rollNumber: roll } });
-    if (student) return res.json(safeUser(student));
   } catch (err) {
-    console.warn('[getStudentMe] DB offline, serving JWT session user:', err.message);
+    next(err);
   }
-
-  const master = masterStudentsMap.get(roll);
-  res.json({
-    id: req.user?.id || roll,
-    rollNumber: roll,
-    name: master?.name || req.user?.name || `Student ${roll}`,
-    department: master?.department || 'CSE',
-    year: master?.year || '2nd Year',
-    assignedRouteId: String(master?.routeId || '12'),
-    boardingPoint: master?.boardingPoint || 'Campus Gate',
-    feeAmount: master?.feeAmount || 42900,
-    feePaidAmount: master?.feePaidAmount || 42900,
-    feeBalance: master?.feeBalance || 0,
-    paymentStatus: 'PAID',
-    transportFeePaid: true,
-    role: req.user?.role || 'STUDENT',
-  });
 };
 
+/**
+ * Get student by roll number.
+ * Strict ownership: A student can ONLY access their own record.
+ */
+export const getStudentByRoll = async (req, res, next) => {
+  try {
+    const roll = String(req.params.rollNo).trim().toUpperCase();
+
+    // Data ownership check
+    if (req.user?.role === 'STUDENT' && req.user?.rollNumber !== roll) {
+      throw new AppError("Access denied. You cannot view another student's details.", 403);
+    }
+
+    const student = await prisma.user.findFirst({
+      where: { rollNumber: roll, role: { in: ['STUDENT', 'STAFF'] } },
+    });
+
+    if (!student) {
+      throw new AppError('Student record not found', 404);
+    }
+
+    return res.json(safeUser(student));
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Get currently authenticated student's profile from verified session
+ */
+export const getStudentMe = async (req, res, next) => {
+  try {
+    const roll = String(req.user?.rollNumber || '').trim().toUpperCase();
+    if (!roll) throw new AppError('Unauthenticated session', 401);
+
+    const student = await prisma.user.findFirst({ where: { rollNumber: roll } });
+    if (!student) {
+      throw new AppError('Student record not found', 404);
+    }
+
+    return res.json(safeUser(student));
+  } catch (err) {
+    next(err);
+  }
+};

@@ -25,9 +25,9 @@ export default function PaymentPage() {
   const [selectedPickup, setSelectedPickup] = useState('')
   const [selectedMethod, setSelectedMethod] = useState('UPI')
   // Resume-payment mode: when arriving from My Pass with an existing Pending
-  // booking, we skip seat booking and only record the payment.
-  const resumeBookingId = stateData.bookingId || null
-  const [selectedSeat] = useState(stateData.selectedSeat || stateData.pendingSeat || null)
+  // booking, or when a student already has an assigned booking in PostgreSQL.
+  const [activeBookingId, setActiveBookingId] = useState(stateData.bookingId || null)
+  const [selectedSeat, setSelectedSeat] = useState(stateData.selectedSeat || stateData.pendingSeat || null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
@@ -39,32 +39,44 @@ export default function PaymentPage() {
         const initial = list.find(x => x.id === (stateData.selectedRouteId || user?.assignedRouteId || '12')) || list[0]
         if (initial) {
           setSelectedRoute(initial)
-          setSelectedPickup(initial.pickupPoint)
+          setSelectedPickup(user?.boardingPoint || initial.pickupPoint)
         }
       })
       .catch(() => {})
-  }, [])
+  }, [user])
 
   useEffect(() => {
-    // If we're resuming payment, load the pending booking to prefill details.
-    if (!resumeBookingId) return
+    // Check if the authenticated student has an existing booking in DB
     bookingService.getMy()
       .then(r => {
         if (r.data) {
-          setSelectedPickup(r.data.pickupPoint || selectedPickup)
+          if (!activeBookingId) {
+            setActiveBookingId(r.data.bookingId || r.data.id)
+          }
+          if (selectedSeat == null && r.data.seatNumber != null) {
+            setSelectedSeat(r.data.seatNumber)
+          }
+          if (r.data.pickupPoint) {
+            setSelectedPickup(r.data.pickupPoint)
+          }
         }
       })
       .catch(() => {})
-  }, [resumeBookingId])
+  }, [user])
 
   const handlePay = async () => {
-    if (!selectedRoute || !selectedSeat) {
-      toast.error('Select a seat first')
+    if (!selectedRoute) {
+      toast.error('Select a route first')
+      return
+    }
+    if (!activeBookingId && !selectedSeat) {
+      toast.error('Please choose your seat first')
+      navigate('/student/book-seat')
       return
     }
     setLoading(true)
     try {
-      let bookingId = resumeBookingId
+      let bookingId = activeBookingId
 
       if (!bookingId) {
         if (!selectedSeat) {
@@ -179,14 +191,14 @@ export default function PaymentPage() {
       </div>
 
       {/* Pay button */}
-      <button onClick={handlePay} disabled={loading || (!resumeBookingId && !selectedSeat)}
+      <button onClick={handlePay} disabled={loading}
         className="w-full py-4 bg-[#40A047] hover:bg-[#2d7a33] text-white font-bold rounded-xl transition-all text-base shadow-lg shadow-green-600/20 disabled:opacity-60 disabled:cursor-not-allowed">
         {loading ? (
           <span className="flex items-center justify-center gap-2">
             <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             Processing...
           </span>
-        ) : (resumeBookingId || selectedSeat) ? `Pay ${selectedRoute ? formatCurrency(selectedRoute.feeAmount) : ''} (Annual Transport)` : 'Select a seat first'}
+        ) : (activeBookingId || selectedSeat) ? `Pay ${selectedRoute ? formatCurrency(selectedRoute.feeAmount) : ''} (Annual Transport)` : 'Select a seat first'}
       </button>
 
       {/* Success modal */}

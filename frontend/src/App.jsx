@@ -6,6 +6,7 @@ import { useAuth } from './hooks/useAuth.js'
 
 // Auth
 import LoginPage from './pages/auth/LoginPage.jsx'
+import TransportApplicationPage from './pages/public/TransportApplicationPage.jsx'
 
 // Student pages
 import StudentLayout from './components/layout/StudentLayout.jsx'
@@ -49,6 +50,7 @@ import AdminSettingsPage from './pages/admin/AdminSettingsPage.jsx'
 import AnnouncementsPage from './pages/admin/AnnouncementsPage.jsx'
 import ImportPage from './pages/admin/ImportPage.jsx'
 import HypegpsDevicesPage from './pages/admin/HypegpsDevicesPage.jsx'
+import ApplicationsPage from './pages/admin/ApplicationsPage.jsx'
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth()
@@ -76,6 +78,8 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={!user ? <LoginPage /> : <Navigate to={role === 'ADMIN' ? '/admin' : role === 'DRIVER' ? '/driver' : '/student'} replace />} />
+      <Route path="/transport-application" element={<TransportApplicationPage />} />
+      <Route path="/apply" element={<Navigate to="/transport-application" replace />} />
 
       {/* Student Routes */}
       <Route path="/student" element={<ProtectedRoute allowedRoles={['STUDENT', 'STAFF']}><StudentLayout /></ProtectedRoute>}>
@@ -110,6 +114,7 @@ function AppRoutes() {
       <Route path="/admin" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminLayout /></ProtectedRoute>}>
         <Route index element={<AdminDashboard />} />
         <Route path="students" element={<StudentsPage />} />
+        <Route path="applications" element={<ApplicationsPage />} />
         <Route path="drivers" element={<DriversPage />} />
         <Route path="routes" element={<RoutesPage />} />
         <Route path="import" element={<ImportPage />} />

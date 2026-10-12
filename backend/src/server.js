@@ -1,8 +1,8 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import prisma from './lib/prisma.js';
@@ -30,6 +30,7 @@ import studentRoutes from './routes/students.js';
 import passRoutes from './routes/pass.js';
 import importRoutes from './routes/import.js';
 import whereIsMyBusRoutes from './routes/where-is-my-bus.js';
+import transportApplicationsRoutes from './routes/transportApplications.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -85,6 +86,8 @@ const registerRoutes = (prefix = '') => {
   app.use(`${prefix}/pass`, passRoutes);
   app.use(`${prefix}/import`, importRoutes);
   app.use(`${prefix}/wimb`, whereIsMyBusRoutes);
+  app.use(`${prefix}/transport-applications`, transportApplicationsRoutes);
+  app.use(`${prefix}/applications`, transportApplicationsRoutes);
   app.get(`${prefix}/health`, (req, res) =>
     res.json({ status: 'ok', serverless: Boolean(process.env.VERCEL), timestamp: new Date().toISOString() })
   );

@@ -1,18 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth.js';
 import {
   Search, ArrowRightLeft, Bus, MapPin, Clock, Star, X, 
   ChevronRight, ChevronDown, ArrowRight, Bell, AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import BusResultsPage from './BusResultsPage';
-
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
-  withCredentials: true
-});
+import api from '../../api/axios.js';
 
 function useDebounce(value, delay) {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -47,18 +41,16 @@ export default function WhereIsMyBusPage() {
 
   const [error, setError] = useState(null);
 
-  const [inlineResultsParams, setInlineResultsParams] = useState(null);
-
   const [searchHistory, setSearchHistory] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('hitam_bus_search_history') || '[]');
-    } catch { return []; }
+    } catch (_) { return []; }
   });
 
-  const debouncedFrom = useDebounce(fromQuery, 150);
-  const debouncedTo = useDebounce(toQuery, 150);
-  const debouncedBus = useDebounce(busSearchQuery, 150);
-  const debouncedStopSearch = useDebounce(stopSearchQuery, 150);
+  const debouncedFrom = useDebounce(fromQuery, 50);
+  const debouncedTo = useDebounce(toQuery, 50);
+  const debouncedBus = useDebounce(busSearchQuery, 50);
+  const debouncedStopSearch = useDebounce(stopSearchQuery, 50);
 
   const fromRef = useRef(null);
   const toRef = useRef(null);
@@ -126,23 +118,24 @@ export default function WhereIsMyBusPage() {
   };
 
   const handleFindBuses = () => {
-    if (!fromQuery || !toQuery) {
-      setError('Please select both From and To stops.');
+    if (!fromStop || !toStop) {
+      setError('Please select both From and To stops from the dropdowns.');
       return;
     }
     setError(null);
-    const newHistory = [{ from: fromQuery, to: toQuery }, ...searchHistory.filter(h => h.from !== fromQuery || h.to !== toQuery)].slice(0, 5);
+    const newHistory = [{ from: fromStop.name, to: toStop.name, fromId: fromStop.id, toId: toStop.id }, ...searchHistory.filter(h => h.from !== fromStop.name || h.to !== toStop.name)].slice(0, 5);
     setSearchHistory(newHistory);
     localStorage.setItem('hitam_bus_search_history', JSON.stringify(newHistory));
-    setInlineResultsParams({ from: fromQuery, to: toQuery });
+    
+    navigate(`/student/bus-results?fromStopId=${fromStop.id}&toStopId=${toStop.id}&fromName=${encodeURIComponent(fromStop.name)}&toName=${encodeURIComponent(toStop.name)}`);
   };
 
   const handleSelectBus = (busId) => {
     navigate(`/student/live-tracking?tripId=${busId}`); 
   };
 
-  const handleSelectStopSearch = (stopName) => {
-    setInlineResultsParams({ stop: stopName });
+  const handleSelectStopSearch = (stop) => {
+    navigate(`/student/bus-results?stopId=${stop.id}&stopName=${encodeURIComponent(stop.name)}`);
   };
 
   const clearHistory = () => {
@@ -170,20 +163,25 @@ export default function WhereIsMyBusPage() {
         <div className="bg-white rounded-2xl md:rounded-3xl shadow-sm overflow-visible">
           
           {/* Hero Banner Area */}
-          <div className="bg-gradient-to-r from-[#eafaf0] to-[#d6f5e1] rounded-t-2xl md:rounded-t-3xl p-6 sm:p-8 md:p-12 relative overflow-hidden flex items-center">
+          <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-green-900 rounded-t-2xl md:rounded-t-3xl p-6 sm:p-8 md:p-12 relative overflow-hidden flex items-center shadow-inner">
             <div className="relative z-10 w-full">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-1 md:mb-2">
-                <Bus className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-[#2f8836]" />
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 tracking-tight">Where is My Bus</h1>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-2 md:mb-3">
+                <div className="p-3 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-lg">
+                  <Bus className="w-8 h-8 sm:w-10 sm:h-10 md:w-10 md:h-10 text-green-400" />
+                </div>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight flex items-center flex-wrap gap-3">
+                  Find My Bus
+                  <span className="text-[10px] md:text-xs align-middle bg-green-500/20 text-green-300 border border-green-500/30 px-3 py-1.5 rounded-full uppercase tracking-widest font-bold backdrop-blur-sm">Precision Search</span>
+                </h1>
               </div>
-              <p className="text-gray-600 font-medium text-sm sm:text-base md:text-lg sm:ml-[3.5rem] md:ml-[4.5rem]">Find your bus between college stops</p>
+              <p className="text-gray-300 font-medium text-sm sm:text-base md:text-lg sm:ml-[4.5rem] md:ml-[5.5rem]">Discover the fastest route between college stops in real-time.</p>
             </div>
             
             {/* Background illustrations representation */}
-            <div className="absolute right-0 bottom-0 opacity-15 md:opacity-20 pointer-events-none hidden sm:block w-1/3 md:w-auto h-full">
+            <div className="absolute right-0 bottom-0 opacity-20 pointer-events-none hidden sm:block w-1/3 md:w-auto h-full mix-blend-overlay">
                <svg className="h-full w-auto float-right" viewBox="0 0 400 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M50 150L150 50L250 150Z" fill="#40A047"/>
-                  <rect x="250" y="50" width="150" height="100" fill="#40A047"/>
+                  <path d="M50 150L150 50L250 150Z" fill="#4ade80"/>
+                  <rect x="250" y="50" width="150" height="100" fill="#4ade80"/>
                </svg>
             </div>
           </div>
@@ -195,12 +193,12 @@ export default function WhereIsMyBusPage() {
               {/* FROM STOP */}
               <div className="flex-1 w-full" ref={fromRef}>
                 <label className="text-[10px] md:text-xs font-bold text-gray-500 mb-1.5 md:mb-2 block uppercase tracking-wide">FROM STOP</label>
-                <div className="relative flex items-center bg-white border border-gray-300 rounded-xl md:rounded-2xl p-2.5 md:p-3 focus-within:border-[#2f8836] focus-within:ring-1 focus-within:ring-[#2f8836] transition">
-                  <MapPin className="w-4 h-4 md:w-5 md:h-5 text-gray-400 mr-2 md:mr-3 shrink-0" />
+                <div className="relative flex items-center bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl md:rounded-2xl p-2.5 md:p-3 focus-within:bg-white focus-within:border-green-500 focus-within:ring-4 focus-within:ring-green-500/10 transition-all duration-300 shadow-sm">
+                  <MapPin className="w-4 h-4 md:w-5 md:h-5 text-green-600 mr-2 md:mr-3 shrink-0" />
                   <input 
                     type="text"
-                    placeholder="Search start stop"
-                    className="bg-transparent outline-none w-full text-gray-800 font-medium text-sm md:text-base"
+                    placeholder="Where are you starting?"
+                    className="bg-transparent outline-none w-full text-gray-800 font-semibold text-sm md:text-base placeholder-gray-400"
                     value={fromQuery}
                     onChange={(e) => {
                       setFromQuery(e.target.value);
@@ -246,12 +244,12 @@ export default function WhereIsMyBusPage() {
               {/* TO STOP */}
               <div className="flex-1 w-full" ref={toRef}>
                 <label className="text-[10px] md:text-xs font-bold text-gray-500 mb-1.5 md:mb-2 block uppercase tracking-wide">TO STOP</label>
-                <div className="relative flex items-center bg-white border border-gray-300 rounded-xl md:rounded-2xl p-2.5 md:p-3 focus-within:border-[#2f8836] focus-within:ring-1 focus-within:ring-[#2f8836] transition">
-                  <MapPin className="w-4 h-4 md:w-5 md:h-5 text-gray-400 mr-2 md:mr-3 shrink-0" />
+                <div className="relative flex items-center bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl md:rounded-2xl p-2.5 md:p-3 focus-within:bg-white focus-within:border-green-500 focus-within:ring-4 focus-within:ring-green-500/10 transition-all duration-300 shadow-sm">
+                  <MapPin className="w-4 h-4 md:w-5 md:h-5 text-green-600 mr-2 md:mr-3 shrink-0" />
                   <input 
                     type="text"
-                    placeholder="Search destination"
-                    className="bg-transparent outline-none w-full text-gray-800 font-medium text-sm md:text-base"
+                    placeholder="Where do you want to go?"
+                    className="bg-transparent outline-none w-full text-gray-800 font-semibold text-sm md:text-base placeholder-gray-400"
                     value={toQuery}
                     onChange={(e) => {
                       setToQuery(e.target.value);
@@ -294,10 +292,10 @@ export default function WhereIsMyBusPage() {
             )}
 
             {/* FIND BUSES BUTTON */}
-            <button onClick={handleFindBuses} className="w-full bg-[#2f8836] hover:bg-[#256f2a] text-white font-bold py-3.5 md:py-4 rounded-xl md:rounded-2xl shadow-md md:shadow-lg hover:shadow-xl transition-all active:scale-[0.99] flex items-center justify-center gap-2 mt-6 text-base md:text-lg">
-              <Search className="w-4 h-4 md:w-5 md:h-5" />
-              FIND BUSES
-              <ArrowRight className="w-4 h-4 md:w-5 md:h-5 ml-1 md:ml-2" />
+            <button onClick={handleFindBuses} className="w-full bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-black py-4 md:py-5 rounded-xl md:rounded-2xl shadow-lg hover:shadow-green-500/25 transition-all active:scale-[0.98] flex items-center justify-center gap-3 mt-6 text-base md:text-lg tracking-wide group">
+              <Search className="w-5 h-5 md:w-6 md:h-6 group-hover:scale-110 transition-transform" />
+              SEARCH LIVE BUSES
+              <ArrowRight className="w-5 h-5 md:w-6 md:h-6 ml-1 md:ml-2 group-hover:translate-x-1 transition-transform" />
             </button>
 
             {/* OR DIVIDER */}
@@ -331,7 +329,7 @@ export default function WhereIsMyBusPage() {
                   {showStopSearchDropdown && stopSearchResults.length > 0 && (
                     <motion.div initial={{opacity:0, y:-5}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-5}} className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
                       {stopSearchResults.map(stop => (
-                        <div key={stop.id || stop.name} onClick={() => { setStopSearchQuery(''); setShowStopSearchDropdown(false); handleSelectStopSearch(stop.name); }} className="p-3 md:p-4 hover:bg-green-50 cursor-pointer border-b border-gray-50 flex items-center gap-3 md:gap-4 transition-colors">
+                        <div key={stop.id || stop.name} onClick={() => { setStopSearchQuery(''); setShowStopSearchDropdown(false); handleSelectStopSearch(stop); }} className="p-3 md:p-4 hover:bg-green-50 cursor-pointer border-b border-gray-50 flex items-center gap-3 md:gap-4 transition-colors">
                           <div className="bg-green-100 p-2 rounded-lg shrink-0">
                             <MapPin className="w-4 h-4 md:w-5 md:h-5 text-[#2f8836]" />
                           </div>
@@ -346,9 +344,9 @@ export default function WhereIsMyBusPage() {
                 </AnimatePresence>
               </div>
 
-              {/* BUS NO / ROUTE NO SEARCH */}
+              {/* BUS ROUTE SEARCH */}
               <div className="relative w-full" ref={busSearchRef}>
-                <label className="text-[10px] md:text-xs font-bold text-gray-500 mb-1.5 md:mb-2 block uppercase tracking-wide">BUS NO. / ROUTE NO.</label>
+                <label className="text-[10px] md:text-xs font-bold text-gray-500 mb-1.5 md:mb-2 block uppercase tracking-wide">BUS NO. OR ROUTE NO.</label>
                 <div className="flex items-center bg-white border border-gray-300 rounded-xl md:rounded-2xl p-2.5 md:p-3 focus-within:border-[#2f8836] focus-within:ring-1 focus-within:ring-[#2f8836] transition">
                   <Bus className="w-4 h-4 md:w-5 md:h-5 text-gray-400 mr-2 md:mr-3 shrink-0" />
                   <input 
@@ -385,27 +383,7 @@ export default function WhereIsMyBusPage() {
           </div>
         </div>
 
-        {/* INLINE BUS RESULTS */}
-        {inlineResultsParams && (
-          <div className="w-full bg-white rounded-2xl md:rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-6 md:mb-8 pb-4">
-            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-              <h2 className="font-bold text-gray-800 text-lg flex items-center gap-2">
-                <Bus className="w-5 h-5 text-[#2f8836]" /> Search Results
-              </h2>
-              <button onClick={() => setInlineResultsParams(null)} className="p-1 hover:bg-gray-200 rounded-full">
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
-            <div className="max-h-[600px] overflow-y-auto w-full flex justify-center">
-              <BusResultsPage 
-                inlineFrom={inlineResultsParams.from} 
-                inlineTo={inlineResultsParams.to} 
-                inlineStop={inlineResultsParams.stop} 
-                inlineBusId={inlineResultsParams.busId} 
-              />
-            </div>
-          </div>
-        )}
+
 
         {/* BOTTOM CARDS ROW */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 pb-8 md:pb-12">
@@ -429,7 +407,11 @@ export default function WhereIsMyBusPage() {
                 <div className="text-gray-400 text-xs md:text-sm py-4 text-center">No recent searches.</div>
               ) : (
                 searchHistory.map((h, i) => (
-                  <div key={i} onClick={() => { setFromQuery(h.from); setToQuery(h.to); }} className="group flex items-center justify-between py-3 md:py-4 border-b border-gray-50 cursor-pointer hover:bg-gray-50 px-2 rounded-lg transition-colors">
+                  <div key={i} onClick={() => { 
+                      setFromQuery(h.from); setToQuery(h.to); 
+                      if(h.fromId) setFromStop({ id: h.fromId, name: h.from });
+                      if(h.toId) setToStop({ id: h.toId, name: h.to });
+                    }} className="group flex items-center justify-between py-3 md:py-4 border-b border-gray-50 cursor-pointer hover:bg-gray-50 px-2 rounded-lg transition-colors">
                     <div className="flex items-center gap-2 md:gap-3 overflow-hidden">
                       <Clock className="w-4 h-4 md:w-5 md:h-5 text-gray-400 shrink-0" />
                       <span className="text-xs md:text-sm font-medium text-gray-700 truncate">{h.from} <span className="text-gray-300 mx-0.5 md:mx-1">→</span> {h.to}</span>
@@ -455,7 +437,10 @@ export default function WhereIsMyBusPage() {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
               {popularRoutes.map((route, i) => (
-                <div key={i} onClick={() => { setFromQuery(route.from); setToQuery(route.to); }} className="border border-gray-100 rounded-xl p-3 md:p-4 flex items-center justify-between cursor-pointer hover:border-green-300 hover:shadow-sm transition-all group">
+                <div key={i} onClick={() => { 
+                    setFromQuery(route.from); setToQuery(route.to); 
+                    setFromStop({ id: null, name: route.from }); // Need actual ID mapping for quick routes if possible, or they need to select again
+                  }} className="border border-gray-100 rounded-xl p-3 md:p-4 flex items-center justify-between cursor-pointer hover:border-green-300 hover:shadow-sm transition-all group">
                   <div className="flex items-center gap-1.5 md:gap-2 text-[11px] md:text-xs font-bold text-gray-700 truncate">
                     <span className="group-hover:text-green-700 transition truncate">{route.from}</span>
                     <span className="text-gray-300 shrink-0">→</span>

@@ -229,8 +229,14 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center text-sm text-gray-500 mt-6">
-            Need assistance?{' '}
-            <span className="text-[#40A047] font-semibold cursor-pointer hover:underline">Contact Transport Office</span>
+            Need assistance or new transport pass?{' '}
+            <button
+              type="button"
+              onClick={() => navigate('/transport-application')}
+              className="text-[#40A047] font-semibold cursor-pointer hover:underline focus:outline-none"
+            >
+              Contact Transport Office (Apply for Transport)
+            </button>
           </p>
         </motion.div>
       </div>

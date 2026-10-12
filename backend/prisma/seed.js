@@ -25,6 +25,7 @@ async function main() {
   // 1. Clean old records
   console.log('Clearing existing tables...');
   await prisma.stopDepartureLog.deleteMany({}).catch(() => {});
+  await prisma.bus.deleteMany({}).catch(() => {});
   await prisma.passenger.deleteMany({}).catch(() => {});
   await prisma.booking.deleteMany({}).catch(() => {});
   await prisma.routeStop.deleteMany({}).catch(() => {});
@@ -138,6 +139,7 @@ async function main() {
   const allStops = [];
   const allContacts = [];
   const allGpsDevices = [];
+  const allBuses = [];
 
   for (const r of masterDb.routes) {
     const routeId = String(r.id);
@@ -187,6 +189,15 @@ async function main() {
       deviceId,
       busNumber,
     });
+
+    allBuses.push({
+      busNumber,
+      capacity: 50,
+      driverName: r.driverName || `Driver Route ${routeId}`,
+      routeId,
+      routeName: r.name,
+      status: 'ACTIVE',
+    });
   }
 
   console.log(`Inserting ${allStops.length} Stops in bulk...`);
@@ -197,6 +208,9 @@ async function main() {
 
   console.log(`Inserting ${allGpsDevices.length} GPS Devices...`);
   await prisma.gpsDevice.createMany({ data: allGpsDevices, skipDuplicates: true });
+
+  console.log(`Inserting ${allBuses.length} Buses...`);
+  await prisma.bus.createMany({ data: allBuses, skipDuplicates: true });
 
   // 4. Seed Bookings & Passengers in bulk
   console.log(`Seeding ${masterDb.passengers.length} Bookings & Passengers in bulk...`);

@@ -2,6 +2,8 @@ import prisma from '../lib/prisma.js';
 import { AppError } from '../middlewares/errorHandler.js';
 import { serialize, serializeMany } from '../lib/serialize.js';
 import { masterRoutes, masterRouteMap } from '../utils/masterTransportDatabase.js';
+import path from 'path';
+import fs from 'fs';
 
 const num = (v, fallback = 0) => (v === undefined || v === null || v === '' ? fallback : Number(v));
 

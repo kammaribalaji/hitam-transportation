@@ -126,7 +126,24 @@ export const paymentService = {
   getAll: (params) => api.get('/payments', { params }),
   getMy: () => api.get('/payments/my'),
   create: (data) => api.post('/payments', data),
+  initiate: (data) => api.post('/payments/initiate', data),
+  verify: (data) => api.post('/payments/verify', data),
   updateStatus: (paymentId, status) => api.put(`/payments/${paymentId}/status`, { status }),
+}
+
+// Transport Applications (Official HITAM Transport Application Form workflow)
+export const transportApplicationService = {
+  getMeta: () => api.get('/transport-applications/meta'),
+  submit: (data) => api.post('/transport-applications', data),
+  track: (appNo, rollNo) => api.get(`/transport-applications/track/${appNo}`, { params: { rollNumber: rollNo } }),
+  getSummary: () => api.get('/transport-applications/summary'),
+  getAll: (params) => api.get('/transport-applications', { params }),
+  getById: (id) => api.get(`/transport-applications/${id}`),
+  updateStatus: (id, data) => api.patch(`/transport-applications/${id}/status`, data),
+  approve: (id, data) => api.post(`/transport-applications/${id}/approve`, data),
+  reject: (id, data) => api.post(`/transport-applications/${id}/reject`, data),
+  activateAccount: (id, data) => api.post(`/transport-applications/${id}/activate-account`, data),
+  getMy: () => api.get('/transport-applications/my'),
 }
 
 // Trip-scoped tracking
