@@ -8,7 +8,7 @@ import {
   updatePaymentStatus,
   processPaymentWebhook,
 } from '../controllers/paymentController.js';
-import { protect, authorize } from '../middlewares/auth.js';
+import { protect, authorize, requireApprovedStudent } from '../middlewares/auth.js';
 
 const router = Router();
 
@@ -17,6 +17,7 @@ router.post('/webhook', processPaymentWebhook);
 
 // Protected endpoints
 router.use(protect);
+router.use(requireApprovedStudent);
 
 router.get('/', authorize('ADMIN'), getAllPayments);
 router.get('/my', getMyPayments);

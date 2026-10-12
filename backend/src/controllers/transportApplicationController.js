@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import prisma from '../lib/prisma.js';
 import { AppError } from '../middlewares/errorHandler.js';
 import { serialize, serializeMany } from '../lib/serialize.js';
+import { verifyToken } from '../config/jwt.js';
 
 /**
  * Public metadata: provides actual routes and valid boarding stops from PostgreSQL
@@ -98,7 +99,19 @@ export const submitApplication = async (req, res, next) => {
       throw new AppError('You must accept the student declaration to proceed', 400);
     }
 
-    const cleanRoll = String(rollNumber).trim().toUpperCase();
+    let cleanRoll = String(rollNumber).trim().toUpperCase();
+
+    // Security check: If authenticated session is present, bind submission to authenticated student
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const decoded = verifyToken(authHeader.split(' ')[1]);
+        if (decoded?.rollNumber && decoded?.role === 'STUDENT') {
+          cleanRoll = String(decoded.rollNumber).trim().toUpperCase();
+        }
+      } catch {}
+    }
+
     const cleanRouteId = String(requestedRouteId).trim();
 
     // Verify route in PostgreSQL
@@ -124,6 +137,31 @@ export const submitApplication = async (req, res, next) => {
       throw new AppError(
         `Boarding point "${cleanBoarding}" is not valid for Route ${cleanRouteId}. Please pick a valid stop from the route.`,
         400
+      );
+    }
+
+    if (!/^[A-Z0-9]+$/i.test(cleanRoll)) {
+      throw new AppError('Roll number must contain alphanumeric characters only.', 400);
+    }
+
+    const cleanMobile = String(mobileNumber).trim().replace(/[^0-9]/g, '');
+    if (cleanMobile.length < 10 || cleanMobile.length > 12) {
+      throw new AppError('Student mobile number must be a valid 10-digit phone number.', 400);
+    }
+
+    const cleanGuardianMobile = String(guardianMobile).trim().replace(/[^0-9]/g, '');
+    if (cleanGuardianMobile.length < 10 || cleanGuardianMobile.length > 12) {
+      throw new AppError("Guardian's mobile number must be a valid 10-digit phone number.", 400);
+    }
+
+    // Check existing student database
+    const existingUser = await prisma.user.findFirst({
+      where: { rollNumber: { equals: cleanRoll, mode: 'insensitive' } },
+    });
+    if (existingUser && existingUser.transportFeePaid) {
+      throw new AppError(
+        `Roll number ${cleanRoll} already has an active, paid college transport registration. Duplicate applications are not permitted.`,
+        409
       );
     }
 
@@ -531,7 +569,7 @@ export const activateApplicantAccount = async (req, res, next) => {
       });
 
       return { user, application: updatedApp };
-    });
+    }, { timeout: 20000, maxWait: 10000 });
 
     const { passwordHash: _ph, ...safeUser } = result.user;
     res.json({
@@ -546,17 +584,93 @@ export const activateApplicantAccount = async (req, res, next) => {
 };
 
 /**
- * Authenticated Student: View own transport application
+ * Authenticated Student: Return authoritative application status directly from PostgreSQL
+ * Distinguishes between: NOT_SUBMITTED, PENDING, APPROVED, REJECTED
  */
-export const getMyApplication = async (req, res, next) => {
+export const getMyApplicationStatus = async (req, res, next) => {
   try {
-    const roll = req.user.rollNumber;
-    const applications = await prisma.transportApplication.findMany({
-      where: { rollNumber: roll },
+    const roll = String(req.user?.rollNumber || '').trim().toUpperCase();
+    if (!roll) throw new AppError('Unauthenticated session', 401);
+
+    const user = await prisma.user.findFirst({
+      where: { rollNumber: { equals: roll, mode: 'insensitive' } },
+    });
+
+    const application = await prisma.transportApplication.findFirst({
+      where: { rollNumber: { equals: roll, mode: 'insensitive' } },
       orderBy: { createdAt: 'desc' },
     });
 
-    res.json({ applications: serializeMany(applications) });
+    const isPaid = Boolean(
+      (user?.transportFeePaid && (user?.feeBalance == null || user?.feeBalance <= 0)) ||
+      (user?.feePaidAmount > 0 && user?.feeBalance <= 0)
+    );
+
+    let status = 'NOT_SUBMITTED';
+    let isApproved = false;
+    let hasApplied = false;
+
+    if (application) {
+      hasApplied = true;
+      status = application.status; // 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED'
+      isApproved = application.status === 'APPROVED' && Boolean(application.accountActivated);
+    } else if (isPaid) {
+      status = 'APPROVED';
+      isApproved = true;
+    }
+
+    res.json({
+      success: true,
+      status, // 'NOT_SUBMITTED' | 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED'
+      isApproved,
+      isPaid,
+      hasApplied,
+      accountActivated: Boolean(application?.accountActivated || user?.status?.toUpperCase() === 'ACTIVE'),
+      application: application ? serialize(application) : null,
+      user: user ? {
+        rollNumber: user.rollNumber,
+        name: user.name,
+        department: user.department,
+        year: user.year,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        transportFeePaid: isPaid,
+      } : null,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * Authenticated Student: View own transport applications list
+ */
+export const getMyApplication = async (req, res, next) => {
+  try {
+    const roll = String(req.user?.rollNumber || '').trim().toUpperCase();
+    if (!roll) throw new AppError('Unauthenticated session', 401);
+
+    const user = await prisma.user.findFirst({
+      where: { rollNumber: { equals: roll, mode: 'insensitive' } },
+    });
+
+    const applications = await prisma.transportApplication.findMany({
+      where: { rollNumber: { equals: roll, mode: 'insensitive' } },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const isPaid = Boolean(user?.transportFeePaid);
+    const hasApplied = applications.length > 0;
+    const status = hasApplied ? applications[0].status : (isPaid ? 'APPROVED' : 'NOT_SUBMITTED');
+
+    res.json({
+      success: true,
+      hasApplied,
+      status,
+      applications: serializeMany(applications),
+      latestApplication: hasApplied ? serialize(applications[0]) : null,
+    });
   } catch (err) {
     next(err);
   }

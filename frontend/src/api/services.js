@@ -143,6 +143,7 @@ export const transportApplicationService = {
   approve: (id, data) => api.post(`/transport-applications/${id}/approve`, data),
   reject: (id, data) => api.post(`/transport-applications/${id}/reject`, data),
   activateAccount: (id, data) => api.post(`/transport-applications/${id}/activate-account`, data),
+  getStatus: () => api.get('/transport-applications/status'),
   getMy: () => api.get('/transport-applications/my'),
 }
 

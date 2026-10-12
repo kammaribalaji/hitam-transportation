@@ -248,7 +248,7 @@ export const createBooking = async (req, res, next) => {
       });
 
       return newBooking;
-    });
+    }, { timeout: 20000, maxWait: 10000 });
 
     res.status(201).json(serialize(booking));
   } catch (err) {

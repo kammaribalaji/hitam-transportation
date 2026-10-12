@@ -11,6 +11,7 @@ import {
   rejectApplication,
   activateApplicantAccount,
   getMyApplication,
+  getMyApplicationStatus,
 } from '../controllers/transportApplicationController.js';
 import { protect, authorize } from '../middlewares/auth.js';
 
@@ -21,7 +22,8 @@ router.get('/meta', getPublicRoutesAndStops);
 router.post('/', submitApplication);
 router.get('/track/:applicationNo', getApplicationStatusPublic);
 
-// Authenticated student endpoint
+// Authenticated student endpoints
+router.get('/status', protect, getMyApplicationStatus);
 router.get('/my', protect, getMyApplication);
 
 // Admin endpoints

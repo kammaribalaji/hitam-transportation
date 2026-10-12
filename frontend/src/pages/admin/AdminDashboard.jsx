@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Line, Bar } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js'
-import { analyticsService, userService } from '../../api/services.js'
+import { analyticsService, userService, transportApplicationService } from '../../api/services.js'
 import { useAuth } from '../../hooks/useAuth.js'
 import {
   Users, Bus, TrendingUp, IndianRupee,
   AlertTriangle, UserCheck, ArrowUpRight,
-  ArrowDownRight, Calendar
+  ArrowDownRight, Calendar, FileText, CheckCircle2, Clock
 } from 'lucide-react'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend, Filler)
@@ -39,12 +39,16 @@ export default function AdminDashboard() {
   const [data, setData] = useState(null)
   const [revenue, setRevenue] = useState([])
   const [recentStudents, setRecentStudents] = useState([])
+  const [recentApplications, setRecentApplications] = useState([])
+  const [appSummary, setAppSummary] = useState(null)
   const today = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 
   useEffect(() => {
     analyticsService.getDashboard().then(r => setData(r.data)).catch(() => setData(null))
     analyticsService.getRevenue().then(r => setRevenue(r.data || [])).catch(() => {})
     userService.getAll({ role: 'STUDENT', limit: 5 }).then(r => setRecentStudents(r.data.users || [])).catch(() => {})
+    transportApplicationService.getAll({ limit: 5 }).then(r => setRecentApplications(r.data.applications || [])).catch(() => {})
+    transportApplicationService.getSummary().then(r => setAppSummary(r.data.summary || r.data.counts || null)).catch(() => {})
   }, [])
 
   const lineOpts = {
@@ -229,6 +233,91 @@ export default function AdminDashboard() {
                   />
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Transport Applications Review Section */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-green-50 rounded-lg text-[#40A047]">
+                  <FileText size={18} />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-gray-900">Transport Applications Review</h2>
+                  <p className="text-xs text-gray-500">
+                    {appSummary?.pending || 0} applications pending admin approval
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/admin/applications')}
+                className="text-xs bg-[#40A047] hover:bg-[#2d7a33] text-white font-bold px-3 py-1.5 rounded-lg transition shadow-sm"
+              >
+                Manage All Applications
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-100">
+                    {['App Reference', 'Student Name', 'Roll No.', 'Branch', 'Route & Boarding Stop', 'Submitted', 'Status'].map((h) => (
+                      <th
+                        key={h}
+                        className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentApplications.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="px-4 py-8 text-center text-xs text-gray-400">
+                        No transport applications on file yet.
+                      </td>
+                    </tr>
+                  ) : (
+                    recentApplications.map((app) => (
+                      <tr
+                        key={app.id || app.applicationNo}
+                        className="border-b border-gray-50 hover:bg-green-50/30 transition-colors"
+                      >
+                        <td className="px-4 py-3 text-xs font-mono font-bold text-gray-800">
+                          {app.applicationNo}
+                        </td>
+                        <td className="px-4 py-3 text-xs font-semibold text-gray-800 whitespace-nowrap">
+                          {app.fullName}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-gray-600 font-mono">{app.rollNumber}</td>
+                        <td className="px-4 py-3 text-xs text-gray-600">{app.branch}</td>
+                        <td className="px-4 py-3 text-xs text-gray-700 whitespace-nowrap">
+                          Route {app.requestedRouteId} • {app.requestedBoardingPoint}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
+                          {app.createdAt ? new Date(app.createdAt).toLocaleDateString('en-GB') : '—'}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                              app.status === 'APPROVED'
+                                ? 'bg-green-100 text-green-700'
+                                : app.status === 'REJECTED'
+                                ? 'bg-red-100 text-red-700'
+                                : app.status === 'UNDER_REVIEW'
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'bg-amber-100 text-amber-700'
+                            }`}
+                          >
+                            {app.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </>

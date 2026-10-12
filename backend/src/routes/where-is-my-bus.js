@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { protectFast } from '../middlewares/auth.js';
+import { protect, requireApprovedStudent } from '../middlewares/auth.js';
 import { 
   searchStops, 
   searchBuses, 
@@ -13,7 +13,8 @@ import {
 
 const router = Router();
 
-router.use(protectFast);
+router.use(protect);
+router.use(requireApprovedStudent);
 
 router.get('/stops/search', searchStops);
 router.get('/stops/destinations', getDestinations);

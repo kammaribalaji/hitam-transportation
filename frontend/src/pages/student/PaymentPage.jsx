@@ -69,30 +69,34 @@ export default function PaymentPage() {
       toast.error('Select a route first')
       return
     }
-    if (!activeBookingId && !selectedSeat) {
-      toast.error('Please choose your seat first')
-      navigate('/student/book-seat')
-      return
-    }
     setLoading(true)
     try {
       let bookingId = activeBookingId
 
       if (!bookingId) {
-        if (!selectedSeat) {
-          toast.error('Select a seat first')
-          return
+        let seatNum = selectedSeat
+        if (!seatNum) {
+          try {
+            const seatRes = await seatService.getByRoute(selectedRoute.id)
+            const avail = seatRes.data?.seats?.find(s => s.status === 'AVAILABLE')
+            seatNum = avail ? avail.id : 1
+            setSelectedSeat(seatNum)
+          } catch {
+            seatNum = 1
+          }
         }
+
         // 1) Reserve the seat + create the booking (Pending payment)
         const bookingRes = await bookingService.create({
           routeId: selectedRoute.id,
-          seatNumber: selectedSeat,
-          pickupPoint: selectedPickup,
+          seatNumber: seatNum,
+          pickupPoint: selectedPickup || selectedRoute.pickupPoint || 'HITAM Campus',
           paymentMethod: selectedMethod,
           busNumber: selectedRoute.busNumber,
           routeName: selectedRoute.name,
         })
         bookingId = bookingRes.data?.bookingId
+        setActiveBookingId(bookingId)
       }
 
       // 2) Record and verify the payment with server

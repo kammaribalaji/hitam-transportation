@@ -20,6 +20,7 @@ import BusResultsPage from './pages/student/BusResultsPage.jsx'
 import ContactsPage from './pages/student/ContactsPage.jsx'
 import NotificationsPage from './pages/student/NotificationsPage.jsx'
 import StudentProfilePage from './pages/student/StudentProfilePage.jsx'
+import ApplicationStatusPage from './pages/student/ApplicationStatusPage.jsx'
 
 // Driver pages
 import DriverLayout from './components/layout/DriverLayout.jsx'
@@ -75,15 +76,54 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 function AppRoutes() {
   const { user } = useAuth()
   const role = String(user?.role || 'STUDENT').toUpperCase()
+  const isPaid = Boolean(user?.transportFeePaid || user?.isPaidStudent)
+  const appStatus = String(user?.applicationStatus || (isPaid ? 'APPROVED' : 'NOT_SUBMITTED')).toUpperCase()
+  const isApproved = Boolean(user?.isApplicationApproved && (isPaid || appStatus === 'APPROVED'))
+
+  let studentDestination = '/student'
+  if (role === 'STUDENT') {
+    if (isPaid) {
+      studentDestination = '/student'
+    } else if (appStatus === 'NOT_SUBMITTED' || (!user?.hasSubmittedApplication && appStatus !== 'PENDING' && appStatus !== 'APPROVED' && appStatus !== 'REJECTED')) {
+      studentDestination = '/student/apply'
+    } else if (isApproved) {
+      studentDestination = '/student/find-bus'
+    } else {
+      studentDestination = '/student/application-status'
+    }
+  }
+
   return (
     <Routes>
-      <Route path="/login" element={!user ? <LoginPage /> : <Navigate to={role === 'ADMIN' ? '/admin' : role === 'DRIVER' ? '/driver' : user?.transportFeePaid ? '/student' : '/student/find-bus'} replace />} />
+      <Route
+        path="/login"
+        element={
+          !user ? (
+            <LoginPage />
+          ) : (
+            <Navigate
+              to={
+                role === 'ADMIN'
+                  ? '/admin'
+                  : role === 'DRIVER'
+                  ? '/driver'
+                  : studentDestination
+              }
+              replace
+            />
+          )
+        }
+      />
       <Route path="/transport-application" element={<TransportApplicationPage />} />
-      <Route path="/apply" element={<Navigate to="/transport-application" replace />} />
+      <Route path="/apply" element={user?.role === 'STUDENT' ? <Navigate to="/student/apply" replace /> : <TransportApplicationPage />} />
+      <Route path="/application-status" element={<Navigate to="/student/application-status" replace />} />
 
       {/* Student Routes */}
       <Route path="/student" element={<ProtectedRoute allowedRoles={['STUDENT', 'STAFF']}><StudentLayout /></ProtectedRoute>}>
         <Route index element={<StudentDashboard />} />
+        <Route path="apply" element={<TransportApplicationPage />} />
+        <Route path="application-status" element={<ApplicationStatusPage />} />
+        <Route path="status" element={<ApplicationStatusPage />} />
         <Route path="book-seat" element={<BookSeatPage />} />
         <Route path="payment" element={<PaymentPage />} />
         <Route path="my-pass" element={<MyPassPage />} />
@@ -91,6 +131,7 @@ function AppRoutes() {
         <Route path="where-is-my-bus" element={<WhereIsMyBusPage />} />
         <Route path="bus-results" element={<BusResultsPage />} />
         <Route path="tracking" element={<LiveTrackingPage />} />
+        <Route path="live-tracking" element={<LiveTrackingPage />} />
         <Route path="contacts" element={<ContactsPage />} />
         <Route path="notifications" element={<NotificationsPage />} />
         <Route path="profile" element={<StudentProfilePage />} />

@@ -1,4 +1,4 @@
-﻿export const errorHandler = (err, req, res, next) => {
+export const errorHandler = (err, req, res, next) => {
   console.error(err);
 
   // Friendly messages for common Prisma errors (unique violations, missing rows, connection/auth issues).
@@ -19,9 +19,15 @@
     return res.status(400).json({ message: 'Operation failed because a related record is referenced elsewhere.' });
   }
 
-  const status = err.statusCode || 500;
+  const status = err.statusCode || (typeof err.status === 'number' ? err.status : 500);
+  const isCustomError =
+    err instanceof AppError ||
+    err.name === 'AppError' ||
+    err.isOperational ||
+    (status >= 400 && status < 500);
+
   res.status(status).json({
-    message: err instanceof AppError ? err.message : 'Server error occurred. Please try again.',
+    message: isCustomError && err.message ? err.message : 'Server error occurred. Please try again.',
   });
 };
 
@@ -29,5 +35,7 @@ export class AppError extends Error {
   constructor(message, statusCode = 400) {
     super(message);
     this.statusCode = statusCode;
+    this.name = 'AppError';
+    this.isOperational = true;
   }
 }

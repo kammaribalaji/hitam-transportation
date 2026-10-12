@@ -20,8 +20,10 @@ import {
   Send,
   HelpCircle,
   Check,
+  Lock,
 } from 'lucide-react';
 import { transportApplicationService } from '../../api/services.js';
+import { useAuth } from '../../hooks/useAuth.js';
 
 const BRANCHES = [
   'Computer Science & Engineering (CSE)',
@@ -39,6 +41,9 @@ const ACADEMIC_YEARS = ['I Year (1st Year)', 'II Year (2nd Year)', 'III Year (3r
 
 export default function TransportApplicationPage() {
   const navigate = useNavigate();
+  const { user, refreshUser } = useAuth();
+  const isAuthenticatedStudent = user?.role === 'STUDENT';
+
   const [routes, setRoutes] = useState([]);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [boardingStops, setBoardingStops] = useState([]);
@@ -52,6 +57,13 @@ export default function TransportApplicationPage() {
   const [trackRoll, setTrackRoll] = useState('');
   const [trackingLoading, setTrackingLoading] = useState(false);
   const [trackedStatus, setTrackedStatus] = useState(null);
+
+  const hasExistingApp = Boolean(
+    isAuthenticatedStudent && (
+      user?.hasSubmittedApplication ||
+      (user?.applicationStatus && user?.applicationStatus !== 'NOT_SUBMITTED' && user?.applicationStatus !== 'NONE')
+    )
+  );
 
   const {
     register,
@@ -78,6 +90,19 @@ export default function TransportApplicationPage() {
   });
 
   const watchedRouteId = watch('requestedRouteId');
+
+  // Prefill authenticated student's verified profile data
+  useEffect(() => {
+    if (user && user.role === 'STUDENT') {
+      if (user.name) setValue('fullName', user.name);
+      if (user.rollNumber) setValue('rollNumber', user.rollNumber);
+      if (user.department) setValue('branch', user.department);
+      if (user.year) setValue('academicYear', user.year);
+      if (user.phone) setValue('mobileNumber', user.phone);
+      if (user.email) setValue('email', user.email);
+      if (user.address) setValue('address', user.address);
+    }
+  }, [user, setValue]);
 
   // Load real routes & stops from PostgreSQL
   useEffect(() => {
@@ -122,13 +147,17 @@ export default function TransportApplicationPage() {
   const onSubmit = async (formData) => {
     setSubmitting(true);
     try {
+      const activeRoll = (isAuthenticatedStudent && user?.rollNumber)
+        ? user.rollNumber.trim().toUpperCase()
+        : formData.rollNumber.trim().toUpperCase();
+
       const payload = {
         fullName: formData.fullName.trim(),
-        rollNumber: formData.rollNumber.trim().toUpperCase(),
+        rollNumber: activeRoll,
         branch: formData.branch,
         academicYear: formData.academicYear,
         mobileNumber: formData.mobileNumber.trim(),
-        email: formData.email ? formData.email.trim() : `${formData.rollNumber.trim().toLowerCase()}@hitam.edu.in`,
+        email: formData.email ? formData.email.trim() : `${activeRoll.toLowerCase()}@hitam.edu.in`,
         address: formData.address.trim(),
         requestedRouteId: String(formData.requestedRouteId).trim(),
         requestedBoardingPoint: String(formData.requestedBoardingPoint).trim(),
@@ -141,6 +170,14 @@ export default function TransportApplicationPage() {
       const res = await transportApplicationService.submit(payload);
       setSubmittedApp(res.data?.application);
       toast.success('Transport application submitted successfully!');
+
+      if (isAuthenticatedStudent && refreshUser) {
+        await refreshUser();
+        // Automatically navigate authenticated student to application status page
+        setTimeout(() => {
+          navigate('/student/application-status', { replace: true });
+        }, 1200);
+      }
     } catch (err) {
       const msg = err.response?.data?.message || 'Application submission failed. Please verify all details.';
       toast.error(msg);
@@ -311,6 +348,27 @@ export default function TransportApplicationPage() {
               </div>
             </div>
 
+            {hasExistingApp && (
+              <div className="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-5 text-amber-900 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle size={22} className="text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="text-sm font-bold text-amber-950">Active Transport Application on Record</h3>
+                    <p className="text-xs text-amber-800 mt-0.5">
+                      You already have a submitted application ({user?.applicationNo || 'On file'}) with status <span className="font-bold uppercase">{user?.applicationStatus}</span>. You do not need to re-apply.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate('/student/application-status')}
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition shadow-sm whitespace-nowrap self-stretch sm:self-auto cursor-pointer"
+                >
+                  View Application Status
+                </button>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* SECTION A: STUDENT INFORMATION */}
               <div className="bg-white rounded-2xl p-5 sm:p-7 border border-gray-100 shadow-sm space-y-4">
@@ -340,20 +398,37 @@ export default function TransportApplicationPage() {
 
                   {/* Roll Number */}
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                      Hall Ticket / Roll Number <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      {...register('rollNumber', {
-                        required: 'Roll number is required',
-                        pattern: {
-                          value: /^[A-Z0-9]+$/i,
-                          message: 'Must contain alphanumeric characters only',
-                        },
-                      })}
-                      placeholder="e.g. 24E51A0557"
-                      className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm uppercase focus:outline-none focus:ring-2 focus:ring-[#40A047]/30 focus:border-[#40A047] transition-all font-mono"
-                    />
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-bold text-gray-700">
+                        Hall Ticket / Roll Number <span className="text-red-500">*</span>
+                      </label>
+                      {isAuthenticatedStudent && (
+                        <span className="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded border border-green-200 flex items-center gap-1">
+                          <ShieldCheck size={11} /> Verified Account
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <input
+                        {...register('rollNumber', {
+                          required: 'Roll number is required',
+                          pattern: {
+                            value: /^[A-Z0-9]+$/i,
+                            message: 'Must contain alphanumeric characters only',
+                          },
+                        })}
+                        placeholder="e.g. 24E51A0557"
+                        readOnly={Boolean(isAuthenticatedStudent)}
+                        className={`w-full px-3.5 py-2.5 border rounded-xl text-sm uppercase focus:outline-none transition-all font-mono ${
+                          isAuthenticatedStudent
+                            ? 'bg-gray-100 text-gray-700 border-gray-200 cursor-not-allowed font-bold'
+                            : 'border-gray-200 focus:ring-2 focus:ring-[#40A047]/30 focus:border-[#40A047]'
+                        }`}
+                      />
+                      {isAuthenticatedStudent && (
+                        <Lock size={14} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                      )}
+                    </div>
                     {errors.rollNumber && <p className="text-red-500 text-xs mt-1">{errors.rollNumber.message}</p>}
                   </div>
 

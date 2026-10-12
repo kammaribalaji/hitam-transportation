@@ -36,6 +36,17 @@ export default function LoginPage() {
     }
   }
 
+  const getStudentDestination = (user) => {
+    const isPaid = Boolean(user.transportFeePaid || user.isPaidStudent)
+    const appStatus = String(user.applicationStatus || (isPaid ? 'APPROVED' : 'NOT_SUBMITTED')).toUpperCase()
+    const isApproved = Boolean(user.isApplicationApproved && (isPaid || appStatus === 'APPROVED'))
+
+    if (isPaid) return '/student'
+    if (appStatus === 'NOT_SUBMITTED') return '/student/apply'
+    if (isApproved) return '/student/find-bus'
+    return '/student/application-status'
+  }
+
   const handleQuickLogin = async (rollNumber, password, targetRole) => {
     setRole(targetRole)
     setValue('rollNumber', rollNumber)
@@ -46,10 +57,9 @@ export default function LoginPage() {
       toast.success(`Welcome back, ${user.name.split(' ')[0]}!`)
       if (user.role === 'ADMIN') navigate('/admin')
       else if (user.role === 'DRIVER') navigate('/driver')
-      else if (!user.transportFeePaid) navigate('/student/find-bus')
-      else navigate('/student')
+      else navigate(getStudentDestination(user))
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Invalid credentials.')
+      toast.error(err.response?.data?.message || err.message || 'Invalid credentials.')
     } finally {
       setLoading(false)
     }
@@ -62,10 +72,9 @@ export default function LoginPage() {
       toast.success(`Welcome back, ${user.name.split(' ')[0]}!`)
       if (user.role === 'ADMIN') navigate('/admin')
       else if (user.role === 'DRIVER') navigate('/driver')
-      else if (!user.transportFeePaid) navigate('/student/find-bus')
-      else navigate('/student')
+      else navigate(getStudentDestination(user))
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Invalid credentials.')
+      toast.error(err.response?.data?.message || err.message || 'Invalid credentials.')
     } finally {
       setLoading(false)
     }
