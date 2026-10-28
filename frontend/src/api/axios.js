@@ -1,15 +1,20 @@
 import axios from 'axios'
 
 // Extract base URL from .env (supports VITE_API_URL, VITE_BASE_URL, or VITE_BACKEND_URL)
-// Expected format: https://backend.vercel.app (WITHOUT /api suffix)
-const rawBase =
+const envBase =
   import.meta.env.VITE_API_URL ||
   import.meta.env.VITE_BASE_URL ||
   import.meta.env.VITE_BACKEND_URL ||
-  'http://localhost:5000'
+  ''
 
-const cleanBase = String(rawBase).trim().replace(/\/+$/, '')
-const baseURL = cleanBase.startsWith('http') ? `${cleanBase}/api` : cleanBase
+const cleanBase = String(envBase).trim().replace(/\/+$/, '')
+const isLocalhost = cleanBase.includes('localhost') || cleanBase.includes('127.0.0.1')
+// In production on Vercel, if VITE_API_URL was left pointing to localhost or empty, use relative '/api'
+const effectiveBase = (import.meta.env.PROD && isLocalhost) ? '' : cleanBase
+
+const baseURL = effectiveBase.startsWith('http')
+  ? (effectiveBase.endsWith('/api') ? effectiveBase : `${effectiveBase}/api`)
+  : '/api'
 
 const api = axios.create({
   baseURL,
