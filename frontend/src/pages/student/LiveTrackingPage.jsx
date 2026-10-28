@@ -30,6 +30,7 @@ import {
   Sunset,
   ArrowRightLeft,
   Gauge,
+  AlertTriangle,
 } from 'lucide-react'
 import { MapContainer, TileLayer, Polyline, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
@@ -466,9 +467,12 @@ export default function LiveTrackingPage() {
 
   const isBusOnline = useMemo(() => {
     if (!effectiveLiveLocation) return false
+    const lastPing = effectiveLiveLocation.lastPingAt || effectiveLiveLocation.updatedAt || effectiveLiveLocation.timestamp
+    const isOld = lastPing ? (Date.now() - new Date(lastPing).getTime()) > 2 * 60 * 1000 : false
     return (
-      (effectiveLiveLocation.status === 'online' || effectiveLiveLocation.status === 'LIVE' || effectiveLiveLocation.status === 'moving' || effectiveLiveLocation.speed > 0) &&
+      (effectiveLiveLocation.status === 'online' || effectiveLiveLocation.status === 'LIVE' || effectiveLiveLocation.status === 'moving' || (effectiveLiveLocation.speed && effectiveLiveLocation.speed > 0)) &&
       !effectiveLiveLocation.isStale &&
+      !isOld &&
       effectiveLiveLocation.latitude !== 0
     )
   }, [effectiveLiveLocation])
@@ -686,6 +690,21 @@ export default function LiveTrackingPage() {
                 </button>
               </div>
             </div>
+
+            {!isBusOnline && !isSimulating && (
+              <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center justify-between text-xs text-amber-900 font-medium">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle size={15} className="text-amber-600 shrink-0" />
+                  <span>GPS Standby: Vehicle tracker is idle or awaiting ignition. Showing route path and stops.</span>
+                </div>
+                <button
+                  onClick={() => fetchSelectedLocation(selectedRouteId)}
+                  className="text-[11px] font-bold text-amber-800 underline hover:text-amber-950 shrink-0 ml-2"
+                >
+                  Refresh GPS
+                </button>
+              </div>
+            )}
 
             <div className="relative" style={{ height: viewMode === 'SPLIT' ? '560px' : '500px' }}>
               <MapContainer

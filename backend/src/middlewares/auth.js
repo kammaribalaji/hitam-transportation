@@ -183,6 +183,19 @@ export const requireApprovedStudent = async (req, res, next) => {
       orderBy: { createdAt: 'desc' },
     });
 
+    // If user is already a verified paid or enrolled transport student, allow immediately
+    const isPaidOrVerified = Boolean(
+      user.transportFeePaid ||
+      user.isApplicationApproved ||
+      (user.feePaidAmount > 0 && (user.feeBalance == null || user.feeBalance <= 0))
+    );
+
+    if (isPaidOrVerified) {
+      req.dbUser = user;
+      req.application = application;
+      return next();
+    }
+
     if (application) {
       if (application.status === 'PENDING' || application.status === 'UNDER_REVIEW') {
         return res.status(403).json({

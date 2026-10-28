@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../api/axios.js';
 import { useAuth } from '../../hooks/useAuth.js';
 import { formatCurrency } from '../../utils/helpers.js';
+import { Skeleton } from '../../components/common/Skeleton.jsx';
 
 export default function BusResultsPage({
   inlineFromId,
@@ -198,14 +199,32 @@ export default function BusResultsPage({
       </div>
 
       <div className="max-w-4xl w-full p-4 sm:p-6 space-y-4">
-        {/* Loading State */}
+        {/* Loading State with Skeletons */}
         {isLoading ? (
-          <div className="bg-white rounded-3xl p-12 border border-gray-100 shadow-sm flex flex-col items-center justify-center my-6 text-center">
-            <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin mb-4" />
-            <h3 className="text-base font-bold text-gray-800">Searching Available Buses</h3>
-            <p className="text-xs text-gray-500 mt-1 max-w-sm">
-              Checking active routes, stop sequences, and seat availability in PostgreSQL...
-            </p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <Skeleton className="w-32 h-4" />
+              <Skeleton className="w-20 h-4" />
+            </div>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 sm:p-6 space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex gap-4 items-center">
+                    <Skeleton className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl" />
+                    <div className="space-y-2">
+                      <Skeleton className="w-28 sm:w-36 h-5" />
+                      <Skeleton className="w-40 sm:w-56 h-3" />
+                    </div>
+                  </div>
+                  <Skeleton className="w-16 sm:w-20 h-6 sm:h-8 rounded-lg" />
+                </div>
+                <Skeleton className="w-full h-8 rounded-xl" />
+                <div className="flex gap-3 pt-1">
+                  <Skeleton className="flex-1 h-11 rounded-xl" />
+                  <Skeleton className="flex-1 h-11 rounded-xl" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : error ? (
           /* Error State (Distinct from empty results!) */

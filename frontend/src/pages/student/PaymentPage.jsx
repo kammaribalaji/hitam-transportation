@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
-import { bookingService, paymentService, routeService } from '../../api/services.js'
+import { bookingService, paymentService, routeService, seatService } from '../../api/services.js'
 import { useAuth } from '../../hooks/useAuth.js'
 import { formatCurrency } from '../../utils/helpers.js'
 import { CheckCircle, Bus, MapPin, Clock, Wallet, CreditCard, Building, QrCode } from 'lucide-react'
@@ -30,6 +30,17 @@ export default function PaymentPage() {
   const [selectedSeat, setSelectedSeat] = useState(stateData.selectedSeat || stateData.pendingSeat || null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) return resolve(true)
+      const script = document.createElement('script')
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+      script.onload = () => resolve(true)
+      script.onerror = () => resolve(false)
+      document.body.appendChild(script)
+    })
+  }
 
   useEffect(() => {
     routeService.getAll()
@@ -99,10 +110,63 @@ export default function PaymentPage() {
         setActiveBookingId(bookingId)
       }
 
-      // 2) Record and verify the payment with server
+      // 2) If Razorpay key is provided, initiate order & trigger Razorpay checkout
+      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID
+      if (razorpayKey) {
+        const loaded = await loadRazorpayScript()
+        if (loaded && window.Razorpay) {
+          const initRes = await paymentService.initiate({
+            bookingId,
+            routeId: selectedRoute.id,
+            method: selectedMethod,
+          })
+          const order = initRes.data?.order
+          const payAmount = initRes.data?.amountDue || selectedRoute.feeAmount
+
+          const rzp = new window.Razorpay({
+            key: razorpayKey,
+            amount: payAmount * 100,
+            currency: 'INR',
+            name: 'HITAM Transport',
+            description: `Annual Bus Pass - Route ${selectedRoute.id}`,
+            order_id: order?.transactionRef?.startsWith('order_') ? order.transactionRef : undefined,
+            prefill: {
+              name: user?.name || '',
+              email: user?.email || '',
+              contact: user?.phone || '',
+            },
+            theme: { color: '#40A047' },
+            handler: async (response) => {
+              try {
+                await paymentService.verify({
+                  paymentId: order.paymentId,
+                  transactionRef: response.razorpay_payment_id || response.razorpay_order_id,
+                  method: selectedMethod,
+                  status: 'PAID',
+                })
+                if (refreshUser) await refreshUser()
+                setSuccess(true)
+                toast.success('Payment verified! Annual pass confirmed.')
+              } catch (verifyErr) {
+                toast.error(verifyErr.response?.data?.message || 'Payment verification failed.')
+              }
+            },
+            modal: {
+              ondismiss: () => {
+                toast('Payment window closed.')
+                setLoading(false)
+              },
+            },
+          })
+          rzp.open()
+          return
+        }
+      }
+
+      // 3) Standard / Sandbox verified payment flow
       await paymentService.create({ bookingId, method: selectedMethod, amount: selectedRoute.feeAmount })
 
-      // 3) Re-fetch verified database state from backend to unlock full student access
+      // Re-fetch verified database state from backend to unlock full student access
       if (refreshUser) {
         await refreshUser()
       } else if (updateUser) {

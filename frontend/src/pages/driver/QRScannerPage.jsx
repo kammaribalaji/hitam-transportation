@@ -53,6 +53,27 @@ export default function QRScannerPage() {
     lastScanRef.current = ''
   }
 
+  const playScanFeedback = (isError = false) => {
+    try {
+      if ('vibrate' in navigator) {
+        navigator.vibrate(isError ? [200, 100, 200] : [100, 50, 100])
+      }
+      const AudioContext = window.AudioContext || window.webkitAudioContext
+      if (!AudioContext) return
+      const ctx = new AudioContext()
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = isError ? 'sawtooth' : 'sine'
+      osc.frequency.setValueAtTime(isError ? 220 : 880, ctx.currentTime)
+      gain.gain.setValueAtTime(0.2, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start()
+      osc.stop(ctx.currentTime + 0.2)
+    } catch (_) {}
+  }
+
   // Camera scan -> verify pass against PostgreSQL
   const verifyQR = async (rawValue) => {
     if (verifyingRef.current || paused) return
@@ -60,8 +81,10 @@ export default function QRScannerPage() {
     try {
       const r = await passengerService.scanQR(rawValue)
       const { passenger, qrStatus, seatFromQr, seatMismatch } = r.data
+      playScanFeedback(false)
       openVerify(passenger, { status: qrStatus || '', seatFromQr, seatMismatch })
     } catch (err) {
+      playScanFeedback(true)
       toast.error(err.response?.data?.message || 'Pass not recognized. Try again.')
       lastScanRef.current = ''
       setPaused(false)

@@ -377,7 +377,7 @@ export default function LiveNavigationPage() {
                 {statusUi.label}
               </span>
             </div>
-            <p className="text-xs text-gray-500 mt-0.5">Driver Portal � {route?.busNumber || 'Fleet Vehicle'} � {stops.length} Stops</p>
+            <p className="text-xs text-gray-500 mt-0.5">Driver Portal · {route?.busNumber || 'Fleet Vehicle'} · {stops.length} Stops</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -496,7 +496,7 @@ export default function LiveNavigationPage() {
                   <Popup>
                     <div className="text-xs space-y-1">
                       <p className="font-bold text-gray-900">{route?.busNumber || 'Bus'}</p>
-                      <p className="text-[#40A047] font-semibold">Route {selectedRouteId} � Speed: {displaySpeed} km/h</p>
+                      <p className="text-[#40A047] font-semibold">Route {selectedRouteId} · Speed: {displaySpeed} km/h</p>
                     </div>
                   </Popup>
                 </AnimatedBusMarker>
@@ -513,7 +513,7 @@ export default function LiveNavigationPage() {
               {busPosition && distToNext != null ? (
                 <div>
                   <p className="text-xs font-bold">{distToNext} km to {nextStopName}</p>
-                  <p className="text-[11px] text-gray-300">Arriving ~{etaMins} mins � {displaySpeed} km/h</p>
+                  <p className="text-[11px] text-gray-300">Arriving ~{etaMins} mins · {displaySpeed} km/h</p>
                 </div>
               ) : (
                 <div>

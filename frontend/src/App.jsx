@@ -4,9 +4,10 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { useAuth } from './hooks/useAuth.js'
 
-// Auth
+// Auth & Public
 import LoginPage from './pages/auth/LoginPage.jsx'
 import TransportApplicationPage from './pages/public/TransportApplicationPage.jsx'
+import NotFoundPage from './pages/public/NotFoundPage.jsx'
 
 // Student pages
 import StudentLayout from './components/layout/StudentLayout.jsx'
@@ -171,7 +172,7 @@ function AppRoutes() {
       </Route>
 
       <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }

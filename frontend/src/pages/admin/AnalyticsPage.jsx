@@ -51,7 +51,7 @@ export default function AnalyticsPage() {
   }
 
   const ENROLLMENT_DATA = {
-    labels: routes.map(r => r.id),
+    labels: routes.map(r => r.name ? r.name.replace(/^Route\s*/i, 'R') : `R${r.id}`),
     datasets: [
       { label: 'Total Seats', data: routes.map(r => r.totalSeats), backgroundColor: '#e5e7eb', borderRadius: 6 },
       { label: 'Booked', data: routes.map(r => r.bookedSeats), backgroundColor: '#40A047', borderRadius: 6 },
@@ -63,13 +63,51 @@ export default function AnalyticsPage() {
     datasets: [{ data: deptData.values, backgroundColor: DEPT_COLORS, borderWidth: 0 }]
   }
 
+  const exportReport = () => {
+    try {
+      const rows = [
+        ['HITAM Transport Management System - Analytics Summary'],
+        ['Generated At', new Date().toLocaleString('en-IN')],
+        [],
+        ['Metric', 'Value'],
+        ['Total Students Enrolled', dash?.totalStudents || 0],
+        ['Total Fleet Buses', dash?.totalBuses || 0],
+        ['Total Active Bookings', dash?.totalBookings || 0],
+        ['Paid Passes', dash?.paidBookings || 0],
+        ['Total Revenue (INR)', dash?.totalRevenue || 0],
+        ['Trips Count', dash?.totalTrips || 0],
+        ['Open Grievances', dash?.openComplaints || 0],
+        [],
+        ['Route ID', 'Route Name', 'Total Seats', 'Booked Seats', 'Occupancy (%)'],
+        ...routes.map(r => [
+          r.id,
+          `"${r.name || `Route ${r.id}`}"`,
+          r.totalSeats || 40,
+          r.bookedSeats || 0,
+          `${r.totalSeats > 0 ? Math.round(((r.bookedSeats || 0) / r.totalSeats) * 100) : 0}%`
+        ])
+      ]
+      const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.join(',')).join('\n')
+      const encodedUri = encodeURI(csvContent)
+      const link = document.createElement('a')
+      link.setAttribute('href', encodedUri)
+      link.setAttribute('download', `HITAM_Transport_Report_${new Date().toISOString().slice(0, 10)}.csv`)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      toast.success('Analytics CSV report downloaded!')
+    } catch {
+      toast.error('Failed to export report.')
+    }
+  }
+
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
       <PageHeader title="Analytics" subtitle="Transport system performance insights"
         actions={
-          <button onClick={() => toast.success('Report generated!')}
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
-            <Download size={14} /> Export Report
+          <button onClick={exportReport}
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
+            <Download size={14} /> Export Report (CSV)
           </button>
         }
       />

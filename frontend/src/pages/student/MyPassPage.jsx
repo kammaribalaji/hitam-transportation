@@ -6,21 +6,56 @@ import { bookingService } from '../../api/services.js'
 import { useAuth } from '../../hooks/useAuth.js'
 import QRCode from '../../components/common/QRCode.jsx'
 import { formatCurrency, isPassPaid } from '../../utils/helpers.js'
-import { Download, CheckCircle, Bus, User, QrCode } from 'lucide-react'
+import { Download, CheckCircle, Bus, User, QrCode, WifiOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function MyPassPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [pass, setPass] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [pass, setPass] = useState(() => {
+    try {
+      const cached = localStorage.getItem('hitam_cached_pass')
+      return cached ? JSON.parse(cached) : null
+    } catch (_) {
+      return null
+    }
+  })
+  const [isCached, setIsCached] = useState(false)
+  const [loading, setLoading] = useState(() => {
+    try {
+      return !localStorage.getItem('hitam_cached_pass')
+    } catch (_) {
+      return true
+    }
+  })
   const [downloading, setDownloading] = useState(false)
   const passRef = useRef(null)
 
   useEffect(() => {
     bookingService.getMy()
-      .then(r => setPass(r.data || null))
-      .catch(() => setPass(null))
+      .then(r => {
+        if (r.data) {
+          setPass(r.data)
+          setIsCached(false)
+          try {
+            localStorage.setItem('hitam_cached_pass', JSON.stringify(r.data))
+            localStorage.setItem('hitam_cached_pass_time', new Date().toISOString())
+          } catch (_) {}
+        }
+      })
+      .catch(() => {
+        try {
+          const cached = localStorage.getItem('hitam_cached_pass')
+          if (cached) {
+            setPass(JSON.parse(cached))
+            setIsCached(true)
+          } else {
+            setPass(null)
+          }
+        } catch (_) {
+          setPass(null)
+        }
+      })
       .finally(() => setLoading(false))
   }, [user])
 
@@ -79,7 +114,15 @@ export default function MyPassPage() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5 max-w-2xl mx-auto">
-      <h1 className="text-xl font-bold text-gray-900">My Digital Bus Pass</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-bold text-gray-900">My Digital Bus Pass</h1>
+        {isCached && (
+          <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-full text-xs font-bold">
+            <WifiOff size={13} className="text-amber-600" />
+            Offline Pass (Saved)
+          </span>
+        )}
+      </div>
 
       {/* Pass card */}
       <div ref={passRef} className="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
